@@ -565,6 +565,3 @@ export default {
     }
   }
 </style>
-
-
-
