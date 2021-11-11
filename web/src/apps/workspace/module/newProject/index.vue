@@ -11,7 +11,7 @@
               v-for="item in sortTypeList"
               :name="item.value"
               :key="item.value"
-              >{{ item.lable }}</DropdownItem
+            >{{ item.lable }}</DropdownItem
             >
           </DropdownMenu>
         </Dropdown>
