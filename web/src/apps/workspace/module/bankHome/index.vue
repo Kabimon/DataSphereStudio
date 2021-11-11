@@ -42,7 +42,7 @@
                       size="large"
                       icon="md-settings"
                       @click="setting = !setting"
-                      >{{ $t("message.workspace.home.setting") }}</Button
+                    >{{ $t("message.workspace.home.setting") }}</Button
                     >
                   </div>
                   <div class="setting-bt-wrap" v-else>
@@ -51,7 +51,7 @@
                       size="large"
                       icon="md-settings"
                       @click="setting = !setting"
-                      >{{ $t("message.workspace.home.exit") }}</Button
+                    >{{ $t("message.workspace.home.exit") }}</Button
                     >
                   </div>
                 </h3>
@@ -135,7 +135,7 @@
               v-for="item in types"
               :value="`${item.id}`"
               :key="`${item.id}`"
-              >{{ item.title }}</Option
+            >{{ item.title }}</Option
             >
           </Select>
         </FormItem>
@@ -150,7 +150,7 @@
               :value="`${item.id}`"
               :key="`${item.id}`"
               :disabled="item.had || !item.active"
-              >{{ item.title }}</Option
+            >{{ item.title }}</Option
             >
           </Select>
         </FormItem>
