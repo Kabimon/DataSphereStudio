@@ -237,7 +237,7 @@
                 "publishFailed": "发布失败",
                 "infoTitle": "欢迎信息",
                 "infoHeader": "欢迎来到 DataSphere Studio !",
-                "infoBodyFirstRow": "DataSphere Studio是微众银行大数据平台——WeDataSphere，自研的一站式数据应用开发管理门户。",
+                "infoBodyFirstRow": "DataSphere Studio是大数据平台——WeDataSphere，自研的一站式数据应用开发管理门户。",
                 "infoBodySecondRow": "基于Linkis计算中间件构建，可轻松整合上层各数据应用系统，让数据应用开发变得简洁又易用。",
                 "appTitle": "应用导航",
                 "applicationStudio": "业务应用开发",
