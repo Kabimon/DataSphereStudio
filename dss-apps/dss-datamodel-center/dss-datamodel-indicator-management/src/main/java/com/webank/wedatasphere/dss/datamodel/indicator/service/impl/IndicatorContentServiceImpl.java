@@ -66,4 +66,19 @@ public class IndicatorContentServiceImpl extends ServiceImpl<DssDatamodelIndicat
     public int deleteByIndicatorId(Long id) throws ErrorException {
         return getBaseMapper().delete(Wrappers.<DssDatamodelIndicatorContent>lambdaQuery().eq(DssDatamodelIndicatorContent::getIndicatorId, id));
     }
+
+
+    @Override
+    public int sourceInfoReference(String name) {
+
+        return getBaseMapper().selectCount(
+                Wrappers.<DssDatamodelIndicatorContent>lambdaQuery()
+                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\""+ name + "\"")
+                        .or()
+                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\""+ name + ",")
+                        .or()
+                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,","+ name + ",")
+                        .or()
+                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,","+ name + "\""));
+    }
 }
