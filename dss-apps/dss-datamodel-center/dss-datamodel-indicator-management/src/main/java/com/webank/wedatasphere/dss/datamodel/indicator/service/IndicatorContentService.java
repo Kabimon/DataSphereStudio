@@ -43,4 +43,13 @@ public interface IndicatorContentService extends IService<DssDatamodelIndicatorC
      * @throws ErrorException
      */
     int deleteByIndicatorId(Long id)throws ErrorException;
+
+
+    /**
+     * 校验indicator引用情况
+     * @param name
+     * @return
+     * @throws ErrorException
+     */
+    int sourceInfoReference(String name);
 }
