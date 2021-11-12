@@ -1,29 +1,40 @@
 <template>
   <div>
     <h3 class="item-header">
-      <span >{{$t('message.Project.AppDevProcess')}}</span>
+      <span>{{ $t("message.Project.AppDevProcess") }}</span>
     </h3>
     <div class="list-content">
-      <div class="list-item-bar" v-for="(item, index) in appDevProcess" :key="item.id">
-        <div  class="list-item">
-          <SvgIcon class="status-icon" :icon-class="item.icon"/>
-          <div class="title">{{item.dicName}}</div>
-          <p class="desc">{{item.dicValue}}</p>
-          <Button class="link" @click="openTab(item.url)">{{item.title}}</Button>
+      <div
+        class="list-item-bar"
+        v-for="(item, index) in appDevProcess"
+        :key="item.id"
+      >
+        <div class="list-item">
+          <SvgIcon class="status-icon" :icon-class="item.icon" />
+          <div class="title">{{ item.dicName }}</div>
+          <p class="desc">{{ item.dicValue }}</p>
+          <Button class="link" @click="openTab(item.url)">{{
+            item.title
+          }}</Button>
         </div>
-        <SvgIcon :key="item.id" v-if="index !== appDevProcess.length - 1" class="icon-item" icon-class="right-ar"/>
+        <SvgIcon
+          :key="item.id"
+          v-if="index !== appDevProcess.length - 1"
+          class="icon-item"
+          icon-class="right-ar"
+        />
       </div>
     </div>
   </div>
 </template>
 <script>
-import util from '@/common/util';
-import { GetDicList } from '@/common/service/apiCommonMethod.js';
+import util from "@/common/util";
+import { GetDicList } from "@/common/service/apiCommonMethod.js";
 export default {
-  data(){
+  data() {
     return {
-      appDevProcess: []
-    }
+      appDevProcess: [],
+    };
   },
   created() {
     this.getData();
@@ -33,27 +44,27 @@ export default {
     getData() {
       const params = {
         parentKey: "w_develop_process",
-        workspaceId: this.$route.query.workspaceId
-      }
+        workspaceId: this.$route.query.workspaceId,
+      };
       GetDicList(params).then((res) => {
         this.appDevProcess = res.list;
-      })
+      });
     },
     openTab(url) {
       util.windowOpen(url);
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-@import '@/common/style/variables.scss';
+@import "@/common/style/variables.scss";
 .item-header {
   margin-bottom: 20px;
   font-size: $font-size-large;
   font-weight: bold;
   &::before {
-    content: '';
+    content: "";
     padding-right: 12px;
     border-left: 3px solid $primary-color;
   }
@@ -91,7 +102,7 @@ export default {
       }
       &:hover {
         transform: translateY(-5px);
-        transition: transform .2s linear;
+        transition: transform 0.2s linear;
         box-shadow: 0 2px 12px 0 $shadow-color;
         .status-icon {
           margin-top: 0;
@@ -100,7 +111,7 @@ export default {
           display: block;
         }
         .title {
-          color:$primary-color;
+          color: $primary-color;
         }
       }
     }
