@@ -1,29 +1,31 @@
 <template>
   <div>
     <div class="layout-header">
-      <div
-        class="layout-header-menu-icon"
-      >
+      <div class="layout-header-menu-icon">
         <div class="logo" @click.stop="goHome">
           <img
             class="logo-img"
             src="../../assets/images/dssLogo5_1.png"
             :alt="$t('message.common.logoName')"
-          >
-          <span class="version">{{sysVersion}}</span>
+          />
+          <span class="version">{{ sysVersion }}</span>
         </div>
       </div>
 
       <div
         v-clickoutside="handleOutsideClick"
-        :class="{'selected': isUserMenuShow}"
+        :class="{ selected: isUserMenuShow }"
         class="user"
         @click="handleUserClick"
       >
         <span>{{ userName }}</span>
-        <Icon v-show="!isUserMenuShow" type="ios-arrow-down" class="user-icon"/>
-        <Icon v-show="isUserMenuShow" type="ios-arrow-up" class="user-icon"/>
-        <userMenu v-show="isUserMenuShow" @clear-session="clearSession"/>
+        <Icon
+          v-show="!isUserMenuShow"
+          type="ios-arrow-down"
+          class="user-icon"
+        />
+        <Icon v-show="isUserMenuShow" type="ios-arrow-up" class="user-icon" />
+        <userMenu v-show="isUserMenuShow" @clear-session="clearSession" />
       </div>
       <div class="icon-group">
         <Icon
@@ -42,13 +44,13 @@ import { isEmpty } from "lodash";
 import storage from "@/common/helper/storage";
 import userMenu from "./userMenu.vue";
 import clickoutside from "@/common/helper/clickoutside";
-import mixin from '@/common/service/mixin';
-import util from '@/common/util';
-import { GetBaseInfo } from '@/common/service/apiCommonMethod.js';
+import mixin from "@/common/service/mixin";
+import util from "@/common/util";
+import { GetBaseInfo } from "@/common/service/apiCommonMethod.js";
 
 export default {
   directives: {
-    clickoutside
+    clickoutside,
   },
   components: {
     userMenu,
@@ -65,16 +67,13 @@ export default {
   },
   mixins: [mixin],
   created() {
-    this.init()
+    this.init();
   },
-  mounted() {
-
-  },
-  computed: {
-  },
+  mounted() {},
+  computed: {},
   methods: {
     init() {
-      GetBaseInfo().then(rst => {
+      GetBaseInfo().then((rst) => {
         if (!isEmpty(rst)) {
           this.userName = rst.username;
           storage.set("baseInfo", rst, "local");
@@ -108,7 +107,7 @@ export default {
     goHome() {
       this.$router.push("/newhome");
     },
-  }
+  },
 };
 </script>
 <style lang="scss" scoped src="./index.scss"></style>
