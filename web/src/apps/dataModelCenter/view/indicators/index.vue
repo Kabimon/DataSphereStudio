@@ -68,6 +68,7 @@
         <Button
           size="small"
           @click="handleEdit(row.id)"
+          :disabled="!row.isAvailable"
           style="margin-right: 5px"
         >
           编辑
@@ -128,8 +129,8 @@ import {
   getIndicators,
   switcIndicatorsStatus,
   delIndicators,
-} from "../../service/api";
-import formatDate from "../../utils/formatDate";
+} from "@dataModelCenter/service/api";
+import formatDate from "@dataModelCenter/utils/formatDate";
 import EditModal from "./editModal.vue";
 import VersionListModal from "./versionListModal.vue";
 import ShowVersionModal from "./showVersionModal.vue";

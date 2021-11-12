@@ -149,14 +149,24 @@ export default {
         name: [
           {
             required: true,
-            message: "统计周期名称必填",
+            message: "名称必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持中文，下划线，数字",
+            pattern: /^[0-9_\u4e00-\u9fa5]+$/g,
             trigger: "submit",
           },
         ],
         enName: [
           {
             required: true,
-            message: "英文缩写必填",
+            message: "英文名必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持英文，下划线，数字",
+            pattern: /^[a-zA-Z0-9_]+$/g,
             trigger: "submit",
           },
         ],

@@ -78,13 +78,13 @@ import {
   getMeasuresById,
   getThemesList,
 } from "@dataModelCenter/service/api";
-import storage from "@/common/helper/storage";
-let userName = storage.get("baseInfo", "local").username;
+import mixin from "@/common/service/mixin";
 export default {
   model: {
     prop: "_visible",
     event: "_changeVisible",
   },
+  mixins: [mixin],
   props: {
     // 是否可见
     _visible: {
@@ -112,7 +112,7 @@ export default {
       formState: {
         name: "",
         fieldIdentifier: "",
-        owner: userName,
+        owner: this.getUserName(),
         comment: "",
         formula: "",
         warehouseThemeName: "",
@@ -124,7 +124,12 @@ export default {
         name: [
           {
             required: true,
-            message: "维度名称必填",
+            message: "名称必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持中文，下划线，数字",
+            pattern: /^[0-9_\u4e00-\u9fa5]+$/g,
             trigger: "submit",
           },
         ],
@@ -132,6 +137,11 @@ export default {
           {
             required: true,
             message: "标识符必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持英文，下划线，数字",
+            pattern: /^[a-zA-Z0-9_]+$/g,
             trigger: "submit",
           },
         ],

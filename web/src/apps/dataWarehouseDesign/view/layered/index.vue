@@ -97,6 +97,7 @@
           <Button
             size="small"
             style="margin-right: 5px"
+            :disabled="!row.isAvailable"
             @click="handleEdit(1, row.id)"
           >
             编辑
