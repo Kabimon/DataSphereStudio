@@ -17,6 +17,9 @@
       <FormItem label="修饰词类别" prop="typeName">
         <Input v-model="formState.typeName" placeholder="建议为中文名" />
       </FormItem>
+      <FormItem label="英文名" prop="typeEnName">
+        <Input v-model="formState.typeEnName" placeholder="英文名"></Input>
+      </FormItem>
       <FormItem label="描述" prop="description">
         <Input
           type="textarea"
@@ -189,10 +192,23 @@ export default {
             trigger: "submit",
           },
         ],
+        typeEnName: [
+          {
+            required: true,
+            message: "英文名必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持英文，下划线，数字",
+            pattern: /^[a-zA-Z0-9_]+$/g,
+            trigger: "submit",
+          },
+        ],
       },
       // 表单数据
       formState: {
         typeName: "",
+        typeEnName: "",
         description: "",
         layerId: "",
         themeDomainId: "",

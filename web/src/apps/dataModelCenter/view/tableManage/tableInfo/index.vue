@@ -273,7 +273,7 @@
       </div>
       <template v-slot:footer>
         <div>
-          <Button type="primary" @click="copy"> 复制 </Button>
+          <Button type="primary" @click="handleCopy"> 复制 </Button>
         </div>
       </template>
     </Modal>
@@ -611,7 +611,7 @@ export default {
       this.collectList = list;
     },
     // 复制
-    copy(e) {
+    handleCopy(e) {
       handleClipboard(fomatSqlForCopy(this.selectSqlCfg.sql), e);
     },
   },
