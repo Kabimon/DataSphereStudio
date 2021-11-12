@@ -2,18 +2,23 @@ package com.webank.wedatasphere.dss.datamodel.indicator.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ErrorCode;
 import com.webank.wedatasphere.dss.datamodel.center.common.exception.DSSDatamodelCenterException;
 import com.webank.wedatasphere.dss.datamodel.indicator.dao.DssDatamodelIndicatorVersionMapper;
 import com.webank.wedatasphere.dss.datamodel.indicator.dto.IndicatorVersionDTO;
+import com.webank.wedatasphere.dss.datamodel.indicator.entity.DssDatamodelIndicatorContent;
 import com.webank.wedatasphere.dss.datamodel.indicator.entity.DssDatamodelIndicatorVersion;
 import com.webank.wedatasphere.dss.datamodel.indicator.service.IndicatorVersionService;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
+import java.util.List;
 
 
 @Service
@@ -43,13 +48,16 @@ public class IndicatorVersionServiceImpl extends ServiceImpl<DssDatamodelIndicat
 
     @Override
     public String findLastVersion(String name) {
+        PageHelper.clearPage();
+        PageHelper.startPage(1,1);
         //查询当前指标名称最大版本
-        DssDatamodelIndicatorVersion lastVersion = getBaseMapper().selectOne(
+        PageInfo<DssDatamodelIndicatorVersion> pageInfo = new PageInfo<>(getBaseMapper().selectList(
                 Wrappers.<DssDatamodelIndicatorVersion>lambdaQuery()
                         .eq(DssDatamodelIndicatorVersion::getName, name)
-                        .orderByDesc(DssDatamodelIndicatorVersion::getVersion));
+                        .orderByDesc(DssDatamodelIndicatorVersion::getVersion)));
 
-        return lastVersion != null ? lastVersion.getVersion() : null;
+        List<DssDatamodelIndicatorVersion> list = pageInfo.getList();
+        return !CollectionUtils.isEmpty(list) ? list.get(0).getVersion() : null;
     }
 
 
@@ -59,5 +67,19 @@ public class IndicatorVersionServiceImpl extends ServiceImpl<DssDatamodelIndicat
                 Wrappers.<DssDatamodelIndicatorVersion>lambdaQuery()
                         .eq(DssDatamodelIndicatorVersion::getName, name)
                         .eq(DssDatamodelIndicatorVersion::getVersion, version));
+    }
+
+
+    @Override
+    public int contentReferenceCount(String context) {
+        return getBaseMapper().selectCount(
+                Wrappers.<DssDatamodelIndicatorVersion>lambdaQuery()
+                        .like(DssDatamodelIndicatorVersion::getVersionContext,"\""+ context + "\"")
+                        .or()
+                        .like(DssDatamodelIndicatorVersion::getVersionContext,"\""+ context + ",")
+                        .or()
+                        .like(DssDatamodelIndicatorVersion::getVersionContext,","+ context + ",")
+                        .or()
+                        .like(DssDatamodelIndicatorVersion::getVersionContext,","+ context + "\""));
     }
 }
