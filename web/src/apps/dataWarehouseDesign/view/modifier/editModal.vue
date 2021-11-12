@@ -183,6 +183,11 @@ export default {
             message: "修饰词类别必填",
             trigger: "submit",
           },
+          {
+            message: "仅支持中文，下划线，数字",
+            pattern: /^[0-9_\u4e00-\u9fa5]+$/g,
+            trigger: "submit",
+          },
         ],
       },
       // 表单数据

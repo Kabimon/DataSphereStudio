@@ -37,6 +37,7 @@
         <Button
           size="small"
           @click="handleEdit(row.id)"
+          :disabled="!row.isAvailable"
           style="margin-right: 5px"
         >
           编辑

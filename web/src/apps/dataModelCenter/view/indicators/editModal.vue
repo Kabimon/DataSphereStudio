@@ -93,7 +93,7 @@
             <SelectPage
               v-model="formState._sourceInfo.info_0.measure"
               searchMode
-              placeholder="关联度量"
+              placeholder="请选择度量"
               :fetch="handleGetMeasures"
             />
           </FormItem>
@@ -102,7 +102,7 @@
           <FormItem label="计算公式" prop="_sourceInfo.info_0.formula">
             <Input
               v-model="formState._sourceInfo.info_0.formula"
-              placeholder="计算公式"
+              placeholder="请输入计算公式，如：sum(度量名)"
             >
             </Input>
           </FormItem>
@@ -110,10 +110,11 @@
         <Col :span="24">
           <FormItem label="指定维度" prop="_sourceInfo.info_0.dimension">
             <SelectPage
+              searchMode
               multiple
               :value="(formState._sourceInfo.info_0.dimension || '').split(',')"
               @input="formState._sourceInfo.info_0.dimension = $event.join()"
-              placeholder="指定维度"
+              placeholder="请选择一个或多个维度"
               :fetch="handleGetDimensions"
             />
           </FormItem>
@@ -144,16 +145,19 @@
           <FormItem label="计算公式" prop="_sourceInfo.info_1.formula">
             <Input
               v-model="formState._sourceInfo.info_1.formula"
-              placeholder="计算公式"
-            ></Input>
+              placeholder="计算公式，如：原子指标1/原子指标2"
+            >
+            </Input>
           </FormItem>
         </Col>
         <Col :span="24">
           <FormItem label="指定维度" prop="_sourceInfo.info_1.dimension">
             <SelectPage
-              v-model="formState._sourceInfo.info_1.dimension"
               searchMode
-              placeholder="指定维度"
+              multiple
+              :value="(formState._sourceInfo.info_1.dimension || '').split(',')"
+              @input="formState._sourceInfo.info_1.dimension = $event.join()"
+              placeholder="请选择一个或多个维度"
               :fetch="handleGetDimensions"
             />
           </FormItem>
@@ -166,7 +170,7 @@
             <SelectPage
               v-model="formState._sourceInfo.info_2.indicatorName"
               searchMode
-              placeholder="依赖的指标"
+              placeholder="请选择指标"
               :fetch="handleGetIndicators"
             />
           </FormItem>
@@ -183,8 +187,10 @@
         <Col :span="24">
           <FormItem label="修饰词" prop="_sourceInfo.info_2.modifier">
             <SelectPage
-              v-model="formState._sourceInfo.info_2.modifier"
-              placeholder="修饰词"
+              multiple
+              :value="(formState._sourceInfo.info_2.modifier || '').split(',')"
+              @input="formState._sourceInfo.info_2.modifier = $event.join()"
+              placeholder="请选择一个或多个修饰词"
               :fetch="handleGetModifiersList"
             />
           </FormItem>
@@ -192,9 +198,11 @@
         <Col :span="24">
           <FormItem label="指定维度" prop="_sourceInfo.info_2.dimension">
             <SelectPage
-              v-model="formState._sourceInfo.info_2.dimension"
               searchMode
-              placeholder="指定维度"
+              multiple
+              :value="(formState._sourceInfo.info_2.dimension || '').split(',')"
+              @input="formState._sourceInfo.info_2.dimension = $event.join()"
+              placeholder="请选择一个或多个维度"
               :fetch="handleGetDimensions"
             />
           </FormItem>
@@ -205,9 +213,15 @@
         <Col :span="24">
           <FormItem label="依赖的指标" prop="_sourceInfo.info_3.indicatorName">
             <SelectPage
-              v-model="formState._sourceInfo.info_3.indicatorName"
+              multiple
               searchMode
-              placeholder="依赖的指标"
+              :value="
+                (formState._sourceInfo.info_3.indicatorName || '').split(',')
+              "
+              @input="
+                formState._sourceInfo.info_3.indicatorName = $event.join()
+              "
+              placeholder="请选择一个或多个指标"
               :fetch="handleGetIndicators"
             />
           </FormItem>
@@ -215,7 +229,9 @@
         <Col :span="24">
           <FormItem label="修饰词" prop="_sourceInfo.info_3.modifier">
             <SelectPage
-              v-model="formState._sourceInfo.info_3.modifier"
+              multiple
+              :value="(formState._sourceInfo.info_3.modifier || '').split(',')"
+              @input="formState._sourceInfo.info_3.modifier = $event.join()"
               placeholder="修饰词"
               :fetch="handleGetModifiersList"
             />
@@ -226,16 +242,18 @@
             <Input
               type="textarea"
               v-model="formState._sourceInfo.info_3.formula"
-              placeholder="计算公式"
+              placeholder="请输入计算公式，如：指标1-指标2"
             ></Input>
           </FormItem>
         </Col>
         <Col :span="24">
           <FormItem label="指定维度" prop="_sourceInfo.info_3.dimension">
             <SelectPage
-              v-model="formState._sourceInfo.info_3.dimension"
               searchMode
-              placeholder="指定维度"
+              multiple
+              :value="(formState._sourceInfo.info_3.dimension || '').split(',')"
+              @input="formState._sourceInfo.info_3.dimension = $event.join()"
+              placeholder="请选择一个或多个维度"
               :fetch="handleGetDimensions"
             />
           </FormItem>
@@ -248,16 +266,18 @@
             <Input
               type="textarea"
               v-model="formState._sourceInfo.info_4.formula"
-              placeholder="计算公式"
+              placeholder="请输入计算公式，如：sum(字段名)"
             ></Input>
           </FormItem>
         </Col>
         <Col :span="24">
           <FormItem label="指定维度" prop="_sourceInfo.info_4.dimension">
             <SelectPage
-              v-model="formState._sourceInfo.info_4.dimension"
               searchMode
-              placeholder="指定维度"
+              multiple
+              :value="(formState._sourceInfo.info_4.dimension || '').split(',')"
+              @input="formState._sourceInfo.info_4.dimension = $event.join()"
+              placeholder="请选择一个或多个维度"
               :fetch="handleGetDimensions"
             />
           </FormItem>
@@ -395,7 +415,12 @@ export default {
         name: [
           {
             required: true,
-            message: "指标名必填",
+            message: "名称必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持中文，下划线，数字",
+            pattern: /^[0-9_\u4e00-\u9fa5]+$/g,
             trigger: "submit",
           },
         ],
@@ -403,6 +428,11 @@ export default {
           {
             required: true,
             message: "标识符必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持英文，下划线，数字",
+            pattern: /^[a-zA-Z0-9_]+$/g,
             trigger: "submit",
           },
         ],
@@ -420,17 +450,94 @@ export default {
             trigger: "submit",
           },
         ],
-        business: [
+        "content.business": [
           {
             required: true,
             message: "业务口径必填",
             trigger: "submit",
           },
         ],
-        businessOwner: [
+        "content.businessOwner": [
           {
             required: true,
             message: "业务口径负责人必填",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_0.measure": [
+          {
+            required: true,
+            message: "关联度量必选",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_0.formula": [
+          {
+            required: true,
+            message: "计算公式必填",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_1.indicatorName": [
+          {
+            required: true,
+            message: "原子指标必选",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_1.formula": [
+          {
+            required: true,
+            message: "计算公式必填",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_2.indicatorName": [
+          {
+            required: true,
+            message: "指标必选",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_2.cycle": [
+          {
+            required: true,
+            message: "时间周期必选",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_2.modifier": [
+          {
+            required: true,
+            message: "修饰词必选",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_3.indicatorName": [
+          {
+            required: true,
+            message: "指标必选",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_3.modifier": [
+          {
+            required: true,
+            message: "修饰词必选",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_3.formula": [
+          {
+            required: true,
+            message: "计算公式必填",
+            trigger: "submit",
+          },
+        ],
+        "_sourceInfo.info_4.formula": [
+          {
+            required: true,
+            message: "计算公式必填",
             trigger: "submit",
           },
         ],
