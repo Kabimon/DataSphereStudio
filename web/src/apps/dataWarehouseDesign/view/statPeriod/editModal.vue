@@ -5,103 +5,109 @@
     @input="$emit('_changeVisible', $event)"
     @on-cancel="cancelCallBack"
   >
-    <Form
-      ref="formRef"
-      :rules="ruleValidate"
-      :model="formState"
-      label-position="top"
-    >
-      <FormItem label="名称" prop="name">
-        <Input v-model="formState.name" placeholder="建议输入中文名称"></Input>
-      </FormItem>
-      <FormItem label="英文缩写" prop="enName">
-        <Input
-          v-model="formState.enName"
-          placeholder="只支持英文数据及下划线"
-        ></Input>
-      </FormItem>
-      <h3 style="margin-bottom: 12px"><b>作用范围</b></h3>
-      <Row :gutter="12">
-        <Col span="12">
-          <FormItem prop="themeDomainId">
-            <Select v-model="formState.themeDomainId" placeholder="主题域">
-              <Option
-                v-for="item in subjectDomainList"
-                :value="item.id"
-                :key="item.name"
-              >
-                {{ item.name }}
-              </Option>
-            </Select>
-          </FormItem>
-        </Col>
-        <Col span="12">
-          <FormItem prop="layerId">
-            <Select v-model="formState.layerId" placeholder="分层">
-              <Option
-                v-for="item in layeredList"
-                :value="item.id"
-                :key="item.name"
-              >
-                {{ item.name }}
-              </Option>
-            </Select>
-          </FormItem>
-        </Col>
-      </Row>
-      <h3 style="margin-bottom: 12px"><b>计算公式</b></h3>
-      <Row :gutter="12">
-        <Col span="12">
-          <FormItem label="开始时间" prop="statStartFormula">
-            <Input
-              type="textarea"
-              v-model="formState.statStartFormula"
-              placeholder="例如：${runDate}"
-            ></Input>
-          </FormItem>
-        </Col>
-        <Col span="12">
-          <FormItem label="结束时间" prop="statEndFormula">
-            <Input
-              type="textarea"
-              v-model="formState.statEndFormula"
-              placeholder="例如：${runDate}"
-            ></Input>
-          </FormItem>
-        </Col>
-      </Row>
-      <FormItem label="负责人" prop="owner">
-        <Input v-model="formState.owner" placeholder="负责人"></Input>
-      </FormItem>
-      <FormItem label="可用角色" prop="principalName">
-        <Select
-          multiple
-          :value="(formState.principalName || '').split(',')"
-          @input="formState.principalName = $event.join()"
-          placeholder="可用角色"
-        >
-          <Option
-            v-for="item in authorityList"
-            :value="item.value"
-            :key="item.value"
+    <div v-if="_visible">
+      <Form
+        ref="formRef"
+        :rules="ruleValidate"
+        :model="formState"
+        label-position="top"
+      >
+        <FormItem label="名称" prop="name">
+          <Input
+            v-model="formState.name"
+            placeholder="建议输入中文名称"
+          ></Input>
+        </FormItem>
+        <FormItem label="英文缩写" prop="enName">
+          <Input
+            v-model="formState.enName"
+            placeholder="只支持英文数据及下划线"
           >
-            {{ item.label }}
-          </Option>
-        </Select>
-      </FormItem>
-      <FormItem label="描述" prop="description">
-        <Input
-          type="textarea"
-          v-model="formState.description"
-          placeholder="描述"
-        ></Input>
-      </FormItem>
-    </Form>
-    <Spin v-if="loading" fix></Spin>
-    <template slot="footer">
-      <Button @click="handleCancel">取消</Button>
-      <Button type="primary" @click="handleOk">确定</Button>
-    </template>
+          </Input>
+        </FormItem>
+        <h3 style="margin-bottom: 12px"><b>作用范围</b></h3>
+        <Row :gutter="12">
+          <Col span="12">
+            <FormItem prop="themeDomainId">
+              <Select v-model="formState.themeDomainId" placeholder="主题域">
+                <Option
+                  v-for="item in subjectDomainList"
+                  :value="item.id"
+                  :key="item.name"
+                >
+                  {{ item.name }}
+                </Option>
+              </Select>
+            </FormItem>
+          </Col>
+          <Col span="12">
+            <FormItem prop="layerId">
+              <Select v-model="formState.layerId" placeholder="分层">
+                <Option
+                  v-for="item in layeredList"
+                  :value="item.id"
+                  :key="item.name"
+                >
+                  {{ item.name }}
+                </Option>
+              </Select>
+            </FormItem>
+          </Col>
+        </Row>
+        <h3 style="margin-bottom: 12px"><b>计算公式</b></h3>
+        <Row :gutter="12">
+          <Col span="12">
+            <FormItem label="开始时间" prop="statStartFormula">
+              <Input
+                type="textarea"
+                v-model="formState.statStartFormula"
+                placeholder="例如：${runDate}"
+              ></Input>
+            </FormItem>
+          </Col>
+          <Col span="12">
+            <FormItem label="结束时间" prop="statEndFormula">
+              <Input
+                type="textarea"
+                v-model="formState.statEndFormula"
+                placeholder="例如：${runDate}"
+              ></Input>
+            </FormItem>
+          </Col>
+        </Row>
+        <FormItem label="负责人" prop="owner">
+          <Input v-model="formState.owner" placeholder="负责人"></Input>
+        </FormItem>
+        <FormItem label="可用角色" prop="principalName">
+          <Select
+            multiple
+            :value="(formState.principalName || '').split(',')"
+            @input="formState.principalName = $event.join()"
+            placeholder="可用角色"
+          >
+            <Option
+              v-for="item in authorityList"
+              :value="item.value"
+              :key="item.value"
+            >
+              {{ item.label }}
+            </Option>
+          </Select>
+        </FormItem>
+        <FormItem label="描述" prop="description">
+          <Input
+            type="textarea"
+            v-model="formState.description"
+            placeholder="描述"
+          ></Input>
+        </FormItem>
+      </Form>
+      <Spin v-if="loading" fix></Spin>
+      <template slot="footer">
+        <Button @click="handleCancel">取消</Button>
+        <Button type="primary" @click="handleOk">确定</Button>
+      </template>
+    </div>
   </Modal>
 </template>
 
@@ -113,13 +119,14 @@ import {
   getThemedomains,
   getLayersAll,
 } from "@dataWarehouseDesign/service/api";
-import storage from "@/common/helper/storage";
-let userName = storage.get("baseInfo", "local").username;
+import mixin from "@/common/service/mixin";
+
 export default {
   model: {
     prop: "_visible",
     event: "_changeVisible",
   },
+  mixins: [mixin],
   props: {
     // 是否可见
     _visible: {
@@ -139,6 +146,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
+      if (val) this.handleGetLayerListAndSubjectDomainList();
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -195,7 +203,7 @@ export default {
         statEndFormula: "",
         principalName: "ALL",
         description: "",
-        owner: userName,
+        owner: this.getUserName(),
         layerId: "",
         themeDomainId: "",
       },
@@ -219,9 +227,6 @@ export default {
         },
       ],
     };
-  },
-  mounted() {
-    this.handleGetLayerListAndSubjectDomainList();
   },
   methods: {
     async handleGetById(id) {
