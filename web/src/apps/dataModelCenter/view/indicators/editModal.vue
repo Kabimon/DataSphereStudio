@@ -328,21 +328,21 @@
           </Input>
         </FormItem>
       </Form>
-      <Spin v-if="loading" fix></Spin>
-      <div class="drawer-footer">
-        <Button
-          style="margin-right: 8px"
-          type="primary"
-          v-if="mode === 'edit'"
-          @click="handleAddVersion"
-        >
-          新增版本
-        </Button>
-        <Button style="margin-right: 8px" type="primary" @click="handleOk">
-          确定
-        </Button>
-        <Button @click="handleCancel">取消</Button>
-      </div>
+    </div>
+    <Spin v-if="loading" fix></Spin>
+    <div class="drawer-footer">
+      <Button
+        style="margin-right: 8px"
+        type="primary"
+        v-if="mode === 'edit'"
+        @click="handleAddVersion"
+      >
+        新增版本
+      </Button>
+      <Button style="margin-right: 8px" type="primary" @click="handleOk">
+        确定
+      </Button>
+      <Button @click="handleCancel">取消</Button>
     </div>
   </Drawer>
 </template>

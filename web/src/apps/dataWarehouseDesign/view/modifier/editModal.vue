@@ -7,102 +7,100 @@
     width="920"
     :styles="styles"
   >
-    <div v-if="_visible">
-      <Form
-        ref="formRef"
-        :rules="ruleValidate"
-        :model="formState"
-        label-position="top"
-      >
-        <h3 style="margin-bottom: 12px"><b>基本信息</b></h3>
-        <FormItem label="修饰词类别" prop="typeName">
-          <Input v-model="formState.typeName" placeholder="建议为中文名" />
-        </FormItem>
-        <FormItem label="英文名" prop="typeEnName">
-          <Input v-model="formState.typeEnName" placeholder="英文名"></Input>
-        </FormItem>
-        <FormItem label="描述" prop="description">
-          <Input
-            type="textarea"
-            v-model="formState.description"
-            placeholder="描述"
-          />
-        </FormItem>
-        <h3 style="margin-bottom: 12px"><b>作用范围</b></h3>
-        <Row :gutter="12">
-          <Col span="12">
-            <FormItem prop="themeDomainId">
-              <Select v-model="formState.themeDomainId" placeholder="主题域">
-                <Option
-                  v-for="item in subjectDomainList"
-                  :value="item.id"
-                  :key="item.name"
-                >
-                  {{ item.name }}
-                </Option>
-              </Select>
-            </FormItem>
-          </Col>
-          <Col span="12">
-            <FormItem prop="layerId">
-              <Select v-model="formState.layerId" placeholder="分层">
-                <Option
-                  v-for="item in layeredList"
-                  :value="item.id"
-                  :key="item.name"
-                >
-                  {{ item.name }}
-                </Option>
-              </Select>
-            </FormItem>
-          </Col>
-        </Row>
-        <h3 style="margin-bottom: 12px"><b>修饰词列表</b></h3>
-        <FormItem prop="list">
-          <Table
-            style="margin-bottom: 12px"
-            :columns="tokenListColumns"
-            :data="formState.list"
-          >
-            <template slot-scope="{ index }" slot="name">
-              <Input
-                type="text"
-                placeholder="名字"
-                v-model="formState.list[index].name"
-              />
-            </template>
-            <template slot-scope="{ index }" slot="identifier">
-              <Input
-                type="text"
-                placeholder="字段标识"
-                v-model="formState.list[index].identifier"
-              />
-            </template>
-            <template slot-scope="{ index }" slot="formula">
-              <Input
-                type="text"
-                placeholder="字段计算公式"
-                v-model="formState.list[index].formula"
-              />
-            </template>
-            <template slot-scope="{ index }" slot="action">
-              <Button type="error" @click="handleDeleteOneToken(index)">
-                删除
-              </Button>
-            </template>
-          </Table>
-        </FormItem>
-        <div style="display: flex; justify-content: flex-end">
-          <Button type="primary" @click="handleAddToken()">新增</Button>
-        </div>
-      </Form>
-      <Spin v-if="loading" fix></Spin>
-      <div class="drawer-footer">
-        <Button style="margin-right: 8px" type="primary" @click="handleOk">
-          确定
-        </Button>
-        <Button @click="handleCancel">取消</Button>
+    <Form
+      ref="formRef"
+      :rules="ruleValidate"
+      :model="formState"
+      label-position="top"
+    >
+      <h3 style="margin-bottom: 12px"><b>基本信息</b></h3>
+      <FormItem label="修饰词类别" prop="typeName">
+        <Input v-model="formState.typeName" placeholder="建议为中文名" />
+      </FormItem>
+      <FormItem label="英文名" prop="typeEnName">
+        <Input v-model="formState.typeEnName" placeholder="英文名"></Input>
+      </FormItem>
+      <FormItem label="描述" prop="description">
+        <Input
+          type="textarea"
+          v-model="formState.description"
+          placeholder="描述"
+        />
+      </FormItem>
+      <h3 style="margin-bottom: 12px"><b>作用范围</b></h3>
+      <Row :gutter="12">
+        <Col span="12">
+          <FormItem prop="themeDomainId">
+            <Select v-model="formState.themeDomainId" placeholder="主题域">
+              <Option
+                v-for="item in subjectDomainList"
+                :value="item.id"
+                :key="item.name"
+              >
+                {{ item.name }}
+              </Option>
+            </Select>
+          </FormItem>
+        </Col>
+        <Col span="12">
+          <FormItem prop="layerId">
+            <Select v-model="formState.layerId" placeholder="分层">
+              <Option
+                v-for="item in layeredList"
+                :value="item.id"
+                :key="item.name"
+              >
+                {{ item.name }}
+              </Option>
+            </Select>
+          </FormItem>
+        </Col>
+      </Row>
+      <h3 style="margin-bottom: 12px"><b>修饰词列表</b></h3>
+      <FormItem prop="list">
+        <Table
+          style="margin-bottom: 12px"
+          :columns="tokenListColumns"
+          :data="formState.list"
+        >
+          <template slot-scope="{ index }" slot="name">
+            <Input
+              type="text"
+              placeholder="名字"
+              v-model="formState.list[index].name"
+            />
+          </template>
+          <template slot-scope="{ index }" slot="identifier">
+            <Input
+              type="text"
+              placeholder="字段标识"
+              v-model="formState.list[index].identifier"
+            />
+          </template>
+          <template slot-scope="{ index }" slot="formula">
+            <Input
+              type="text"
+              placeholder="字段计算公式"
+              v-model="formState.list[index].formula"
+            />
+          </template>
+          <template slot-scope="{ index }" slot="action">
+            <Button type="error" @click="handleDeleteOneToken(index)">
+              删除
+            </Button>
+          </template>
+        </Table>
+      </FormItem>
+      <div style="display: flex; justify-content: flex-end">
+        <Button type="primary" @click="handleAddToken()">新增</Button>
       </div>
+    </Form>
+    <Spin v-if="loading" fix></Spin>
+    <div class="drawer-footer">
+      <Button style="margin-right: 8px" type="primary" @click="handleOk">
+        确定
+      </Button>
+      <Button @click="handleCancel">取消</Button>
     </div>
   </Drawer>
 </template>

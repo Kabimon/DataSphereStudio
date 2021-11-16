@@ -5,75 +5,69 @@
     @input="$emit('_changeVisible', $event)"
     @on-cancel="cancelCallBack"
   >
-    <div v-if="_visible">
-      <Form
-        :model="formState"
-        ref="formRef"
-        :rules="ruleValidate"
-        label-position="top"
-      >
-        <FormItem label="名称" prop="name">
-          <Input v-model="formState.name" placeholder="建议为中文名"></Input>
-        </FormItem>
-        <FormItem label="字段标识" prop="fieldIdentifier">
-          <Input
-            v-model="formState.fieldIdentifier"
-            placeholder="必须为英文字段名"
-          >
-          </Input>
-        </FormItem>
-        <FormItem label="计算公式" prop="formula">
-          <Input
-            type="textarea"
-            v-model="formState.formula"
-            placeholder="请输入计算公式。如：substring(字段名)"
-          >
-          </Input>
-        </FormItem>
-        <FormItem label="主题域" prop="warehouseThemeName">
-          <Select
-            v-model="formState.warehouseThemeName"
-            placeholder="请选择主题域和主题"
-          >
-            <Option
-              v-for="item in themesList"
-              :value="item.name"
-              :key="item.id"
-            >
-              {{ item.name }}
-            </Option>
-          </Select>
-        </FormItem>
-        <FormItem label="负责人" prop="owner">
-          <Input v-model="formState.owner" placeholder="默认为创建用户"></Input>
-        </FormItem>
+    <Form
+      :model="formState"
+      ref="formRef"
+      :rules="ruleValidate"
+      label-position="top"
+    >
+      <FormItem label="名称" prop="name">
+        <Input v-model="formState.name" placeholder="建议为中文名"></Input>
+      </FormItem>
+      <FormItem label="字段标识" prop="fieldIdentifier">
+        <Input
+          v-model="formState.fieldIdentifier"
+          placeholder="必须为英文字段名"
+        >
+        </Input>
+      </FormItem>
+      <FormItem label="计算公式" prop="formula">
+        <Input
+          type="textarea"
+          v-model="formState.formula"
+          placeholder="请输入计算公式。如：substring(字段名)"
+        >
+        </Input>
+      </FormItem>
+      <FormItem label="主题域" prop="warehouseThemeName">
+        <Select
+          v-model="formState.warehouseThemeName"
+          placeholder="请选择主题域和主题"
+        >
+          <Option v-for="item in themesList" :value="item.name" :key="item.id">
+            {{ item.name }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem label="负责人" prop="owner">
+        <Input v-model="formState.owner" placeholder="默认为创建用户"></Input>
+      </FormItem>
 
-        <FormItem label="可用角色" prop="principalName">
-          <Select
-            v-model="formState.principalName"
-            multiple
-            placeholder="可用角色"
+      <FormItem label="可用角色" prop="principalName">
+        <Select
+          v-model="formState.principalName"
+          multiple
+          placeholder="可用角色"
+        >
+          <Option
+            v-for="item in authorityList"
+            :value="item.value"
+            :key="item.value"
           >
-            <Option
-              v-for="item in authorityList"
-              :value="item.value"
-              :key="item.value"
-            >
-              {{ item.label }}
-            </Option>
-          </Select>
-        </FormItem>
-        <FormItem label="描述" prop="comment">
-          <Input type="textarea" v-model="formState.comment" placeholder="描述">
-          </Input>
-        </FormItem>
-      </Form>
-      <Spin v-if="loading" fix></Spin>
-      <template slot="footer">
-        <Button @click="handleCancel">取消</Button>
-        <Button type="primary" @click="handleOk">确定</Button>
-      </template>
-    </div>
+            {{ item.label }}
+          </Option>
+        </Select>
+      </FormItem>
+      <FormItem label="描述" prop="comment">
+        <Input type="textarea" v-model="formState.comment" placeholder="描述">
+        </Input>
+      </FormItem>
+    </Form>
+    <Spin v-if="loading" fix></Spin>
+    <template slot="footer">
+      <Button @click="handleCancel">取消</Button>
+      <Button type="primary" @click="handleOk">确定</Button>
+    </template>
   </Modal>
 </template>
 
@@ -109,6 +103,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
+      if (val) this.handleGetSubjectDomainList();
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -172,9 +167,6 @@ export default {
         },
       ],
     };
-  },
-  mounted() {
-    this.handleGetSubjectDomainList();
   },
   methods: {
     async handleGetById(id) {
