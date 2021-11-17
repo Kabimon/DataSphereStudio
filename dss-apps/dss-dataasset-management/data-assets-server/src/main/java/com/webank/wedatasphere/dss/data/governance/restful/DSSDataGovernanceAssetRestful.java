@@ -61,16 +61,16 @@ public class DSSDataGovernanceAssetRestful {
     @Path("/hiveTbl/search")
     public Response searchHiveTbl(@QueryParam("classification") String classification,
                                   @QueryParam("query") String query,
-                                  @QueryParam("type")  String type,
+                                  @QueryParam("type") String type,
                                   @QueryParam("owner") @DefaultValue("") String owner,
                                   @QueryParam("limit") @DefaultValue(DEFAULT_LIMIT) int limit,
                                   @QueryParam("offset") @DefaultValue(DEFAULT_OFFSET) int offset) throws Exception {
 
 
-        if (ClassificationConstant.isTypeScope(type)){
-            if (StringUtils.isNotBlank(classification)){
+        if (ClassificationConstant.isTypeScope(type)) {
+            if (StringUtils.isNotBlank(classification)) {
                 classification = ClassificationConstant.getPrefix(type).orElse(null) + classification;
-            }else {
+            } else {
                 classification = ClassificationConstant.getRoot(type).orElse(null);
             }
         }
@@ -90,6 +90,33 @@ public class DSSDataGovernanceAssetRestful {
     }
 
     /**
+     * 搜索hive表统计信息
+     */
+    @GET
+    @Path("/hiveTbl/stats")
+    public Response searchHiveTblStats(@QueryParam("dbName") String dbName,
+                                       @QueryParam("tableName") String tableName,
+                                       @QueryParam("guid") String guid) throws Exception {
+        logger.info("searchHiveTblStats dbName : {}, tableName : {}, guid : {}", dbName, tableName, guid);
+        return Message.messageToResponse(Message.ok().data("result", assetService.hiveTblStats(dbName, tableName, guid)));
+
+    }
+
+    /**
+     * 搜索hive表容量
+     */
+    @GET
+    @Path("/hiveTbl/size")
+    public Response searchHiveTblSize(@QueryParam("dbName") String dbName,
+                                      @QueryParam("tableName") String tableName,
+                                      @QueryParam("guid") String guid) throws Exception {
+        logger.info("searchHiveTblSize dbName : {}, tableName : {}, guid : {}", dbName, tableName, guid);
+        return Message.messageToResponse(Message.ok().data("result", assetService.hiveTblSize(dbName, tableName, guid)));
+
+    }
+
+
+    /**
      * 搜索hive库
      */
     @GET
@@ -99,7 +126,6 @@ public class DSSDataGovernanceAssetRestful {
                                  @QueryParam("owner") @DefaultValue("") String owner,
                                  @QueryParam("limit") @DefaultValue(DEFAULT_LIMIT) int limit,
                                  @QueryParam("offset") @DefaultValue(DEFAULT_OFFSET) int offset) throws Exception {
-
 
 
         List<HiveTblSimpleInfo> hiveTblBasicList = assetService.searchHiveDb(classification, '*' + query + '*', limit, offset);
@@ -209,6 +235,7 @@ public class DSSDataGovernanceAssetRestful {
 
     /**
      * 创建模型
+     *
      * @param req
      * @param vo
      * @return
@@ -216,13 +243,14 @@ public class DSSDataGovernanceAssetRestful {
      */
     @POST
     @Path("/model/type")
-    public Response createModelType(@Context HttpServletRequest req,@RequestBody CreateModelTypeVO vo)throws Exception{
+    public Response createModelType(@Context HttpServletRequest req, @RequestBody CreateModelTypeVO vo) throws Exception {
         logger.info("createModelType : {}", vo);
-        return Message.messageToResponse(Message.ok().data("result",assetService.createModelType(vo)));
+        return Message.messageToResponse(Message.ok().data("result", assetService.createModelType(vo)));
     }
 
     /**
      * 删除模型
+     *
      * @param req
      * @param vo
      * @return
@@ -230,15 +258,16 @@ public class DSSDataGovernanceAssetRestful {
      */
     @POST
     @Path("/model/type/delete")
-    public Response deleteModelType(@Context HttpServletRequest req,@RequestBody DeleteModelTypeVO vo)throws Exception{
+    public Response deleteModelType(@Context HttpServletRequest req, @RequestBody DeleteModelTypeVO vo) throws Exception {
         logger.info("deleteModelTypeVO : {}", vo);
         assetService.deleteModelType(vo);
-        return Message.messageToResponse(Message.ok().data("result","删除成功"));
+        return Message.messageToResponse(Message.ok().data("result", "删除成功"));
     }
 
 
     /**
      * 绑定模型
+     *
      * @param req
      * @param vo
      * @return
@@ -246,14 +275,15 @@ public class DSSDataGovernanceAssetRestful {
      */
     @POST
     @Path("/model/bind")
-    public Response bindModelType(@Context HttpServletRequest req,@RequestBody BindModelVO vo)throws Exception{
+    public Response bindModelType(@Context HttpServletRequest req, @RequestBody BindModelVO vo) throws Exception {
         logger.info("bindModelVO : {}", vo);
         assetService.bindModelType(vo);
-        return Message.messageToResponse(Message.ok().data("result","绑定成功"));
+        return Message.messageToResponse(Message.ok().data("result", "绑定成功"));
     }
 
     /**
      * 解绑模型
+     *
      * @param req
      * @param vo
      * @return
@@ -261,15 +291,16 @@ public class DSSDataGovernanceAssetRestful {
      */
     @POST
     @Path("/model/unbind")
-    public Response unBindModelType(@Context HttpServletRequest req,@RequestBody UnBindModelVO vo)throws Exception{
+    public Response unBindModelType(@Context HttpServletRequest req, @RequestBody UnBindModelVO vo) throws Exception {
         logger.info("unBindModelVO : {}", vo);
         assetService.unBindModel(vo);
-        return Message.messageToResponse(Message.ok().data("result","解绑成功"));
+        return Message.messageToResponse(Message.ok().data("result", "解绑成功"));
     }
 
 
     /**
      * 更新模型
+     *
      * @param req
      * @param vo
      * @return
@@ -277,9 +308,9 @@ public class DSSDataGovernanceAssetRestful {
      */
     @POST
     @Path("/model/type/modify")
-    public Response updateModelType(@Context HttpServletRequest req,@RequestBody UpdateModelTypeVO vo)throws Exception{
+    public Response updateModelType(@Context HttpServletRequest req, @RequestBody UpdateModelTypeVO vo) throws Exception {
         logger.info("updateModelTypeVO : {}", vo);
-        return Message.messageToResponse(Message.ok().data("result",assetService.updateModelType(vo)));
+        return Message.messageToResponse(Message.ok().data("result", assetService.updateModelType(vo)));
     }
 
     /**

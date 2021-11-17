@@ -1,10 +1,12 @@
 package com.webank.wedatasphere.dss.data.governance.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.google.common.collect.Sets;
 import com.google.gson.internal.LinkedTreeMap;
+import com.webank.wedatasphere.dss.data.governance.dao.*;
+import com.webank.wedatasphere.dss.data.governance.dto.HiveTblStatsDTO;
 import com.webank.wedatasphere.dss.data.governance.entity.CreateModelTypeInfo;
 import com.webank.wedatasphere.dss.data.governance.atlas.AtlasService;
-import com.webank.wedatasphere.dss.data.governance.dao.MetaInfoMapper;
-import com.webank.wedatasphere.dss.data.governance.dao.WorkspaceInfoMapper;
 import com.webank.wedatasphere.dss.data.governance.dao.impl.MetaInfoMapperImpl;
 import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.exception.DAOException;
@@ -22,7 +24,9 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
@@ -31,6 +35,15 @@ public class AssetServiceImpl implements AssetService {
     private AtlasService atlasService;
     private MetaInfoMapper metaInfoMapper;
     private WorkspaceInfoMapper workspaceInfoMapper;
+
+    @Resource
+    private TableColumnCountQueryMapper tableColumnCountQueryMapper;
+
+    @Resource
+    private TableSizeInfoMapper tableSizeInfoMapper;
+
+    @Resource
+    private TableSizePartitionInfoMapper tableSizePartitionInfoMapper;
 
     public AssetServiceImpl(AtlasService atlasService) {
         this.atlasService = atlasService;
@@ -130,7 +143,7 @@ public class AssetServiceImpl implements AssetService {
         }
 
         try {
-            atlasService.addClassification(ClassificationConstant.formatName(vo.getModelType(),vo.getModelName()).get(),tableGuid,false);
+            atlasService.addClassification(ClassificationConstant.formatName(vo.getModelType(), vo.getModelName()).get(), tableGuid, false);
         } catch (AtlasServiceException ex) {
             throw new DataGovernanceException(23000, ex.getMessage());
         }
@@ -149,7 +162,7 @@ public class AssetServiceImpl implements AssetService {
         }
 
         try {
-            atlasService.deleteClassification(tableGuid,ClassificationConstant.formatName(vo.getModelType(),vo.getModelName()).get());
+            atlasService.deleteClassification(tableGuid, ClassificationConstant.formatName(vo.getModelType(), vo.getModelName()).get());
         } catch (AtlasServiceException ex) {
             throw new DataGovernanceException(23000, ex.getMessage());
         }
@@ -161,17 +174,17 @@ public class AssetServiceImpl implements AssetService {
         //首先搜索指定表,查找guid
         List<AtlasEntityHeader> atlasEntityHeaders = null;
         try {
-            atlasEntityHeaders = atlasService.searchHiveTable0(null,tableName, true, 1, 0);
+            atlasEntityHeaders = atlasService.searchHiveTable0(null, tableName, true, 1, 0);
         } catch (AtlasServiceException ex) {
             throw new DataGovernanceException(23000, ex.getMessage());
         }
         if (CollectionUtils.isEmpty(atlasEntityHeaders)) {
             throw new DataGovernanceException(23000, "table " + tableName + " not find");
         }
-        if (atlasEntityHeaders.size()>1){
+        if (atlasEntityHeaders.size() > 1) {
             throw new DataGovernanceException(23000, "table " + tableName + " duplicate " + atlasEntityHeaders);
         }
-       return atlasEntityHeaders.get(0).getGuid();
+        return atlasEntityHeaders.get(0).getGuid();
     }
 
     @Override
@@ -550,4 +563,91 @@ public class AssetServiceImpl implements AssetService {
     }
 
 
+    @Override
+    public HiveTblStatsDTO hiveTblStats(String dbName, String tableName, String guid) throws Exception {
+        //如果有guid则使用guid
+        if (StringUtils.isNotBlank(guid)) {
+            String qualifiedName = getQualifiedName(guid);
+            dbName = StringUtils.substringBefore(qualifiedName, ".");
+            tableName = StringUtils.substringAfter(qualifiedName, ".");
+        }
+
+
+        HiveTblStatsDTO dto = new HiveTblStatsDTO();
+
+        //字段数量
+        List<TableColumnCount> columnCounts = tableColumnCountQueryMapper.query(Wrappers.<TableColumnCount>lambdaQuery().eq(TableColumnCount::getDbName, dbName).eq(TableColumnCount::getTblName, tableName));
+        if (!CollectionUtils.isEmpty(columnCounts)) {
+            dto.setColumnCount(columnCounts.get(0).getColumnCount());
+        }
+
+        //表容量
+        List<TableSizeInfo> tableSizeInfos = tableSizeInfoMapper.query(Wrappers.<TableSizeInfo>lambdaQuery().eq(TableSizeInfo::getDbName, dbName).eq(TableSizeInfo::getTblName, tableName));
+        if (!CollectionUtils.isEmpty(tableSizeInfos)) {
+            tableSizeInfos.forEach(tableSizeInfo -> {
+                if (StringUtils.equals("totalSize", tableSizeInfo.getParamKey())) {
+                    dto.setTotalSize(Long.parseLong(tableSizeInfo.getParamValue()));
+                }
+                if (StringUtils.equals("numFiles", tableSizeInfo.getParamKey())) {
+                    dto.setNumFiles(Integer.parseInt(tableSizeInfo.getParamValue()));
+                }
+            });
+        }
+        //分区信息
+        List<TablePartitionSizeInfo> tablePartitionSizeInfos = tableSizePartitionInfoMapper.query(Wrappers.<TablePartitionSizeInfo>lambdaQuery().eq(TablePartitionSizeInfo::getDbName, dbName).eq(TablePartitionSizeInfo::getTblName, tableName));
+        if (!CollectionUtils.isEmpty(tablePartitionSizeInfos)) {
+            Set<Long> partIds = Sets.newHashSet();
+            tablePartitionSizeInfos.forEach(tablePartitionSizeInfo -> {
+                partIds.add(tablePartitionSizeInfo.getParId());
+                if (StringUtils.equals("totalSize", tablePartitionSizeInfo.getParamKey())) {
+                    dto.setTotalSize(dto.getTotalSize() + Long.parseLong(tablePartitionSizeInfo.getParamValue()));
+                }
+                if (StringUtils.equals("numFiles", tablePartitionSizeInfo.getParamKey())) {
+                    dto.setNumFiles(dto.getNumFiles() + Integer.parseInt(tablePartitionSizeInfo.getParamValue()));
+                }
+            });
+            dto.setPartitionCount(partIds.size());
+        }
+        return dto;
+    }
+
+    private String getQualifiedName(String guid) throws AtlasServiceException {
+        AtlasEntity atlasEntity = atlasService.getHiveTbl(guid);
+        return StringUtils.substringBefore(String.valueOf(atlasEntity.getAttributes().get("qualifiedName")), "@");
+    }
+
+    @Override
+    public Long hiveTblSize(String dbName, String tableName, String guid) throws Exception{
+        //如果有guid则使用guid
+        if (StringUtils.isNotBlank(guid)) {
+            String qualifiedName = getQualifiedName(guid);
+            dbName = StringUtils.substringBefore(qualifiedName, ".");
+            tableName = StringUtils.substringAfter(qualifiedName, ".");
+        }
+
+        AtomicReference<Long> size = new AtomicReference<>(0L);
+        //表容量
+        List<TableSizeInfo> tableSizeInfos = tableSizeInfoMapper.query(Wrappers.<TableSizeInfo>lambdaQuery().eq(TableSizeInfo::getDbName, dbName).eq(TableSizeInfo::getTblName, tableName));
+        if (!CollectionUtils.isEmpty(tableSizeInfos)) {
+            tableSizeInfos.forEach(tableSizeInfo -> {
+                if (StringUtils.equals("totalSize", tableSizeInfo.getParamKey())) {
+                    size.set(Long.parseLong(tableSizeInfo.getParamValue()));
+                }
+            });
+        }
+        //分区信息
+        List<TablePartitionSizeInfo> tablePartitionSizeInfos = tableSizePartitionInfoMapper.query(Wrappers.<TablePartitionSizeInfo>lambdaQuery().eq(TablePartitionSizeInfo::getDbName, dbName).eq(TablePartitionSizeInfo::getTblName, tableName));
+        if (!CollectionUtils.isEmpty(tablePartitionSizeInfos)) {
+            Set<Long> partIds = Sets.newHashSet();
+            tablePartitionSizeInfos.forEach(tablePartitionSizeInfo -> {
+                partIds.add(tablePartitionSizeInfo.getParId());
+                if (StringUtils.equals("totalSize", tablePartitionSizeInfo.getParamKey())) {
+                    size.set(size.get()+Long.parseLong(tablePartitionSizeInfo.getParamValue()));
+                }
+
+            });
+
+        }
+        return size.get();
+    }
 }
