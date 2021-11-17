@@ -33,24 +33,16 @@
             remote
             :remote-method="remoteSearchOwner"
             :loading="owerSerachLoading"
-            style="width:167px"
+            style="width: 167px"
           >
             <Option
               v-for="(item, idx) in ownerList"
               :value="item.value"
               :key="idx"
-            >{{ item.label }}</Option
             >
+              {{ item.label }}
+            </Option>
           </Select>
-        </div>
-        <div class="assets-index-b-l-env">
-          <span>环境</span>
-          <Radio v-model="serachOption.env"
-          ><label
-            style="color: rgba(0,0,0,0.65; fontSize: 14px; fontWeight: normal;"
-          >生产环境</label
-          ></Radio
-          >
         </div>
         <div class="assets-index-b-l-label">
           <span>标签</span>
@@ -58,14 +50,15 @@
             v-model="serachOption.label"
             multiple
             clearable
-            style="width:167px"
+            style="width: 167px"
           >
             <Option
               v-for="(item, idx) in userList"
               :value="item.value"
               :key="idx"
-            >{{ item.label }}</Option
             >
+              {{ item.label }}
+            </Option>
           </Select>
         </div>
       </div>
@@ -92,20 +85,20 @@ import { storage } from "../../utils/storage";
 import { throttle } from "lodash";
 export default {
   components: {
-    tabCard
+    tabCard,
   },
   data() {
     return {
       serachOption: {
         limit: 10,
-        offset: 0
+        offset: 0,
       },
       ownerList: [],
       userList: [],
       cardTabs: [],
       queryForTbls: "",
       owerSerachLoading: false,
-      isLoading: false
+      isLoading: false,
     };
   },
   created() {
@@ -113,12 +106,12 @@ export default {
     if (searchParams) {
       this.queryForTbls = JSON.parse(searchParams).query;
       getHiveTbls(JSON.parse(searchParams))
-        .then(data => {
+        .then((data) => {
           if (data.result) {
             this.cardTabs = data.result;
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("Search", err);
         });
     }
@@ -140,20 +133,20 @@ export default {
         query: this.queryForTbls,
         owner: this.serachOption.owner,
         limit: 10,
-        offset: 0
+        offset: 0,
       };
       this.serachOption["limit"] = 10;
       this.serachOption["offset"] = 0;
       storage.setItem("searchTbls", JSON.stringify(params));
       getHiveTbls(params)
-        .then(data => {
+        .then((data) => {
           if (data.result) {
             this.cardTabs = data.result;
           } else {
             this.cardTabs = [];
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("Search", err);
         });
     },
@@ -166,7 +159,7 @@ export default {
       that.$router.push({
         name: "assetsInfo",
         params: { guid },
-        query: { workspaceId }
+        query: { workspaceId },
       });
     },
 
@@ -177,16 +170,16 @@ export default {
       if (that.isLoading) {
         return that.$Message.success("所有数据已加载完成");
       }
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         const params = {
           query: that.queryForTbls,
           owner: that.serachOption.owner,
           limit: that.serachOption.limit,
-          offset: that.serachOption.offset + that.serachOption.limit
+          offset: that.serachOption.offset + that.serachOption.limit,
         };
         that.serachOption.offset += that.serachOption.limit;
         getHiveTbls(params)
-          .then(data => {
+          .then((data) => {
             if (data.result) {
               that.cardTabs = res.concat(data.result);
             } else {
@@ -195,7 +188,7 @@ export default {
             }
             resolve();
           })
-          .catch(err => {
+          .catch((err) => {
             console.log("handleReachBottom", err);
           });
       });
@@ -208,11 +201,11 @@ export default {
         that.owerSerachLoading = true;
         let workspaceId = that.$route.query.workspaceId;
         getWorkspaceUsers(workspaceId, query)
-          .then(data => {
+          .then((data) => {
             const { result } = data;
             const _res = [];
             if (result) {
-              result.forEach(item => {
+              result.forEach((item) => {
                 let o = Object.create(null);
                 o["value"] = item;
                 o["label"] = item;
@@ -223,7 +216,7 @@ export default {
               console.log("ownerList", that.ownerList);
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.log("getWorkspaceUsers", err);
           });
       } else {
@@ -270,8 +263,8 @@ export default {
         // 拉数据
         this.handleReachBottom();
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

@@ -130,7 +130,7 @@ export default {
         content: "确定删除此项吗？",
         onOk: async () => {
           this.loading = true;
-          await deleteModifiers(id);
+          await deleteModifiers(id).catch(() => {});
           this.loading = false;
           this.handleGetData(true);
         },

@@ -31,10 +31,14 @@
       </FormItem>
       <FormItem label="主题域" prop="warehouseThemeName">
         <Select
-          v-model="formState.warehouseThemeName"
+          v-model="formState._warehouseTheme"
           placeholder="请选择主题域和主题"
         >
-          <Option v-for="item in themesList" :value="item.name" :key="item.id">
+          <Option
+            v-for="item in themesList"
+            :value="`${item.name}|${item.enName}`"
+            :key="item.id"
+          >
             {{ item.name }}
           </Option>
         </Select>
@@ -45,8 +49,9 @@
 
       <FormItem label="可用角色" prop="principalName">
         <Select
-          v-model="formState.principalName"
           multiple
+          :value="(formState.principalName || '').split(',')"
+          @input="formState.principalName = $event.join()"
           placeholder="可用角色"
         >
           <Option
@@ -116,8 +121,8 @@ export default {
         owner: this.getUserName(),
         comment: "",
         formula: "",
-        warehouseThemeName: "",
-        principalName: ["ALL"],
+        _warehouseTheme: "",
+        principalName: "ALL",
         isAvailable: 1,
       },
       // 验证规则
@@ -157,18 +162,13 @@ export default {
           value: "ALL",
           label: "ALL",
         },
-        {
-          value: "角色1",
-          label: "角色1",
-        },
-        {
-          value: "角色2",
-          label: "角色2",
-        },
       ],
     };
   },
   methods: {
+    /**
+     * @description 根据id获取数据
+     */
     async handleGetById(id) {
       this.loading = true;
       let { detail } = await getMeasuresById(id);
@@ -176,38 +176,50 @@ export default {
       this.formState.name = detail.name;
       this.formState.isAvailable = detail.isAvailable;
       this.formState.owner = detail.owner;
-      this.formState.principalName = detail.principalName.split(",");
+      this.formState.principalName = detail.principalName;
       this.formState.comment = detail.comment;
       this.formState.fieldIdentifier = detail.fieldIdentifier;
-      this.formState.warehouseThemeName = detail.warehouseThemeName;
+      this.formState._warehouseTheme = `${detail.warehouseThemeName}|${detail.warehouseThemeNameEn}`;
       this.formState.formula = detail.formula;
     },
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
     },
+    /**
+     * @description 处理取消按钮
+     */
     handleCancel() {
       this.$refs["formRef"].resetFields();
       this.$emit("_changeVisible", false);
     },
+    /**
+     * @description 获取格式化数据
+     */
+    handleGetFormatData() {
+      let [warehouseThemeName, warehouseThemeNameEn] =
+        this.formState._warehouseTheme.split("|");
+      return Object.assign({}, this.formState, {
+        _warehouseTheme: undefined,
+        warehouseThemeName,
+        warehouseThemeNameEn,
+      });
+    },
+    /**
+     * @description 表单完成
+     */
     async handleOk() {
       this.$refs["formRef"].validate(async (valid) => {
         if (valid) {
           this.loading = true;
           try {
             if (this.mode === "create") {
-              await createMeasures(
-                Object.assign({}, this.formState, {
-                  principalName: this.formState.principalName.join(","),
-                })
-              );
+              await createMeasures(this.handleGetFormatData());
               this.loading = false;
             }
             if (this.mode === "edit") {
               await editMeasures(
                 this.id,
-                Object.assign({}, this.formState, {
-                  principalName: this.formState.principalName.join(","),
-                })
+                Object.assign({}, this.formState, this.handleGetFormatData())
               );
               this.loading = false;
             }
@@ -221,6 +233,9 @@ export default {
         }
       });
     },
+    /**
+     * 获取主题
+     */
     async handleGetSubjectDomainList() {
       this.loading = true;
       let { list } = await getThemesList();

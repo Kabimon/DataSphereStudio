@@ -247,6 +247,11 @@ export default {
             message: "表名必填",
             trigger: "submit",
           },
+          {
+            message: "仅支持英文，下划线，数字",
+            pattern: /^[a-zA-Z0-9_]+$/g,
+            trigger: "submit",
+          },
         ],
         // 表别名
         alias: [

@@ -125,11 +125,12 @@ export default {
     handleDelete(id) {
       this.$Modal.confirm({
         title: "警告",
-        content: "确定删除此项吗？" + id,
-        onOk: () => {
-          delMeasures(id).then(() => {
-            this.handleGetData(true);
-          });
+        content: "确定删除此项吗？",
+        onOk: async () => {
+          this.loading = true;
+          await delMeasures(id).catch(() => {});
+          this.loading = false;
+          this.handleGetData(true);
         },
       });
     },

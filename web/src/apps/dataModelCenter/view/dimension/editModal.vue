@@ -26,12 +26,16 @@
         >
         </Input>
       </FormItem>
-      <FormItem label="主题域" prop="warehouseThemeName">
+      <FormItem label="主题域" prop="_warehouseTheme">
         <Select
-          v-model="formState.warehouseThemeName"
+          v-model="formState._warehouseTheme"
           placeholder="请选择主题域和主题"
         >
-          <Option v-for="item in themesList" :value="item.name" :key="item.id">
+          <Option
+            v-for="item in themesList"
+            :value="`${item.name}|${item.enName}`"
+            :key="item.id"
+          >
             {{ item.name }}
           </Option>
         </Select>
@@ -42,8 +46,9 @@
 
       <FormItem label="可用角色" prop="principalName">
         <Select
-          v-model="formState.principalName"
           multiple
+          :value="(formState.principalName || '').split(',')"
+          @input="formState.principalName = $event.join()"
           placeholder="可用角色"
         >
           <Option
@@ -113,8 +118,8 @@ export default {
         owner: this.getUserName(),
         comment: "",
         formula: "",
-        warehouseThemeName: "",
-        principalName: ["ALL"],
+        _warehouseTheme: "",
+        principalName: "ALL",
         isAvailable: 1,
       },
       // 验证规则
@@ -170,10 +175,10 @@ export default {
       this.formState.name = detail.name;
       this.formState.isAvailable = detail.isAvailable;
       this.formState.owner = detail.owner;
-      this.formState.principalName = detail.principalName.split(",");
+      this.formState.principalName = detail.principalName;
       this.formState.comment = detail.comment;
       this.formState.fieldIdentifier = detail.fieldIdentifier;
-      this.formState.warehouseThemeName = detail.warehouseThemeName;
+      this.formState._warehouseTheme = `${detail.warehouseThemeName}|${detail.warehouseThemeNameEn}`;
       this.formState.formula = detail.formula;
     },
     // 取消清空表单
@@ -185,6 +190,18 @@ export default {
       this.$refs["formRef"].resetFields();
       this.$emit("_changeVisible", false);
     },
+    /**
+     * @description 获取格式化数据
+     */
+    handleGetFormatData() {
+      let [warehouseThemeName, warehouseThemeNameEn] =
+        this.formState._warehouseTheme.split("|");
+      return Object.assign({}, this.formState, {
+        _warehouseTheme: undefined,
+        warehouseThemeName,
+        warehouseThemeNameEn,
+      });
+    },
     // 点击确定
     async handleOk() {
       // 触发表单验证
@@ -194,20 +211,11 @@ export default {
           this.loading = true;
           try {
             if (this.mode === "create") {
-              await createDimensions(
-                Object.assign({}, this.formState, {
-                  principalName: this.formState.principalName.join(","),
-                })
-              );
+              await createDimensions(this.handleGetFormatData());
               this.loading = false;
             }
             if (this.mode === "edit") {
-              await editDimensions(
-                this.id,
-                Object.assign({}, this.formState, {
-                  principalName: this.formState.principalName.join(","),
-                })
-              );
+              await editDimensions(this.id, this.handleGetFormatData());
               this.loading = false;
             }
             // 完成之后，清空表单，关闭弹窗，触发回调

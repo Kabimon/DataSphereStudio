@@ -178,7 +178,6 @@ import {
   getLayersList,
 } from "@dataModelCenter/service/tableManageApi";
 import formatDate from "@dataModelCenter/utils/formatDate";
-import storage from "@/common/helper/storage";
 import VersionListModal from "./versionListModal.vue";
 import mixin from "@/common/service/mixin";
 export default {
@@ -213,10 +212,6 @@ export default {
         {
           label: "按度量名",
           value: 5,
-        },
-        {
-          label: "按表描述",
-          value: 6,
         },
       ],
       // 数据库搜索关键字
@@ -388,8 +383,41 @@ export default {
         return (this.pageCfg.page = 1);
       }
       this.loading = true;
+      let modelName;
+      let name;
+      let tableType;
+      let modelType;
+      switch (this.searchParams.searchType) {
+        // 逻辑表
+        case 1:
+          name = this.searchParams.searchToken;
+          break;
+        // 物理表
+        case 2:
+          name = this.searchParams.searchToken;
+          tableType = 1;
+          break;
+        // 指标
+        case 3:
+          modelName = this.searchParams.searchToken;
+          modelType = 1;
+          break;
+        // 维度
+        case 4:
+          modelName = this.searchParams.searchToken;
+          modelType = 0;
+          break;
+        // 度量
+        case 5:
+          modelName = this.searchParams.searchToken;
+          modelType = 2;
+          break;
+      }
       searchTable({
-        name: this.searchParams.searchToken,
+        modelType: modelType, //0 维度 1 指标 2 度量
+        modelName: modelName, //模型名称
+        tableType: tableType,
+        name: name,
         warehouseLayerName: this.currentLayer,
         warehouseThemeName: this.currentTheme,
         pageSize: this.pageCfg.pageSize,
