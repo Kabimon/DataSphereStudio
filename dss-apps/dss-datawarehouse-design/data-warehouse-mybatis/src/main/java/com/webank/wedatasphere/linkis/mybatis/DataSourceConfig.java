@@ -69,6 +69,7 @@ public class DataSourceConfig extends JavaLog {
         datasource.setTestOnBorrow(testOnBorrow);
         datasource.setTestOnReturn(testOnReturn);
         datasource.setPoolPreparedStatements(poolPreparedStatements);
+        datasource.setDefaultAutoCommit(false);
         return datasource;
     }
 
