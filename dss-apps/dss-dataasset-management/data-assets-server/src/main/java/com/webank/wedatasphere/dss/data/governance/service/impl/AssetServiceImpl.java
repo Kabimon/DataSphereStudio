@@ -3,11 +3,10 @@ package com.webank.wedatasphere.dss.data.governance.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Sets;
 import com.google.gson.internal.LinkedTreeMap;
-import com.webank.wedatasphere.dss.data.governance.dao.*;
-import com.webank.wedatasphere.dss.data.governance.dto.HiveTblStatsDTO;
-import com.webank.wedatasphere.dss.data.governance.entity.CreateModelTypeInfo;
 import com.webank.wedatasphere.dss.data.governance.atlas.AtlasService;
+import com.webank.wedatasphere.dss.data.governance.dao.*;
 import com.webank.wedatasphere.dss.data.governance.dao.impl.MetaInfoMapperImpl;
+import com.webank.wedatasphere.dss.data.governance.dto.HiveTblStatsDTO;
 import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.exception.DAOException;
 import com.webank.wedatasphere.dss.data.governance.exception.DataGovernanceException;
@@ -181,6 +180,7 @@ public class AssetServiceImpl implements AssetService {
         if (CollectionUtils.isEmpty(atlasEntityHeaders)) {
             throw new DataGovernanceException(23000, "table " + tableName + " not find");
         }
+
         if (atlasEntityHeaders.size() > 1) {
             throw new DataGovernanceException(23000, "table " + tableName + " duplicate " + atlasEntityHeaders);
         }
@@ -561,6 +561,7 @@ public class AssetServiceImpl implements AssetService {
     public List<TableInfo> getTop10Table() throws DAOException {
         return metaInfoMapper.getTop10Table();
     }
+
 
 
     @Override

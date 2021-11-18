@@ -1,14 +1,12 @@
 package com.webank.wedatasphere.dss.data.governance
 
-import com.webank.wedatasphere.dss.data.governance.entity.ClassificationConstant
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient
-import com.webank.wedatasphere.dss.data.governance.request.{BindModelTypeAction, CreateModelTypeAction, DeleteModelTypeAction, GetHiveTblBasicAction, GetHiveTblCreateAction, GetHiveTblPartitionAction, HiveTblSizeAction, HiveTblStatsAction, SearchHiveDbAction, SearchHiveTblAction, UnBindModelTypeAction, UpdateModelTypeAction}
-import com.webank.wedatasphere.dss.data.governance.response.{CreateModelTypeResult, UpdateModelTypeResult}
-import com.webank.wedatasphere.linkis.httpclient.dws.authentication.StaticAuthenticationStrategy
+import com.webank.wedatasphere.dss.data.governance.request.{HiveTblSizeAction, HiveTblStatsAction}
 import com.webank.wedatasphere.linkis.httpclient.dws.config.DWSClientConfigBuilder
 
 import java.util.concurrent.TimeUnit
 import scala.Console.println
+
 
 object TestDataAssetsRemoteClient {
   def main(args: Array[String]): Unit = {

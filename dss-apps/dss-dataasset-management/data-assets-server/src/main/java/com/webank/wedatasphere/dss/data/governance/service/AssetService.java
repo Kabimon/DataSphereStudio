@@ -1,7 +1,7 @@
 package com.webank.wedatasphere.dss.data.governance.service;
 
+
 import com.webank.wedatasphere.dss.data.governance.dto.HiveTblStatsDTO;
-import com.webank.wedatasphere.dss.data.governance.entity.CreateModelTypeInfo;
 import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.exception.DAOException;
 import com.webank.wedatasphere.dss.data.governance.exception.DataGovernanceException;
@@ -87,6 +87,7 @@ public interface AssetService {
     void unBindModel(UnBindModelVO vo) throws Exception;
 
 
+
     /**
      * 表统计信息
      * @param dbName
@@ -105,4 +106,5 @@ public interface AssetService {
      * @return
      */
     Long hiveTblSize(String dbName, String tableName, String guid) throws Exception;
+
 }

@@ -2,6 +2,7 @@ package com.webank.wedatasphere.dss.data.governance.impl
 
 import com.webank.wedatasphere.dss.data.governance.request.{BindModelTypeAction, CreateModelTypeAction, DeleteModelTypeAction, GetHiveTblBasicAction, GetHiveTblCreateAction, GetHiveTblPartitionAction, HiveTblSizeAction, HiveTblStatsAction, SearchHiveDbAction, SearchHiveTblAction, UnBindModelTypeAction, UpdateModelTypeAction}
 import com.webank.wedatasphere.dss.data.governance.response.{BindModelTypeResult, CreateModelTypeResult, DeleteModelTypeResult, GetHiveTblBasicResult, GetHiveTblCreateResult, GetHiveTblPartitionResult, HiveTblSizeResult, HiveTblStatsResult, SearchHiveDbResult, SearchHiveTblResult, UnBindModelTypeResult, UpdateModelTypeResult}
+
 import com.webank.wedatasphere.dss.data.governance.{AbstractRemoteClient, DataAssetsRemoteClient}
 import com.webank.wedatasphere.linkis.httpclient.dws.DWSHttpClient
 import com.webank.wedatasphere.linkis.httpclient.dws.config.DWSClientConfig
@@ -32,4 +33,5 @@ class LinkisDataAssetsRemoteClient(clientConfig: DWSClientConfig) extends Abstra
   override def searchHiveTblSize(action: HiveTblSizeAction): HiveTblSizeResult = execute(action).asInstanceOf[HiveTblSizeResult]
 
   override def searchHiveTblStats(action: HiveTblStatsAction): HiveTblStatsResult = execute(action).asInstanceOf[HiveTblStatsResult]
+
 }

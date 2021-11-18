@@ -1,5 +1,6 @@
 package com.webank.wedatasphere.dss.datamodel.dimension.dto;
 
+
 import lombok.Data;
 
 import java.util.Date;
@@ -21,7 +22,9 @@ public class DimensionQueryDTO {
      */
     private String warehouseThemeName;
 
+
     private String warehouseThemeNameEn;
+
 
     private String owner;
 

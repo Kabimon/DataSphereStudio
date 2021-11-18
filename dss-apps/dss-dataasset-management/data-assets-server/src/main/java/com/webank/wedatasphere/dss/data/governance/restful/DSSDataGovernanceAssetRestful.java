@@ -61,10 +61,12 @@ public class DSSDataGovernanceAssetRestful {
     @Path("/hiveTbl/search")
     public Response searchHiveTbl(@QueryParam("classification") String classification,
                                   @QueryParam("query") String query,
+
                                   @QueryParam("type") String type,
                                   @QueryParam("owner") @DefaultValue("") String owner,
                                   @QueryParam("limit") @DefaultValue(DEFAULT_LIMIT) int limit,
                                   @QueryParam("offset") @DefaultValue(DEFAULT_OFFSET) int offset) throws Exception {
+
 
 
         if (ClassificationConstant.isTypeScope(type)) {
@@ -126,7 +128,6 @@ public class DSSDataGovernanceAssetRestful {
                                  @QueryParam("owner") @DefaultValue("") String owner,
                                  @QueryParam("limit") @DefaultValue(DEFAULT_LIMIT) int limit,
                                  @QueryParam("offset") @DefaultValue(DEFAULT_OFFSET) int offset) throws Exception {
-
 
         List<HiveTblSimpleInfo> hiveTblBasicList = assetService.searchHiveDb(classification, '*' + query + '*', limit, offset);
         if (StringUtils.isBlank(owner) || owner.equals("undefined")) {
@@ -250,7 +251,6 @@ public class DSSDataGovernanceAssetRestful {
 
     /**
      * 删除模型
-     *
      * @param req
      * @param vo
      * @return
@@ -267,7 +267,6 @@ public class DSSDataGovernanceAssetRestful {
 
     /**
      * 绑定模型
-     *
      * @param req
      * @param vo
      * @return
@@ -283,7 +282,6 @@ public class DSSDataGovernanceAssetRestful {
 
     /**
      * 解绑模型
-     *
      * @param req
      * @param vo
      * @return
@@ -300,7 +298,6 @@ public class DSSDataGovernanceAssetRestful {
 
     /**
      * 更新模型
-     *
      * @param req
      * @param vo
      * @return
