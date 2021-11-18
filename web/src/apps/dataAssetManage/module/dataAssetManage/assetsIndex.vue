@@ -18,7 +18,7 @@
               <div
                 :key="work.id"
                 :class="{
-                  active: currentTab.guid === work.guid && !textColor
+                  active: currentTab.guid === work.guid && !textColor,
                 }"
                 class="tab-item"
                 ref="work_item"
@@ -48,7 +48,7 @@ import weTab from "../common/tabList/tabs.vue";
 import { EventBus } from "../common/eventBus/event-bus";
 export default {
   components: {
-    weTab
+    weTab,
   },
   data() {
     return {
@@ -56,18 +56,18 @@ export default {
       index: 0,
       work: {},
       currentTab: {},
-      topTapList: []
+      topTapList: [],
     };
   },
   created() {},
   mounted() {
-    EventBus.$on("on-choose-card", model => {
+    EventBus.$on("on-choose-card", (model) => {
       let that = this;
       that.textColor = false;
       const topTapList = that.topTapList.slice(0);
       const { guid } = model;
       that.currentTab = model;
-      if (topTapList.some(model => model.guid === guid)) {
+      if (topTapList.some((model) => model.guid === guid)) {
         return false;
       }
       topTapList.push(model);
@@ -85,7 +85,7 @@ export default {
       const workspaceId = this.$route.query.workspaceId;
       this.$router.push({
         name: "assetsSearch",
-        query: { workspaceId }
+        query: { workspaceId },
       });
       this.textColor = true;
     },
@@ -95,7 +95,7 @@ export default {
       this.$router.push({
         name: "assetsInfo",
         params: { guid },
-        query: { workspaceId }
+        query: { workspaceId },
       });
       this.currentTab = modal;
       this.textColor = false;
@@ -121,21 +121,21 @@ export default {
             that.$router.push({
               name: "assetsInfo",
               params: { guid },
-              query: { workspaceId }
+              query: { workspaceId },
             });
           } else if (len > 1 && idx == len - 1) {
             that.currentTab = topTapList[idx - 1];
             that.$router.push({
               name: "assetsInfo",
               params: { guid },
-              query: { workspaceId }
+              query: { workspaceId },
             });
           } else {
             that.currentTab = {};
             that.textColor = true;
             that.$router.push({
               name: "assetsSearch",
-              query: { workspaceId }
+              query: { workspaceId },
             });
           }
         }
@@ -144,16 +144,18 @@ export default {
       };
 
       removeAction();
-    }
+    },
     // 通过 eventBus 获取 面包屑数据
-  }
+  },
 };
 </script>
 <style lang="scss" scoped>
 @import "@/common/style/variables.scss";
 
 .assets-index-wrap {
-  flex: 1;
+  height: 100%;
+  max-height: 100%;
+  overflow: scroll;
   display: flex;
   flex-direction: column;
   .assets-index-t {
@@ -213,8 +215,7 @@ export default {
 
   .assets-index-b {
     flex: 1;
-    display: flex;
-    flex-direction: column;
+    overflow: hidden;
   }
 }
 </style>

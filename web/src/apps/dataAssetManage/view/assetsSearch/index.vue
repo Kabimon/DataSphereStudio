@@ -1,5 +1,5 @@
 <template>
-  <div class="assets-index-wrap">
+  <div class="assets-index-wrap" ref="assets-index-wrap">
     <!-- top 搜索框 -->
     <div class="assets-index-t">
       <!-- bottom -->
@@ -64,7 +64,7 @@
       </div>
 
       <!-- right -->
-      <div class="assets-index-b-r">
+      <div class="assets-index-b-r" ref="assets-r">
         <template v-for="model in cardTabs">
           <tab-card
             :model="model"
@@ -121,10 +121,16 @@ export default {
     this.throttleLoad = throttle(() => {
       _this.scrollHander();
     }, 300);
-    window.addEventListener("scroll", this.throttleLoad);
+    this.$refs["assets-index-wrap"].addEventListener(
+      "scroll",
+      this.throttleLoad
+    );
   },
-  destroyed() {
-    window.removeEventListener("scroll", this.throttleLoad);
+  beforeDestroy() {
+    this.$refs["assets-index-wrap"].removeEventListener(
+      "scroll",
+      this.throttleLoad
+    );
   },
   methods: {
     // 搜索
@@ -227,39 +233,15 @@ export default {
     // 下拉加載
     scrollHander() {
       const getScrollTop = () => {
-        var scrollTop = 0;
-        if (document.documentElement && document.documentElement.scrollTop) {
-          scrollTop = document.documentElement.scrollTop;
-        } else if (document.body) {
-          scrollTop = document.body.scrollTop;
-        }
-        return scrollTop;
+        return this.$refs["assets-index-wrap"].scrollTop;
       };
       const getClientHeight = () => {
-        var clientHeight = 0;
-        if (
-          document.body.clientHeight &&
-          document.documentElement.clientHeight
-        ) {
-          clientHeight = Math.min(
-            document.body.clientHeight,
-            document.documentElement.clientHeight
-          );
-        } else {
-          clientHeight = Math.max(
-            document.body.clientHeight,
-            document.documentElement.clientHeight
-          );
-        }
-        return clientHeight;
+        return this.$refs["assets-index-wrap"].getBoundingClientRect().height;
       };
       const getScrollHeight = () => {
-        return Math.max(
-          document.body.scrollHeight,
-          document.documentElement.scrollHeight
-        );
+        return this.$refs["assets-index-wrap"].scrollHeight;
       };
-      if (getScrollTop() + getClientHeight() === getScrollHeight()) {
+      if (getScrollTop() + getClientHeight() >= getScrollHeight()) {
         // 拉数据
         this.handleReachBottom();
       }
@@ -271,7 +253,7 @@ export default {
 @import "@/common/style/variables.scss";
 
 .assets-index-wrap {
-  flex: 1;
+  height: 100%;
   display: flex;
   flex-direction: column;
   .assets-index-t-t1 {
