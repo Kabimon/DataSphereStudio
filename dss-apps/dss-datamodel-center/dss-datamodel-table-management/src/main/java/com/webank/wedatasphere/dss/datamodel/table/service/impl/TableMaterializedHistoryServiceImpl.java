@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient;
+import com.webank.wedatasphere.dss.data.governance.request.HiveTblSizeAction;
 import com.webank.wedatasphere.dss.data.governance.request.SearchHiveTblAction;
 import com.webank.wedatasphere.dss.data.governance.response.SearchHiveTblResult;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ErrorCode;
@@ -110,8 +111,13 @@ public class TableMaterializedHistoryServiceImpl extends ServiceImpl<DssDatamode
 
     @Override
     public boolean hasData(String tableName, String user) {
-        DataModelUJESJobTask dataModelUJESJobTask = DataExistsDataModelUJESJobTask.newBuilder().user(user).code(tableName).build();
-        return dataExistsDataModelUJESJobLauncher.launch(dataModelUJESJobTask);
+//        DataModelUJESJobTask dataModelUJESJobTask = DataExistsDataModelUJESJobTask.newBuilder().user(user).code(tableName).build();
+//        return dataExistsDataModelUJESJobLauncher.launch(dataModelUJESJobTask);
+        String tblName = StringUtils.substringAfter(tableName,".");
+        String dbName = StringUtils.substringBefore(tableName,".");
+        return linkisDataAssetsRemoteClient.
+                searchHiveTblSize(HiveTblSizeAction.builder().setUser(user).setDbName(dbName).setTableName(tblName).build())
+                .getResult() >0 ;
     }
 
     @Override

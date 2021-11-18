@@ -1,5 +1,6 @@
 package com.webank.wedatasphere.dss.datamodel.table.dto;
 
+import com.webank.wedatasphere.dss.data.governance.entity.HiveTblStatsDTO;
 import lombok.Data;
 import lombok.ToString;
 
@@ -27,7 +28,7 @@ public class TableStatsDTO {
     /**
      * 存储大小
      */
-    private Integer storageSize = 0;
+    private Long storageSize = 0L;
 
     /**
      * 文件数
@@ -58,4 +59,14 @@ public class TableStatsDTO {
      * 版本信息：默认1
      */
     private String version;
+
+
+    public static TableStatsDTO from(HiveTblStatsDTO hiveTblStatsDTO){
+        TableStatsDTO dto = new TableStatsDTO();
+        dto.setColumnCount(hiveTblStatsDTO.getColumnCount());
+        dto.setFileCount(hiveTblStatsDTO.getNumFiles());
+        dto.setPartitionCount(hiveTblStatsDTO.getPartitionCount());
+        dto.setStorageSize(hiveTblStatsDTO.getTotalSize());
+        return dto;
+    }
 }

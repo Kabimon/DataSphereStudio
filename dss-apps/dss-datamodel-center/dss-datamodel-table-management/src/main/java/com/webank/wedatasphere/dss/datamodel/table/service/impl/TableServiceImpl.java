@@ -193,7 +193,8 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
             //查资产 guid 086c5785-8bda-4756-8ba6-46f9c3d597f1  a3be4a97-6465-4c3d-adee-76dfa662e531  ef09c10a-e156-4d09-96af-af30eb3af26a
             GetHiveTblBasicResult result = linkisDataAssetsRemoteClient.getHiveTblBasic(GetHiveTblBasicAction.builder().setUser(vo.getUser()).setGuid(vo.getGuid()).build());
             HiveTblDetailInfoDTO dto = assertsGson.fromJson(assertsGson.toJson(result.getResult()), HiveTblDetailInfoDTO.class);
-            return TableQueryDTO.toTableStatsDTO(dto, vo.getName());
+            HiveTblStatsResult hiveTblStatsResult = linkisDataAssetsRemoteClient.searchHiveTblStats(HiveTblStatsAction.builder().setUser(vo.getUser()).setGuid(vo.getGuid()).build());
+            return TableQueryDTO.toTableStatsDTO(dto,hiveTblStatsResult.getInfo(), vo.getName());
         }
         return queryTable(table);
     }
@@ -205,16 +206,24 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
                 .stream().map(column -> modelMapper.map(column, TableColumnQueryDTO.class)).collect(Collectors.toList());
         tableQueryDTO.setColumns(columnQueryDTOS);
 
-        DssDatamodelTableStats tableStats = tableStatsService.queryByTableName(table.getName());
-        if (tableStats != null) {
-            tableQueryDTO.setStats(modelMapper.map(tableStats, TableStatsDTO.class));
-        }
+//        DssDatamodelTableStats tableStats = tableStatsService.queryByTableName(table.getName());
+//        if (tableStats != null) {
+//            tableQueryDTO.setStats(modelMapper.map(tableStats, TableStatsDTO.class));
+//        }
         TableHeadlineDTO headlineDTO = new TableHeadlineDTO();
         headlineDTO.setStorageType(0);
         headlineDTO.setTableType(0);
         headlineDTO.setEntityType(
                 tableMaterializedHistoryService.isMaterialized(table.getName(), table.getVersion()) ? 1 : 0);
         tableQueryDTO.setHeadline(headlineDTO);
+
+        String dbName = StringUtils.substringBefore(table.getName(),".");
+        String tblName = StringUtils.substringAfter(table.getName(),".");
+        HiveTblStatsResult hiveTblStatsResult = linkisDataAssetsRemoteClient.searchHiveTblStats(HiveTblStatsAction.builder().setUser(DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser())
+                .setTableName(tblName)
+                .setDbName(dbName)
+                .build());
+        tableQueryDTO.setStats(TableStatsDTO.from(hiveTblStatsResult.getInfo()));
         return tableQueryDTO;
     }
 

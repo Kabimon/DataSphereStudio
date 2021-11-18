@@ -2,6 +2,7 @@ package com.webank.wedatasphere.dss.datamodel.table.dto;
 
 
 import com.google.common.collect.Lists;
+import com.webank.wedatasphere.dss.data.governance.entity.HiveTblStatsDTO;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang.StringUtils;
@@ -109,7 +110,7 @@ public class TableQueryDTO {
 
     private TableHeadlineDTO headline;
 
-    public static TableQueryDTO toTableStatsDTO(HiveTblDetailInfoDTO hiveTblDTO,String name){
+    public static TableQueryDTO toTableStatsDTO(HiveTblDetailInfoDTO hiveTblDTO, HiveTblStatsDTO hiveTblStatsDTO, String name){
         TableQueryDTO dto = new TableQueryDTO();
         dto.setName(name);
         dto.setCreateTime(hiveTblDTO.getBasic().getCreateTime());
@@ -150,6 +151,8 @@ public class TableQueryDTO {
         headlineDTO.setTableType(0);
         headlineDTO.setEntityType(1);
         dto.setHeadline(headlineDTO);
+
+        dto.setStats(TableStatsDTO.from(hiveTblStatsDTO));
         return dto;
     }
 }
