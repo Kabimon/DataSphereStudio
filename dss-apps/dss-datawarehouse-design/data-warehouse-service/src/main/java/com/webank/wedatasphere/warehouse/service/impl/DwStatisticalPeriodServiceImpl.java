@@ -182,7 +182,7 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         return Message.ok().data("page", __page);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message create(HttpServletRequest request, DwStatisticalPeriodCreateCommand command) throws DwException {
         String name = command.getName();
@@ -280,7 +280,7 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         return Message.ok().data("item", record);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message deleteById(HttpServletRequest request, Long id) throws DwException {
         PreconditionUtil.checkArgument(!Objects.isNull(id), DwException.argumentReject("id should not be null"));
@@ -308,7 +308,7 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message update(HttpServletRequest request, DwStatisticalPeriodUpdateCommand command) throws DwException {
         Long id = command.getId();
@@ -379,12 +379,14 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         return Message.ok();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message enable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.TRUE);
         return Message.ok();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message disable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.FALSE);

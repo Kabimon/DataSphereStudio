@@ -109,7 +109,7 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         return Message.ok().data("list", list);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message queryPage(HttpServletRequest request, DwThemeDomainQueryCommand command) throws DwException {
         Integer page = command.getPage();
@@ -145,10 +145,11 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         return Message.ok().data("page", __page);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message create(HttpServletRequest request, DwThemeDomainCreateCommand command) throws DwException {
         String username = SecurityFilter.getLoginUsername(request);
+//        String username = "hdfs";
         String name = command.getName();
         String enName = command.getEnName();
         String principalName = command.getPrincipalName();
@@ -232,8 +233,7 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         return Message.ok().data("item", dto);
     }
 
-    // TODO 后面需要检查主题域下有没有关联的 Hive 表，才决定是否删除
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message deleteById(HttpServletRequest request, Long id) throws DwException {
         PreconditionUtil.checkArgument(!Objects.isNull(id), DwException.argumentReject("id should not be null"));
@@ -275,7 +275,7 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message update(HttpServletRequest request, DwThemeDomainUpdateCommand command) throws DwException {
         String username = SecurityFilter.getLoginUsername(request);
@@ -377,14 +377,14 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message enable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.TRUE);
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message disable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.FALSE);

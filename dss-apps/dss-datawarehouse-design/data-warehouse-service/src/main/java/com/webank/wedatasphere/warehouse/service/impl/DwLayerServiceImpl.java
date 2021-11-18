@@ -83,10 +83,11 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
         return dwThemeDomainMapper;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message createDwCustomLayer(HttpServletRequest request, DwLayerCreateCommand command) throws DwException {
         String username = SecurityFilter.getLoginUsername(request);
+//        String username = "hdfs";
         String name = command.getName();
         String enName = command.getEnName();
         String databases = command.getDatabases();
@@ -265,7 +266,7 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
     }
 
     // TODO 后面需要检查主题域下有没有关联的 Hive 表，才决定是否删除
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message deleteById(HttpServletRequest request, Long id) throws DwException {
         PreconditionUtil.checkArgument(!Objects.isNull(id), DwException.argumentReject("id should not be null"));
@@ -315,7 +316,7 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
      *
      * 预留分层的 name name_alias  charge_user 无法改变
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message update(HttpServletRequest request, DwLayerUpdateCommand command) throws DwException {
         String username = SecurityFilter.getLoginUsername(request);
@@ -430,14 +431,14 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message enable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.TRUE);
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message disable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.FALSE);
