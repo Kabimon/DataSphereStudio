@@ -367,24 +367,25 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
 
         PreconditionUtil.checkState(1 == i, DwException.stateReject("update theme domain failed"));
 
-        // 更新关联
-        try {
-            LinkisDataAssetsRemoteClient dataAssetsRemoteClient = LinkisRemoteClientHolder.getDataAssetsRemoteClient();
-            UpdateModelTypeAction action = new UpdateModelTypeAction.Builder().setType(ClassificationConstant.THEME).setName(record.getEnName()).setOrgName(orgName).setUser(username).build();
-            UpdateModelTypeResult result = dataAssetsRemoteClient.updateModelType(action);
+        // 如果英文名称有改动，则更新关联
+        if (!Objects.equals(orgName, record.getEnName())) {
+            try {
+                LinkisDataAssetsRemoteClient dataAssetsRemoteClient = LinkisRemoteClientHolder.getDataAssetsRemoteClient();
+                UpdateModelTypeAction action = new UpdateModelTypeAction.Builder().setType(ClassificationConstant.THEME).setName(record.getEnName()).setOrgName(orgName).setUser(username).build();
+                UpdateModelTypeResult result = dataAssetsRemoteClient.updateModelType(action);
 
-            if (result.getStatus() != 0) {
-                throw new DwException(result.getStatus(), result.getMessage());
-            }
-        } catch (Exception e) {
-            if (e instanceof ErrorException) {
-                ErrorException ee = (ErrorException) e;
-                throw new DwException(DwExceptionCode.UPDATE_MODEL_TYPE_ERROR.getCode(), e.getMessage(), ee.getIp(), ee.getPort(), ee.getServiceKind());
-            } else {
-                throw new DwException(DwExceptionCode.UPDATE_MODEL_TYPE_ERROR.getCode(), e.getMessage());
+                if (result.getStatus() != 0) {
+                    throw new DwException(result.getStatus(), result.getMessage());
+                }
+            } catch (Exception e) {
+                if (e instanceof ErrorException) {
+                    ErrorException ee = (ErrorException) e;
+                    throw new DwException(DwExceptionCode.UPDATE_MODEL_TYPE_ERROR.getCode(), e.getMessage(), ee.getIp(), ee.getPort(), ee.getServiceKind());
+                } else {
+                    throw new DwException(DwExceptionCode.UPDATE_MODEL_TYPE_ERROR.getCode(), e.getMessage());
+                }
             }
         }
-
         return Message.ok();
     }
 
