@@ -18,7 +18,7 @@ import com.webank.wedatasphere.warehouse.dao.mapper.DwThemeDomainMapper;
 import com.webank.wedatasphere.warehouse.dao.vo.DwStatisticalPeriodVo;
 import com.webank.wedatasphere.warehouse.dto.PageInfo;
 import com.webank.wedatasphere.warehouse.exception.DwException;
-import com.webank.wedatasphere.warehouse.service.DwDomainReferenceCheckAdapter;
+import com.webank.wedatasphere.warehouse.service.DwDomainReferenceAdapter;
 import com.webank.wedatasphere.warehouse.service.DwStatisticalPeriodService;
 import com.webank.wedatasphere.warehouse.utils.PreconditionUtil;
 import com.webank.wedatasphere.warehouse.utils.RegexUtil;
@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
-public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodService, DwDomainReferenceCheckAdapter {
+public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodService, DwDomainReferenceAdapter {
 
     private final DwLayerMapper dwLayerMapper;
     private final DwThemeDomainMapper dwThemeDomainMapper;
@@ -151,6 +151,7 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         Page<DwStatisticalPeriod> _page = this.dwStatisticalPeriodMapper.selectPage(queryPage, queryWrapper);
         List<DwStatisticalPeriod> recs = _page.getRecords();
         List<DwStatisticalPeriodVo> records = new ArrayList<>();
+        String username = SecurityFilter.getLoginUsername(request);
         for (DwStatisticalPeriod rec : recs) {
             DwStatisticalPeriodVo vo = new DwStatisticalPeriodVo();
             vo.setId(rec.getId());
@@ -178,6 +179,8 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
                 vo.setThemeArea(theme.getName());
                 vo.setThemeAreaEn(theme.getEnName());
             });
+            int statisticalPeriodReferenceCount = getStatisticalPeriodReferenceCount(rec.getId(), username);
+            vo.setReferenceCount(statisticalPeriodReferenceCount);
             records.add(vo);
         }
 

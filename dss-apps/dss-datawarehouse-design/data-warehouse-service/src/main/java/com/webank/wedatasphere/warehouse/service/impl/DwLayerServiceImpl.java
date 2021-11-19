@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.webank.wedatasphere.dss.data.governance.entity.ClassificationConstant;
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient;
-import com.webank.wedatasphere.dss.data.governance.request.BindModelTypeAction;
 import com.webank.wedatasphere.dss.data.governance.request.CreateModelTypeAction;
 import com.webank.wedatasphere.dss.data.governance.request.DeleteModelTypeAction;
 import com.webank.wedatasphere.dss.data.governance.request.UpdateModelTypeAction;
@@ -14,9 +13,6 @@ import com.webank.wedatasphere.dss.data.governance.response.CreateModelTypeResul
 import com.webank.wedatasphere.dss.data.governance.response.DeleteModelTypeResult;
 import com.webank.wedatasphere.dss.data.governance.response.UpdateModelTypeResult;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
-import com.webank.wedatasphere.linkis.datasource.client.request.GetInfoByDataSourceIdAction;
-import com.webank.wedatasphere.linkis.httpclient.response.Result;
-import com.webank.wedatasphere.linkis.metadatamanager.common.Json;
 import com.webank.wedatasphere.linkis.server.Message;
 import com.webank.wedatasphere.linkis.server.security.SecurityFilter;
 import com.webank.wedatasphere.warehouse.LinkisRemoteClientHolder;
@@ -34,7 +30,7 @@ import com.webank.wedatasphere.warehouse.exception.DwException;
 import com.webank.wedatasphere.warehouse.dao.mapper.DwLayerMapper;
 //import com.webank.wedatasphere.warehouse.mapper.DwLayerModelMapper;
 import com.webank.wedatasphere.warehouse.exception.DwExceptionCode;
-import com.webank.wedatasphere.warehouse.service.DwDomainReferenceCheckAdapter;
+import com.webank.wedatasphere.warehouse.service.DwDomainReferenceAdapter;
 import com.webank.wedatasphere.warehouse.service.DwLayerService;
 import com.webank.wedatasphere.warehouse.utils.PreconditionUtil;
 import com.webank.wedatasphere.warehouse.utils.RegexUtil;
@@ -48,7 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
-public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceCheckAdapter {
+public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceAdapter {
 
     private final DwLayerMapper dwLayerMapper;
     private final DwThemeDomainMapper dwThemeDomainMapper;
@@ -195,11 +191,15 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
             queryWrapper.eq("is_available", isAvailable);
         }
         List<DwLayer> records = this.dwLayerMapper.selectList(queryWrapper);
+        String username = SecurityFilter.getLoginUsername(request);
 
         List<DwLayerListItemDTO> dtos = new ArrayList<>();
         for (DwLayer record : records) {
             DwLayerListItemDTO dto = new DwLayerListItemDTO();
             BeanUtils.copyProperties(record, dto);
+            // get reference count
+            int layerReferenceCount = getLayerReferenceCount(record.getId(), username);
+            dto.setReferenceCount(layerReferenceCount);
             dtos.add(dto);
         }
 
@@ -216,9 +216,14 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
 //        List<DwLayerListItemDTO> dtos = DwLayerModelMapper.INSTANCE.toList(dwLayers);
         List<DwLayerListItemDTO> dtos = new ArrayList<>();
 
+        String username = SecurityFilter.getLoginUsername(request);
+
         for (DwLayer record : records) {
             DwLayerListItemDTO dto = new DwLayerListItemDTO();
             BeanUtils.copyProperties(record, dto);
+            // get reference count
+            int layerReferenceCount = getLayerReferenceCount(record.getId(), username);
+            dto.setReferenceCount(layerReferenceCount);
             dtos.add(dto);
         }
 
@@ -247,7 +252,6 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
             queryWrapper.like("name", name).or().like("en_name", name);
         }
 
-
         Page<DwLayer> queryPage = new Page<>(page, size);
 
         IPage<DwLayer> _page = this.dwLayerMapper.selectPage(queryPage, queryWrapper);
@@ -256,11 +260,16 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
 
 //        List<DwLayerListItemDTO> list = DwLayerModelMapper.INSTANCE.toList(records);
         List<DwLayerListItemDTO> list = new ArrayList<>();
-
+        String username = SecurityFilter.getLoginUsername(request);
         for (DwLayer record : records) {
             DwLayerListItemDTO dto = new DwLayerListItemDTO();
             BeanUtils.copyProperties(record, dto);
+            // get reference count
+            int layerReferenceCount = getLayerReferenceCount(record.getId(), username);
+            dto.setReferenceCount(layerReferenceCount);
+
             list.add(dto);
+
         }
 
 
@@ -332,6 +341,7 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
         // 实体校验
         DwLayer layer = this.dwLayerMapper.selectById(id);
         PreconditionUtil.checkState(!Objects.isNull(layer), DwException.stateReject("layer not found"));
+        String orgEnName = layer.getEnName();
 
         // 分层类型后的name参数单独校验
         String name = command.getName();
@@ -418,7 +428,7 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
         // 更新关联
         try {
             LinkisDataAssetsRemoteClient dataAssetsRemoteClient = LinkisRemoteClientHolder.getDataAssetsRemoteClient();
-            UpdateModelTypeAction action = new UpdateModelTypeAction.Builder().setType(ClassificationConstant.LAYER).setName(layer.getEnName()).setUser(username).build();
+            UpdateModelTypeAction action = new UpdateModelTypeAction.Builder().setType(ClassificationConstant.LAYER).setName(layer.getEnName()).setOrgName(orgEnName).setUser(username).build();
             UpdateModelTypeResult result = dataAssetsRemoteClient.updateModelType(action);
 
             if (result.getStatus() != 0) {

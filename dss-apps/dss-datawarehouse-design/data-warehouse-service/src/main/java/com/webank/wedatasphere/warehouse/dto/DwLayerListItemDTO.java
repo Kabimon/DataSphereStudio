@@ -17,4 +17,5 @@ public class DwLayerListItemDTO {
     private Boolean isAvailable;
     private Date createTime;
     private Date updateTime;
+    private int referenceCount;
 }

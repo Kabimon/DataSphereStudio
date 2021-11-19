@@ -29,7 +29,7 @@ import com.webank.wedatasphere.warehouse.dto.DwThemeDomainListItemDTO;
 import com.webank.wedatasphere.warehouse.dto.PageInfo;
 import com.webank.wedatasphere.warehouse.exception.DwException;
 import com.webank.wedatasphere.warehouse.exception.DwExceptionCode;
-import com.webank.wedatasphere.warehouse.service.DwDomainReferenceCheckAdapter;
+import com.webank.wedatasphere.warehouse.service.DwDomainReferenceAdapter;
 import com.webank.wedatasphere.warehouse.service.DwThemeDomainService;
 import com.webank.wedatasphere.warehouse.utils.PreconditionUtil;
 import com.webank.wedatasphere.warehouse.utils.RegexUtil;
@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainReferenceCheckAdapter {
+public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainReferenceAdapter {
 
     private final DwLayerMapper dwLayerMapper;
     private final DwThemeDomainMapper dwThemeDomainMapper;
@@ -134,9 +134,14 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
 
         List<DwThemeDomain> records = _page.getRecords();
         List<DwThemeDomainListItemDTO> list = new ArrayList<>();
+        String username = SecurityFilter.getLoginUsername(request);
         for (DwThemeDomain domain : records) {
             DwThemeDomainListItemDTO dwThemeDomainListItemDTO = new DwThemeDomainListItemDTO();/*= this.dwThemeDomainModelMapper.toListItem(domain)*/;
             BeanUtils.copyProperties(domain, dwThemeDomainListItemDTO);
+
+            int themeDomainReferenceCount = getThemeDomainReferenceCount(domain.getId(), username);
+            dwThemeDomainListItemDTO.setReferenceCount(themeDomainReferenceCount);
+
             list.add(dwThemeDomainListItemDTO);
         }
 
@@ -315,6 +320,8 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         PreconditionUtil.checkState(!Objects.isNull(record), DwException.stateReject("theme domain not found"));
         PreconditionUtil.checkState(record.getIsAvailable(), DwException.stateReject("theme domain is unAvailable"));
 
+        String orgName = record.getEnName();
+
         // if name enName not equal to database attribute, we should check domain if in use
         if (!Objects.equals(name, record.getName()) || !Objects.equals(enName, record.getEnName())) {
             // check in use
@@ -363,7 +370,7 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         // 更新关联
         try {
             LinkisDataAssetsRemoteClient dataAssetsRemoteClient = LinkisRemoteClientHolder.getDataAssetsRemoteClient();
-            UpdateModelTypeAction action = new UpdateModelTypeAction.Builder().setType(ClassificationConstant.THEME).setName(record.getEnName()).setUser(username).build();
+            UpdateModelTypeAction action = new UpdateModelTypeAction.Builder().setType(ClassificationConstant.THEME).setName(record.getEnName()).setOrgName(orgName).setUser(username).build();
             UpdateModelTypeResult result = dataAssetsRemoteClient.updateModelType(action);
 
             if (result.getStatus() != 0) {

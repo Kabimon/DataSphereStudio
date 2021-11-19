@@ -55,4 +55,6 @@ public class DwStatisticalPeriodVo implements Serializable {
     transient private Boolean status;
 
     private boolean referenced;
+
+    private int referenceCount;
 }

@@ -18,7 +18,7 @@ import com.webank.wedatasphere.warehouse.dto.DwModifierListDTO;
 import com.webank.wedatasphere.warehouse.dto.DwModifierListItemDTO;
 import com.webank.wedatasphere.warehouse.dto.PageInfo;
 import com.webank.wedatasphere.warehouse.exception.DwException;
-import com.webank.wedatasphere.warehouse.service.DwDomainReferenceCheckAdapter;
+import com.webank.wedatasphere.warehouse.service.DwDomainReferenceAdapter;
 import com.webank.wedatasphere.warehouse.service.DwModifierService;
 import com.webank.wedatasphere.warehouse.utils.PreconditionUtil;
 import com.webank.wedatasphere.warehouse.utils.RegexUtil;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class DwModifierServiceImpl implements DwModifierService, DwDomainReferenceCheckAdapter {
+public class DwModifierServiceImpl implements DwModifierService, DwDomainReferenceAdapter {
 
     private final DwModifierMapper dwModifierMapper;
     private final DwModifierListMapper dwModifierListMapper;
@@ -143,9 +143,12 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
 
         List<DwModifierListItemDTO> list = new ArrayList<>();
         DwModifierListItemDTO dto;
+        String username = SecurityFilter.getLoginUsername(request);
         for (DwModifier modifier : records) {
             dto = new DwModifierListItemDTO();
             BeanUtils.copyProperties(modifier, dto);
+            int modifierReferenceCount = getModifierReferenceCount(modifier.getId(), username);
+            dto.setReferenceCount(modifierReferenceCount);
             list.add(dto);
         }
 
@@ -339,6 +342,7 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         // 实体校验
         DwModifier record = this.dwModifierMapper.selectById(id);
         PreconditionUtil.checkState(!Objects.isNull(record), DwException.stateReject("modifier not found"));
+//        String orgName = record.getModifierTypeEn();
 
         // typeName 唯一性检测
         QueryWrapper<DwModifier> nameUniqueCheckQuery = new QueryWrapper<>();
