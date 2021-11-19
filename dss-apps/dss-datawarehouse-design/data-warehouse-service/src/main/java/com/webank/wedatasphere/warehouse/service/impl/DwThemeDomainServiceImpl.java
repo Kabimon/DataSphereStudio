@@ -115,6 +115,7 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         Integer page = command.getPage();
         Integer size = command.getSize();
         String name = command.getName();
+        Boolean enabled = command.getEnabled();
         if (Objects.isNull(page))
             page = 1;
 
@@ -123,6 +124,9 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
 
         QueryWrapper<DwThemeDomain> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", Boolean.TRUE);
+        if (Objects.nonNull(enabled)) {
+            queryWrapper.eq("is_available", enabled);
+        }
         if (Strings.isNotBlank(name)) {
             queryWrapper.and(qw -> {
                 qw.like("name", name).or().like("en_name", name);
