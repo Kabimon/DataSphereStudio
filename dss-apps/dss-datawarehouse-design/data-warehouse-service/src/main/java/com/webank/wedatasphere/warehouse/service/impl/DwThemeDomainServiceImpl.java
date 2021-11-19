@@ -29,7 +29,7 @@ import com.webank.wedatasphere.warehouse.dto.DwThemeDomainListItemDTO;
 import com.webank.wedatasphere.warehouse.dto.PageInfo;
 import com.webank.wedatasphere.warehouse.exception.DwException;
 import com.webank.wedatasphere.warehouse.exception.DwExceptionCode;
-import com.webank.wedatasphere.warehouse.service.DwDomainReferenceCheckAdapter;
+import com.webank.wedatasphere.warehouse.service.DwDomainReferenceAdapter;
 import com.webank.wedatasphere.warehouse.service.DwThemeDomainService;
 import com.webank.wedatasphere.warehouse.utils.PreconditionUtil;
 import com.webank.wedatasphere.warehouse.utils.RegexUtil;
@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainReferenceCheckAdapter {
+public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainReferenceAdapter {
 
     private final DwLayerMapper dwLayerMapper;
     private final DwThemeDomainMapper dwThemeDomainMapper;
@@ -109,7 +109,7 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         return Message.ok().data("list", list);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message queryPage(HttpServletRequest request, DwThemeDomainQueryCommand command) throws DwException {
         Integer page = command.getPage();
@@ -134,9 +134,14 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
 
         List<DwThemeDomain> records = _page.getRecords();
         List<DwThemeDomainListItemDTO> list = new ArrayList<>();
+        String username = SecurityFilter.getLoginUsername(request);
         for (DwThemeDomain domain : records) {
             DwThemeDomainListItemDTO dwThemeDomainListItemDTO = new DwThemeDomainListItemDTO();/*= this.dwThemeDomainModelMapper.toListItem(domain)*/;
             BeanUtils.copyProperties(domain, dwThemeDomainListItemDTO);
+
+            int themeDomainReferenceCount = getThemeDomainReferenceCount(domain.getId(), username);
+            dwThemeDomainListItemDTO.setReferenceCount(themeDomainReferenceCount);
+
             list.add(dwThemeDomainListItemDTO);
         }
 
@@ -145,10 +150,11 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         return Message.ok().data("page", __page);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message create(HttpServletRequest request, DwThemeDomainCreateCommand command) throws DwException {
         String username = SecurityFilter.getLoginUsername(request);
+//        String username = "hdfs";
         String name = command.getName();
         String enName = command.getEnName();
         String principalName = command.getPrincipalName();
@@ -225,15 +231,16 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         PreconditionUtil.checkState(record.getStatus(), DwException.stateReject("theme domain has been removed"));
 
 //        DwThemeDomainDTO dto = this.dwThemeDomainModelMapper.toDTO(record);
-
+        String username = SecurityFilter.getLoginUsername(request);
+        boolean inUse = isThemeDomainInUse(record.getId(), username);
         DwThemeDomainDTO dto = new DwThemeDomainDTO();
         BeanUtils.copyProperties(record, dto);
+        dto.setReferenced(inUse);
 
         return Message.ok().data("item", dto);
     }
 
-    // TODO 后面需要检查主题域下有没有关联的 Hive 表，才决定是否删除
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message deleteById(HttpServletRequest request, Long id) throws DwException {
         PreconditionUtil.checkArgument(!Objects.isNull(id), DwException.argumentReject("id should not be null"));
@@ -247,11 +254,13 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         boolean inUse = isThemeDomainInUse(record.getId(), username);
         PreconditionUtil.checkState(!inUse, DwException.stateReject("theme domain is in use"));
 
-        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
-            return Message.ok();
-        }
-        record.setStatus(Boolean.FALSE);
-        int i = this.dwThemeDomainMapper.updateById(record);
+//        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
+//            return Message.ok();
+//        }
+//        record.setStatus(Boolean.FALSE);
+//        int i = this.dwThemeDomainMapper.updateById(record);
+        // physical delete, because of name unique
+        int i = this.dwThemeDomainMapper.deleteById(record);
         PreconditionUtil.checkState(1 == i, DwException.stateReject("remove action failed"));
 
         // 删除关联
@@ -275,7 +284,7 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message update(HttpServletRequest request, DwThemeDomainUpdateCommand command) throws DwException {
         String username = SecurityFilter.getLoginUsername(request);
@@ -310,6 +319,8 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         DwThemeDomain record = this.dwThemeDomainMapper.selectById(id);
         PreconditionUtil.checkState(!Objects.isNull(record), DwException.stateReject("theme domain not found"));
         PreconditionUtil.checkState(record.getIsAvailable(), DwException.stateReject("theme domain is unAvailable"));
+
+        String orgName = record.getEnName();
 
         // if name enName not equal to database attribute, we should check domain if in use
         if (!Objects.equals(name, record.getName()) || !Objects.equals(enName, record.getEnName())) {
@@ -356,35 +367,36 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
 
         PreconditionUtil.checkState(1 == i, DwException.stateReject("update theme domain failed"));
 
-        // 更新关联
-        try {
-            LinkisDataAssetsRemoteClient dataAssetsRemoteClient = LinkisRemoteClientHolder.getDataAssetsRemoteClient();
-            UpdateModelTypeAction action = new UpdateModelTypeAction.Builder().setType(ClassificationConstant.THEME).setName(record.getEnName()).setUser(username).build();
-            UpdateModelTypeResult result = dataAssetsRemoteClient.updateModelType(action);
+        // 如果英文名称有改动，则更新关联
+        if (!Objects.equals(orgName, record.getEnName())) {
+            try {
+                LinkisDataAssetsRemoteClient dataAssetsRemoteClient = LinkisRemoteClientHolder.getDataAssetsRemoteClient();
+                UpdateModelTypeAction action = new UpdateModelTypeAction.Builder().setType(ClassificationConstant.THEME).setName(record.getEnName()).setOrgName(orgName).setUser(username).build();
+                UpdateModelTypeResult result = dataAssetsRemoteClient.updateModelType(action);
 
-            if (result.getStatus() != 0) {
-                throw new DwException(result.getStatus(), result.getMessage());
-            }
-        } catch (Exception e) {
-            if (e instanceof ErrorException) {
-                ErrorException ee = (ErrorException) e;
-                throw new DwException(DwExceptionCode.UPDATE_MODEL_TYPE_ERROR.getCode(), e.getMessage(), ee.getIp(), ee.getPort(), ee.getServiceKind());
-            } else {
-                throw new DwException(DwExceptionCode.UPDATE_MODEL_TYPE_ERROR.getCode(), e.getMessage());
+                if (result.getStatus() != 0) {
+                    throw new DwException(result.getStatus(), result.getMessage());
+                }
+            } catch (Exception e) {
+                if (e instanceof ErrorException) {
+                    ErrorException ee = (ErrorException) e;
+                    throw new DwException(DwExceptionCode.UPDATE_MODEL_TYPE_ERROR.getCode(), e.getMessage(), ee.getIp(), ee.getPort(), ee.getServiceKind());
+                } else {
+                    throw new DwException(DwExceptionCode.UPDATE_MODEL_TYPE_ERROR.getCode(), e.getMessage());
+                }
             }
         }
-
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message enable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.TRUE);
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message disable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.FALSE);

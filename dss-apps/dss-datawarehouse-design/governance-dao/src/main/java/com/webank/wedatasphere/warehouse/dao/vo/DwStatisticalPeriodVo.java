@@ -45,8 +45,16 @@ public class DwStatisticalPeriodVo implements Serializable {
     @NameAttachWorkspaceTrans
     private String themeArea;
 
+    private String themeAreaEn;
+
     @NameAttachWorkspaceTrans
     private String layerArea;
 
+    private String layerAreaEn;
+
     transient private Boolean status;
+
+    private boolean referenced;
+
+    private int referenceCount;
 }

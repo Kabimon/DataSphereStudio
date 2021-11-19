@@ -38,12 +38,18 @@ public class DwModifier extends DssWorkspaceEntity {
     @TableField(value = "theme_area")
     private String themeArea;
 
+    @TableField(value = "theme_area_en")
+    private String themeAreaEn;
+
     @TableField(value = "layer_id")
     private Long layerId;
 
     // 空：代表所有，如果是逗号分隔的字符串则代表对应的layer的names
     @TableField(value = "layer_area")
     private String layerArea;
+
+    @TableField(value = "layer_area_en")
+    private String layerAreaEn;
 
     private String description;
 

@@ -18,7 +18,7 @@ import com.webank.wedatasphere.warehouse.dto.DwModifierListDTO;
 import com.webank.wedatasphere.warehouse.dto.DwModifierListItemDTO;
 import com.webank.wedatasphere.warehouse.dto.PageInfo;
 import com.webank.wedatasphere.warehouse.exception.DwException;
-import com.webank.wedatasphere.warehouse.service.DwDomainReferenceCheckAdapter;
+import com.webank.wedatasphere.warehouse.service.DwDomainReferenceAdapter;
 import com.webank.wedatasphere.warehouse.service.DwModifierService;
 import com.webank.wedatasphere.warehouse.utils.PreconditionUtil;
 import com.webank.wedatasphere.warehouse.utils.RegexUtil;
@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class DwModifierServiceImpl implements DwModifierService, DwDomainReferenceCheckAdapter {
+public class DwModifierServiceImpl implements DwModifierService, DwDomainReferenceAdapter {
 
     private final DwModifierMapper dwModifierMapper;
     private final DwModifierListMapper dwModifierListMapper;
@@ -82,12 +82,21 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
     public Message queryAllModifiers(HttpServletRequest request, DwModifierQueryCommand command) throws DwException {
         String typeName = command.getName();
         Boolean isAvailable = command.getEnabled();
+        String theme = command.getTheme();
+        String layer = command.getLayer();
 
         QueryWrapper<DwModifier> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", Boolean.TRUE);
         if (!Objects.isNull(isAvailable)) {
             queryWrapper.eq("is_available", isAvailable);
         }
+        if (Strings.isNotBlank(theme)) {
+            queryWrapper.like("theme_area_en", theme);
+        }
+        if (Strings.isNotBlank(layer)) {
+            queryWrapper.like("layer_area_en", layer);
+        }
+
         if (Strings.isNotBlank(typeName)) {
             queryWrapper.and(qw -> {
                 queryWrapper.like("modifier_type", typeName).or().like("modifier_type_en", typeName);
@@ -134,9 +143,12 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
 
         List<DwModifierListItemDTO> list = new ArrayList<>();
         DwModifierListItemDTO dto;
+        String username = SecurityFilter.getLoginUsername(request);
         for (DwModifier modifier : records) {
             dto = new DwModifierListItemDTO();
             BeanUtils.copyProperties(modifier, dto);
+            int modifierReferenceCount = getModifierReferenceCount(modifier.getId(), username);
+            dto.setReferenceCount(modifierReferenceCount);
             list.add(dto);
         }
 
@@ -148,7 +160,7 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         return Message.ok().data("page", __page);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message create(HttpServletRequest request, DwModifierCreateCommand command) throws DwException {
         Long themeDomainId = command.getThemeDomainId();
@@ -201,8 +213,10 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         DwModifier record = new DwModifier();
         record.setThemeDomainId(dwThemeDomain.getId());
         record.setThemeArea(dwThemeDomain.getName());
+        record.setThemeAreaEn(dwThemeDomain.getEnName());
         record.setLayerId(dwLayer.getId());
         record.setLayerArea(dwLayer.getName());
+        record.setLayerAreaEn(dwLayer.getEnName());
         record.setModifierType(typeName);
         record.setModifierTypeEn(typeEnName);
         record.setDescription(description);
@@ -251,6 +265,9 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         DwModifierDTO dto = new DwModifierDTO();
 //        DwModifierDTO dto = this.dwModifierModelMapper.toDTO(record);
         BeanUtils.copyProperties(record, dto);
+        String username = SecurityFilter.getLoginUsername(request);
+        boolean inUse = isModifierInUse(record.getId(), username);
+        dto.setReferenced(inUse);
 
         QueryWrapper<DwModifierList> dwModifierListQueryWrapper = new QueryWrapper<>();
         dwModifierListQueryWrapper.eq("modifier_id", record.getId());
@@ -268,7 +285,7 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         return Message.ok().data("item", dto);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message deleteById(HttpServletRequest request, Long id) throws DwException {
         PreconditionUtil.checkArgument(!Objects.isNull(id), DwException.argumentReject("id should not be null"));
@@ -279,16 +296,17 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         boolean inUse = isModifierInUse(record.getId(), username);
         PreconditionUtil.checkState(!inUse, DwException.stateReject("modifier is in use, id = {}, name = {}", record.getId(), record.getModifierType()));
 
-        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
-            return Message.ok();
-        }
-        record.setStatus(Boolean.FALSE);
-        int i = this.dwModifierMapper.updateById(record);
+//        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
+//            return Message.ok();
+//        }
+//        record.setStatus(Boolean.FALSE);
+//        int i = this.dwModifierMapper.updateById(record);
+        int i = this.dwModifierMapper.deleteById(record);
         PreconditionUtil.checkState(1 == i, DwException.stateReject("remove action failed"));
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message update(HttpServletRequest request, DwModifierUpdateCommand command) throws DwException {
         Long id = command.getId();
@@ -324,6 +342,7 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         // 实体校验
         DwModifier record = this.dwModifierMapper.selectById(id);
         PreconditionUtil.checkState(!Objects.isNull(record), DwException.stateReject("modifier not found"));
+//        String orgName = record.getModifierTypeEn();
 
         // typeName 唯一性检测
         QueryWrapper<DwModifier> nameUniqueCheckQuery = new QueryWrapper<>();
@@ -399,14 +418,14 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message enable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.TRUE);
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message disable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.FALSE);

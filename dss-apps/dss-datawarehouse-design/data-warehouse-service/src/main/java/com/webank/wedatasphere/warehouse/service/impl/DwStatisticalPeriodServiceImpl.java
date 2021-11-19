@@ -18,7 +18,7 @@ import com.webank.wedatasphere.warehouse.dao.mapper.DwThemeDomainMapper;
 import com.webank.wedatasphere.warehouse.dao.vo.DwStatisticalPeriodVo;
 import com.webank.wedatasphere.warehouse.dto.PageInfo;
 import com.webank.wedatasphere.warehouse.exception.DwException;
-import com.webank.wedatasphere.warehouse.service.DwDomainReferenceCheckAdapter;
+import com.webank.wedatasphere.warehouse.service.DwDomainReferenceAdapter;
 import com.webank.wedatasphere.warehouse.service.DwStatisticalPeriodService;
 import com.webank.wedatasphere.warehouse.utils.PreconditionUtil;
 import com.webank.wedatasphere.warehouse.utils.RegexUtil;
@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
-public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodService, DwDomainReferenceCheckAdapter {
+public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodService, DwDomainReferenceAdapter {
 
     private final DwLayerMapper dwLayerMapper;
     private final DwThemeDomainMapper dwThemeDomainMapper;
@@ -151,9 +151,9 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         Page<DwStatisticalPeriod> _page = this.dwStatisticalPeriodMapper.selectPage(queryPage, queryWrapper);
         List<DwStatisticalPeriod> recs = _page.getRecords();
         List<DwStatisticalPeriodVo> records = new ArrayList<>();
-        DwStatisticalPeriodVo vo;
+        String username = SecurityFilter.getLoginUsername(request);
         for (DwStatisticalPeriod rec : recs) {
-            vo = new DwStatisticalPeriodVo();
+            DwStatisticalPeriodVo vo = new DwStatisticalPeriodVo();
             vo.setId(rec.getId());
             vo.setName(rec.getName());
             vo.setEnName(rec.getEnName());
@@ -170,10 +170,17 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
             vo.setIsAvailable(rec.getIsAvailable());
             // 单独查询
             DwLayer dwLayer = this.dwLayerMapper.selectById(rec.getLayerId());
-            vo.setLayerArea(dwLayer.getName());
+            Optional.ofNullable(dwLayer).ifPresent(layer -> {
+                vo.setLayerArea(layer.getName());
+                vo.setLayerAreaEn(layer.getEnName());
+            });
             DwThemeDomain dwThemeDomain = dwThemeDomainMapper.selectById(rec.getThemeDomainId());
-            vo.setThemeArea(dwThemeDomain.getName());
-
+            Optional.ofNullable(dwThemeDomain).ifPresent(theme -> {
+                vo.setThemeArea(theme.getName());
+                vo.setThemeAreaEn(theme.getEnName());
+            });
+            int statisticalPeriodReferenceCount = getStatisticalPeriodReferenceCount(rec.getId(), username);
+            vo.setReferenceCount(statisticalPeriodReferenceCount);
             records.add(vo);
         }
 
@@ -182,7 +189,7 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         return Message.ok().data("page", __page);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message create(HttpServletRequest request, DwStatisticalPeriodCreateCommand command) throws DwException {
         String name = command.getName();
@@ -276,11 +283,14 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
             DwThemeDomain dwThemeDomain = dwThemeDomainMapper.selectById(tid);
             record.setThemeArea(dwThemeDomain.getName());
         });
-
+        // 应用查询
+        String username = SecurityFilter.getLoginUsername(request);
+        boolean inUse = isStatisticalPeriodInUse(record.getId(), username);
+        record.setReferenced(inUse);
         return Message.ok().data("item", record);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message deleteById(HttpServletRequest request, Long id) throws DwException {
         PreconditionUtil.checkArgument(!Objects.isNull(id), DwException.argumentReject("id should not be null"));
@@ -291,24 +301,25 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         boolean inUse = isStatisticalPeriodInUse(record.getId(), username);
         PreconditionUtil.checkState(!inUse, DwException.stateReject("statistical period is in use, id = {}, name = {}", record.getId(), record.getName()));
 
-        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
-            return Message.ok();
-        }
-        Long oldLockVersion = record.getLockVersion();
-        QueryWrapper<DwStatisticalPeriod> updateWrapper = new QueryWrapper<>();
-        updateWrapper.eq("lock_version", oldLockVersion);
-        updateWrapper.eq("id", record.getId());
-
-        DwStatisticalPeriod updateBean = new DwStatisticalPeriod();
-        updateBean.setLockVersion(oldLockVersion + 1);
-        updateBean.setStatus(Boolean.FALSE);
-
-        int i = this.dwStatisticalPeriodMapper.update(updateBean, updateWrapper);
+//        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
+//            return Message.ok();
+//        }
+//        Long oldLockVersion = record.getLockVersion();
+//        QueryWrapper<DwStatisticalPeriod> updateWrapper = new QueryWrapper<>();
+//        updateWrapper.eq("lock_version", oldLockVersion);
+//        updateWrapper.eq("id", record.getId());
+//
+//        DwStatisticalPeriod updateBean = new DwStatisticalPeriod();
+//        updateBean.setLockVersion(oldLockVersion + 1);
+//        updateBean.setStatus(Boolean.FALSE);
+//
+//        int i = this.dwStatisticalPeriodMapper.update(updateBean, updateWrapper);
+        int i = this.dwStatisticalPeriodMapper.deleteById(record);
         PreconditionUtil.checkState(1 == i, DwException.stateReject("remove action failed"));
         return Message.ok();
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message update(HttpServletRequest request, DwStatisticalPeriodUpdateCommand command) throws DwException {
         Long id = command.getId();
@@ -379,12 +390,14 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         return Message.ok();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message enable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.TRUE);
         return Message.ok();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Message disable(HttpServletRequest request, Long id) throws DwException {
         changeEnable(request, id, Boolean.FALSE);

@@ -33,11 +33,15 @@ public class DwModifierRestfulApi {
     public Response queryAllModifiers(
             @Context HttpServletRequest request,
             @QueryParam("typeName") String typeName,
-            @QueryParam(value = "isAvailable") Boolean isAvailable
+            @QueryParam(value = "isAvailable") Boolean isAvailable,
+            @QueryParam(value = "theme") String theme,
+            @QueryParam(value = "layer") String layer
     )throws DwException {
         final DwModifierQueryCommand command = new DwModifierQueryCommand();
         command.setName(typeName);
         command.setEnabled(isAvailable);
+        command.setTheme(theme);
+        command.setLayer(layer);
         Message message = this.dwModifierService.queryAllModifiers(request, command);
         return Message.messageToResponse(message);
     }

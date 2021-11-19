@@ -15,4 +15,5 @@ public class DwModifierListItemDTO {
     private Boolean isAvailable;
     private Date createTime;
     private Date updateTime;
+    private int referenceCount;
 }

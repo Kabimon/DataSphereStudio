@@ -17,4 +17,5 @@ public class DwThemeDomainListItemDTO {
     private Date updateTime;
     private Boolean preset;
     private Boolean isAvailable;
+    private int referenceCount;
 }

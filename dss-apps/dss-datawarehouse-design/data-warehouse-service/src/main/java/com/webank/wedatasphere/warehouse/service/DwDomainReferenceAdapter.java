@@ -1,7 +1,7 @@
 package com.webank.wedatasphere.warehouse.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient;
+import com.google.common.base.Strings;
 import com.webank.wedatasphere.dss.datamodel.center.client.impl.LinkisDatamodelCenterRemoteClient;
 import com.webank.wedatasphere.dss.datamodel.center.client.request.CyclesReferenceAction;
 import com.webank.wedatasphere.dss.datamodel.center.client.request.LayersReferenceAction;
@@ -25,7 +25,7 @@ import com.webank.wedatasphere.warehouse.utils.PreconditionUtil;
 
 import java.util.Optional;
 
-public interface DwDomainReferenceCheckAdapter {
+public interface DwDomainReferenceAdapter {
 
     DwStatisticalPeriodMapper getDwStatisticalPeriodMapper();
 
@@ -36,17 +36,101 @@ public interface DwDomainReferenceCheckAdapter {
     DwThemeDomainMapper getDwThemeDomainMapper();
 
     default void checkMapper() throws DwException {
-        DwLayerMapper dwLayerMapper = getDwLayerMapper();
-        PreconditionUtil.checkState(Optional.ofNullable(dwLayerMapper).isPresent(), DwException.stateReject("dw layer mapper should not be null"));
+//        DwLayerMapper dwLayerMapper = getDwLayerMapper();
+//        PreconditionUtil.checkState(Optional.ofNullable(dwLayerMapper).isPresent(), DwException.stateReject("dw layer mapper should not be null"));
+//
+//        DwThemeDomainMapper dwThemeDomainMapper = getDwThemeDomainMapper();
+//        PreconditionUtil.checkState(Optional.ofNullable(dwThemeDomainMapper).isPresent(), DwException.stateReject("dw theme domain mapper should not be null"));
+//
+//        DwModifierMapper dwModifierMapper = getDwModifierMapper();
+//        PreconditionUtil.checkState(Optional.ofNullable(dwModifierMapper).isPresent(), DwException.stateReject("dw modifier mapper should not be null"));
+//
+//        DwStatisticalPeriodMapper dwStatisticalPeriodMapper = getDwStatisticalPeriodMapper();
+//        PreconditionUtil.checkState(Optional.ofNullable(dwStatisticalPeriodMapper).isPresent(), DwException.stateReject("dw statistical period mapper should not be null"));
+        checkLayerMapper();
 
-        DwThemeDomainMapper dwThemeDomainMapper = getDwThemeDomainMapper();
-        PreconditionUtil.checkState(Optional.ofNullable(dwThemeDomainMapper).isPresent(), DwException.stateReject("dw theme domain mapper should not be null"));
+        checkThemeDomainMapper();
 
+        checkModifierMapper();
+
+        checkStatisticalPeriodMapper();
+    }
+
+    default void checkModifierMapper() throws DwException {
         DwModifierMapper dwModifierMapper = getDwModifierMapper();
         PreconditionUtil.checkState(Optional.ofNullable(dwModifierMapper).isPresent(), DwException.stateReject("dw modifier mapper should not be null"));
+    }
 
+    default void checkLayerMapper() throws DwException {
+        DwLayerMapper dwLayerMapper = getDwLayerMapper();
+        PreconditionUtil.checkState(Optional.ofNullable(dwLayerMapper).isPresent(), DwException.stateReject("dw layer mapper should not be null"));
+    }
+
+    default void checkThemeDomainMapper() throws DwException {
+        DwThemeDomainMapper dwThemeDomainMapper = getDwThemeDomainMapper();
+        PreconditionUtil.checkState(Optional.ofNullable(dwThemeDomainMapper).isPresent(), DwException.stateReject("dw theme domain mapper should not be null"));
+    }
+
+    default void checkStatisticalPeriodMapper() throws DwException {
         DwStatisticalPeriodMapper dwStatisticalPeriodMapper = getDwStatisticalPeriodMapper();
         PreconditionUtil.checkState(Optional.ofNullable(dwStatisticalPeriodMapper).isPresent(), DwException.stateReject("dw statistical period mapper should not be null"));
+    }
+
+    // get theme reference count
+    default int getThemeDomainReferenceCount(Long id, String username) throws DwException {
+        checkThemeDomainMapper();
+
+        DwThemeDomain themeDomain = getDwThemeDomainMapper().selectById(id);
+        PreconditionUtil.checkState(Optional.ofNullable(themeDomain).isPresent(), DwException.stateReject("dw theme domain should not be null, id = {}", id));
+
+        LinkisDatamodelCenterRemoteClient dataModelRemoteClient = LinkisRemoteClientHolder.getDataModelRemoteClient();
+        ThemesReferenceAction themesReferenceAction = new ThemesReferenceAction.Builder().setName(themeDomain.getEnName()).setUser(username).build();
+        ThemesReferenceResult themesReferenceResult = dataModelRemoteClient.themesReference(themesReferenceAction);
+        return themesReferenceResult.getResult();
+    }
+
+    // get modifier reference count
+    default int getModifierReferenceCount(Long id, String username) throws DwException {
+        checkModifierMapper();
+
+        DwModifier modifier = getDwModifierMapper().selectById(id);
+        PreconditionUtil.checkState(Optional.ofNullable(modifier).isPresent(), DwException.stateReject("dw modifier should not be null, id = {}", id));
+
+        if (Strings.isNullOrEmpty(modifier.getModifierTypeEn())) {
+            return 0;
+        }
+        LinkisDatamodelCenterRemoteClient dataModelRemoteClient = LinkisRemoteClientHolder.getDataModelRemoteClient();
+        ModifiersReferenceAction modifiersReferenceAction = new ModifiersReferenceAction.Builder().setName(modifier.getModifierTypeEn()).setUser(username).build();
+        ModifiersReferenceResult modifiersReferenceResult = dataModelRemoteClient.modifiersReference(modifiersReferenceAction);
+        return modifiersReferenceResult.getResult();
+    }
+
+    default int getStatisticalPeriodReferenceCount(Long id, String username) throws DwException {
+        checkStatisticalPeriodMapper();
+
+        DwStatisticalPeriod period = getDwStatisticalPeriodMapper().selectById(id);
+        PreconditionUtil.checkState(Optional.ofNullable(period).isPresent(), DwException.stateReject("dw statistical period should not be null, id = {}", id));
+
+        // check datamodel
+        if (Strings.isNullOrEmpty(period.getEnName())) {
+            return 0;
+        }
+        LinkisDatamodelCenterRemoteClient dataModelRemoteClient = LinkisRemoteClientHolder.getDataModelRemoteClient();
+        CyclesReferenceAction cyclesReferenceAction = new CyclesReferenceAction.Builder().setName(period.getEnName()).setUser(username).build();
+        CyclesReferenceResult cyclesReferenceResult = dataModelRemoteClient.cyclesReference(cyclesReferenceAction);
+        return cyclesReferenceResult.getResult();
+    }
+
+    default int getLayerReferenceCount(Long id, String username) throws DwException {
+        checkLayerMapper();
+
+        DwLayer dwLayer = getDwLayerMapper().selectById(id);
+        PreconditionUtil.checkState(Optional.ofNullable(dwLayer).isPresent(), DwException.stateReject("dw layer should not be null, id = {}", id));
+
+        LinkisDatamodelCenterRemoteClient dataModelRemoteClient = LinkisRemoteClientHolder.getDataModelRemoteClient();
+        LayersReferenceAction action = new LayersReferenceAction.Builder().setUser(username).setName(dwLayer.getEnName()).build();
+        LayersReferenceResult layersReferenceResult = dataModelRemoteClient.layersReference(action);
+        return layersReferenceResult.getResult();
     }
 
     default boolean isModifierInUse(Long id, String username) throws DwException {
