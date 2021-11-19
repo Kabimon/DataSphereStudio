@@ -52,4 +52,12 @@ public interface IndicatorContentService extends IService<DssDatamodelIndicatorC
      * @throws ErrorException
      */
     int sourceInfoReference(String name);
+
+
+    /**
+     * 原子指标引用
+     * @param indicatorName
+     * @return
+     */
+    int sourceAtomicIndicatorReference(String indicatorName);
 }

@@ -81,5 +81,5 @@ public interface TableMaterializedHistoryService extends IService<DssDatamodelTa
      * @return
      * @throws ErrorException
      */
-    boolean isMaterialized(String tableName, String version);
+    boolean isMaterialized(String tableName, String version) throws ErrorException;
 }

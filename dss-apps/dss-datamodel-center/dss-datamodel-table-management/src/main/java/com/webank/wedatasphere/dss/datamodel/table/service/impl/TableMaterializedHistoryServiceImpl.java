@@ -10,6 +10,7 @@ import com.webank.wedatasphere.dss.data.governance.request.HiveTblSizeAction;
 import com.webank.wedatasphere.dss.data.governance.request.SearchHiveTblAction;
 import com.webank.wedatasphere.dss.data.governance.response.SearchHiveTblResult;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ErrorCode;
+import com.webank.wedatasphere.dss.datamodel.center.common.context.DataModelSecurityContextHolder;
 import com.webank.wedatasphere.dss.datamodel.center.common.dto.CreateTableDTO;
 import com.webank.wedatasphere.dss.datamodel.center.common.exception.DSSDatamodelCenterException;
 import com.webank.wedatasphere.dss.datamodel.center.common.launcher.*;
@@ -227,12 +228,12 @@ public class TableMaterializedHistoryServiceImpl extends ServiceImpl<DssDatamode
 
 
     @Override
-    public boolean isMaterialized(String tableName, String version){
+    public boolean isMaterialized(String tableName, String version) throws ErrorException {
 
         return getBaseMapper().selectCount(Wrappers.<DssDatamodelTableMaterializedHistory>lambdaQuery()
                 .eq(DssDatamodelTableMaterializedHistory::getTablename, tableName)
                 .eq(DssDatamodelTableMaterializedHistory::getVersion, version)
-                .eq(DssDatamodelTableMaterializedHistory::getStatus, 0)) > 0;
+                .eq(DssDatamodelTableMaterializedHistory::getStatus, 0)) > 0 &&tableExists(tableName, DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser());
 
 
     }

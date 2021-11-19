@@ -44,4 +44,12 @@ public interface IndicatorVersionService extends IService<DssDatamodelIndicatorV
      * @return
      */
     int contentReferenceCount(String context);
+
+
+    /**
+     * 原子指标引用
+     * @param indicatorName
+     * @return
+     */
+    int sourceAtomicIndicatorReference(String indicatorName);
 }

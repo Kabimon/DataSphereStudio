@@ -69,6 +69,12 @@ public class DimensionServiceImpl extends ServiceImpl<DssDatamodelDimensionMappe
             throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_ADD_ERROR.getCode(), "dimension name or field identifier can not repeat");
         }
 
+        if (datamodelReferencService.dimensionReferenceCount(vo.getName())>0
+                ||datamodelReferencService.dimensionReferenceCount(vo.getFieldIdentifier())>0){
+            LOGGER.error("errorCode : {}, dimension name can not  referenced", ErrorCode.DIMENSION_ADD_ERROR.getCode());
+            throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_ADD_ERROR.getCode(), "dimension name can not  referenced");
+        }
+
         DssDatamodelDimension newOne = modelMapper.map(vo,DssDatamodelDimension.class);
         newOne.setCreateTime(new Date());
         newOne.setUpdateTime(new Date());
@@ -104,14 +110,21 @@ public class DimensionServiceImpl extends ServiceImpl<DssDatamodelDimensionMappe
             throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_UPDATE_ERROR.getCode(), "update dimension error not exists");
         }
 
+        if (datamodelReferencService.dimensionReferenceCount(org.getName())>0
+                ||datamodelReferencService.dimensionReferenceCount(org.getFieldIdentifier())>0
+                ||datamodelReferencService.dimensionReferenceCount(vo.getName())>0
+                ||datamodelReferencService.dimensionReferenceCount(vo.getFieldIdentifier())>0){
+            LOGGER.error("errorCode : {}, dimension name can not  referenced", ErrorCode.DIMENSION_UPDATE_ERROR.getCode());
+            throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_UPDATE_ERROR.getCode(), "dimension name can not  referenced");
+        }
+
 
         //当更新名称时
         if (!StringUtils.equals(vo.getName(), org.getName())) {
             int repeat = getBaseMapper().selectCount(Wrappers.<DssDatamodelDimension>lambdaQuery().eq(DssDatamodelDimension::getName, vo.getName()));
-
-            if (repeat > 0 ||(dimensionIndicatorCheckService.referenceCase(org.getName()))||dimensionTableCheckService.referenceCase(org.getName())) {
-                LOGGER.error("errorCode : {}, dimension name can not repeat or referenced", ErrorCode.DIMENSION_UPDATE_ERROR.getCode());
-                throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_UPDATE_ERROR.getCode(), "dimension name can not repeat or referenced");
+            if (repeat > 0) {
+                LOGGER.error("errorCode : {}, dimension name can not repeat ", ErrorCode.DIMENSION_UPDATE_ERROR.getCode());
+                throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_UPDATE_ERROR.getCode(), "dimension name can not repeat ");
             }
         }
 
@@ -119,10 +132,9 @@ public class DimensionServiceImpl extends ServiceImpl<DssDatamodelDimensionMappe
         //当更新标识时
         if (!StringUtils.equals(vo.getFieldIdentifier(), orgFieldIdentifier)) {
             int repeat = getBaseMapper().selectCount(Wrappers.<DssDatamodelDimension>lambdaQuery().eq(DssDatamodelDimension::getFieldIdentifier, vo.getFieldIdentifier()));
-
-            if (repeat > 0 ||(dimensionIndicatorCheckService.referenceEn(orgFieldIdentifier))||dimensionIndicatorCheckService.referenceEn(orgFieldIdentifier)) {
-                LOGGER.error("errorCode : {}, dimension field identifier can not repeat or referenced or referenced", ErrorCode.DIMENSION_UPDATE_ERROR.getCode());
-                throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_UPDATE_ERROR.getCode(), "dimension field identifier can not repeat or referenced");
+            if (repeat > 0) {
+                LOGGER.error("errorCode : {}, dimension field identifier can not repeat", ErrorCode.DIMENSION_UPDATE_ERROR.getCode());
+                throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_UPDATE_ERROR.getCode(), "dimension field identifier can not repeat ");
             }
         }
         DssDatamodelDimension updateOne = modelMapper.map(vo,DssDatamodelDimension.class);
@@ -149,9 +161,8 @@ public class DimensionServiceImpl extends ServiceImpl<DssDatamodelDimensionMappe
             throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_DELETE_ERROR.getCode(), "dimension id " +id +" not exists");
         }
         //校验引用情况
-        if (dimensionIndicatorCheckService.referenceCase(dssDatamodelDimension.getName())||dimensionTableCheckService.referenceCaseEn(dssDatamodelDimension.getFieldIdentifier())
-        ||dimensionTableCheckService.referenceCase(dssDatamodelDimension.getName())||dimensionTableCheckService.referenceCaseEn(dssDatamodelDimension.getFieldIdentifier())){
-            throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_DELETE_ERROR.getCode(), "dimension id " +id +" has referenced");
+        if(datamodelReferencService.dimensionReferenceCount(dssDatamodelDimension.getName())>0||datamodelReferencService.dimensionReferenceCount(dssDatamodelDimension.getFieldIdentifier())>0){
+              throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_DELETE_ERROR.getCode(), "dimension id " +id +" has referenced");
         }
         getBaseMapper().deleteById(id);
         //同步资产

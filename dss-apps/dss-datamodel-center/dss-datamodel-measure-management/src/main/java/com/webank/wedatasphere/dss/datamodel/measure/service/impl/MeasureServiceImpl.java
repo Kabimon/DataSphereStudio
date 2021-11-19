@@ -67,6 +67,15 @@ public class MeasureServiceImpl extends ServiceImpl<DssDatamodelMeasureMapper, D
             LOGGER.error("errorCode : {}, measure name or field identifier can not repeat, name : {}", ErrorCode.INDICATOR_ADD_ERROR.getCode(), vo.getName());
             throw new DSSDatamodelCenterException(ErrorCode.MEASURE_ADD_ERROR.getCode(), "measure name or field identifier can not repeat");
         }
+
+
+        //校验引用情况
+        if(datamodelReferencService.measureReferenceCount(vo.getName())>0
+                ||datamodelReferencService.measureReferenceCount(vo.getFieldIdentifier())>0){
+            LOGGER.error("errorCode : {}, measure name can not be referenced ", ErrorCode.MEASURE_UPDATE_ERROR.getCode());
+            throw new DSSDatamodelCenterException(ErrorCode.MEASURE_UPDATE_ERROR.getCode(), "measure name can not be referenced");
+        }
+
         DssDatamodelMeasure newOne = modelMapper.map(vo, DssDatamodelMeasure.class);
         newOne.setCreateTime(new Date());
         newOne.setUpdateTime(new Date());
@@ -100,13 +109,21 @@ public class MeasureServiceImpl extends ServiceImpl<DssDatamodelMeasureMapper, D
             throw new DSSDatamodelCenterException(ErrorCode.MEASURE_UPDATE_ERROR.getCode(), "update measure error not exists");
         }
 
+        //校验引用情况
+        if(datamodelReferencService.measureReferenceCount(vo.getName())>0
+                ||datamodelReferencService.measureReferenceCount(vo.getFieldIdentifier())>0
+                ||datamodelReferencService.measureReferenceCount(org.getName())>0
+                ||datamodelReferencService.measureReferenceCount(org.getFieldIdentifier())>0){
+            LOGGER.error("errorCode : {}, measure name can not be referenced ", ErrorCode.MEASURE_UPDATE_ERROR.getCode());
+            throw new DSSDatamodelCenterException(ErrorCode.MEASURE_UPDATE_ERROR.getCode(), "measure name can not be referenced");
+        }
+
         //当更新名称时
         if (!StringUtils.equals(vo.getName(), org.getName())) {
             int repeat = getBaseMapper().selectCount(Wrappers.<DssDatamodelMeasure>lambdaQuery().eq(DssDatamodelMeasure::getName, vo.getName()));
-
-            if (repeat > 0 || (measuredTableCheckService.referenceCase(org.getName())) || measureIndicatorCheckService.referenceCase(org.getName())) {
-                LOGGER.error("errorCode : {}, measure name can not repeat or referenced ", ErrorCode.MEASURE_UPDATE_ERROR.getCode());
-                throw new DSSDatamodelCenterException(ErrorCode.MEASURE_UPDATE_ERROR.getCode(), "measure name can not repeat or referenced");
+            if (repeat > 0 ) {
+                LOGGER.error("errorCode : {}, measure name can not repeat ", ErrorCode.MEASURE_UPDATE_ERROR.getCode());
+                throw new DSSDatamodelCenterException(ErrorCode.MEASURE_UPDATE_ERROR.getCode(), "measure name can not repeat ");
             }
         }
 
@@ -142,8 +159,8 @@ public class MeasureServiceImpl extends ServiceImpl<DssDatamodelMeasureMapper, D
             throw new DSSDatamodelCenterException(ErrorCode.MEASURE_DELETE_ERROR.getCode(), "measure id " + id + " not exists");
         }
         //校验引用情况
-        if (measuredTableCheckService.referenceCase(dssDatamodelMeasure.getName()) || measuredTableCheckService.referenceEn(dssDatamodelMeasure.getFieldIdentifier())
-                || measureIndicatorCheckService.referenceCase(dssDatamodelMeasure.getName()) || measureIndicatorCheckService.referenceEn(dssDatamodelMeasure.getFieldIdentifier())) {
+        if(datamodelReferencService.measureReferenceCount(dssDatamodelMeasure.getName())>0
+                ||datamodelReferencService.measureReferenceCount(dssDatamodelMeasure.getFieldIdentifier())>0){
             throw new DSSDatamodelCenterException(ErrorCode.MEASURE_DELETE_ERROR.getCode(), "measure id " + id + " has referenced");
         }
 

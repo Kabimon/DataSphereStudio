@@ -1,4 +1,4 @@
 package com.webank.wedatasphere.dss.datamodel.center.common.service;
 
-public interface DatamodelIndicatorReferenceService extends IndicatorDimensionReferenceService,IndicatorMeasuredReferenceService{
+public interface DatamodelIndicatorReferenceService extends IndicatorDimensionReferenceService,IndicatorMeasuredReferenceService,IndicatorIndicatorReferenceService{
 }

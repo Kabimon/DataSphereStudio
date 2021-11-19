@@ -24,7 +24,8 @@ public class DatamodelReferenceServiceImpl implements DatamodelReferencService {
 
     @Override
     public int indicatorReferenceCount(String name) {
-        return datamodelTableReferenceService.tableIndicatorReferenceCount(name);
+        return datamodelTableReferenceService.tableIndicatorReferenceCount(name)
+                + datamodelIndicatorReferenceService.indicatorIndicatorCount(name);
     }
 
     @Override

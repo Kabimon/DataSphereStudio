@@ -82,4 +82,13 @@ public class IndicatorVersionServiceImpl extends ServiceImpl<DssDatamodelIndicat
                         .or()
                         .like(DssDatamodelIndicatorVersion::getVersionContext,","+ context + "\""));
     }
+
+
+    @Override
+    public int sourceAtomicIndicatorReference(String indicatorName) {
+        return getBaseMapper().selectCount(
+                Wrappers.<DssDatamodelIndicatorVersion>lambdaQuery()
+                        .like(DssDatamodelIndicatorVersion::getVersionContext,"\"indicatorName\":\""+ indicatorName + "\""));
+
+    }
 }
