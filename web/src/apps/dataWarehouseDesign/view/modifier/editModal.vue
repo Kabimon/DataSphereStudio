@@ -284,7 +284,7 @@ export default {
     },
     async handleGetLayerListAndSubjectDomainList() {
       this.loading = true;
-      let { page } = await getThemedomains({ enabled: 1 });
+      let { page } = await getThemedomains({ enabled: true });
       let { list } = await getLayersAll({ isAvailable: true });
       this.loading = false;
       this.subjectDomainList = page.items;
