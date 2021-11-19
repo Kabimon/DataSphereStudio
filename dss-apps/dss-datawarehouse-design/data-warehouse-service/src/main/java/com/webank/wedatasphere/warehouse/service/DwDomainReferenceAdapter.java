@@ -140,11 +140,15 @@ public interface DwDomainReferenceAdapter {
         PreconditionUtil.checkState(Optional.ofNullable(modifier).isPresent(), DwException.stateReject("dw modifier should not be null, id = {}", id));
 
         // check datamodel
-        LinkisDatamodelCenterRemoteClient dataModelRemoteClient = LinkisRemoteClientHolder.getDataModelRemoteClient();
-        ModifiersReferenceAction modifiersReferenceAction = new ModifiersReferenceAction.Builder().setName(modifier.getModifierTypeEn()).setUser(username).build();
-        ModifiersReferenceResult modifiersReferenceResult = dataModelRemoteClient.modifiersReference(modifiersReferenceAction);
-        int referenceCount = modifiersReferenceResult.getResult();
-        return referenceCount > 0;
+        if (!Strings.isNullOrEmpty(modifier.getModifierTypeEn())) {
+            LinkisDatamodelCenterRemoteClient dataModelRemoteClient = LinkisRemoteClientHolder.getDataModelRemoteClient();
+            ModifiersReferenceAction modifiersReferenceAction = new ModifiersReferenceAction.Builder().setName(modifier.getModifierTypeEn()).setUser(username).build();
+            ModifiersReferenceResult modifiersReferenceResult = dataModelRemoteClient.modifiersReference(modifiersReferenceAction);
+            int referenceCount = modifiersReferenceResult.getResult();
+            return referenceCount > 0;
+        }
+
+        return false;
     }
 
     default boolean isStatisticalPeriodInUse(Long id, String username) throws DwException {
@@ -154,11 +158,15 @@ public interface DwDomainReferenceAdapter {
         PreconditionUtil.checkState(Optional.ofNullable(period).isPresent(), DwException.stateReject("dw statistical period should not be null, id = {}", id));
 
         // check datamodel
-        LinkisDatamodelCenterRemoteClient dataModelRemoteClient = LinkisRemoteClientHolder.getDataModelRemoteClient();
-        CyclesReferenceAction cyclesReferenceAction = new CyclesReferenceAction.Builder().setName(period.getEnName()).setUser(username).build();
-        CyclesReferenceResult cyclesReferenceResult = dataModelRemoteClient.cyclesReference(cyclesReferenceAction);
-        int referenceCount = cyclesReferenceResult.getResult();
-        return referenceCount > 0;
+        if (!Strings.isNullOrEmpty(period.getEnName())) {
+            LinkisDatamodelCenterRemoteClient dataModelRemoteClient = LinkisRemoteClientHolder.getDataModelRemoteClient();
+            CyclesReferenceAction cyclesReferenceAction = new CyclesReferenceAction.Builder().setName(period.getEnName()).setUser(username).build();
+            CyclesReferenceResult cyclesReferenceResult = dataModelRemoteClient.cyclesReference(cyclesReferenceAction);
+            int referenceCount = cyclesReferenceResult.getResult();
+            return referenceCount > 0;
+        }
+
+        return false;
     }
 
     default boolean isThemeDomainInUse(Long id, String username) throws DwException {

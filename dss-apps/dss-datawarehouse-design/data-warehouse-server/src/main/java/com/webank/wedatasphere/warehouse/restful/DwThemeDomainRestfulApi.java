@@ -34,12 +34,14 @@ public class DwThemeDomainRestfulApi {
             @Context HttpServletRequest request,
             @QueryParam("page") Integer page,
             @QueryParam("size") Integer size,
-            @QueryParam("name") String name
+            @QueryParam("name") String name,
+            @QueryParam("enabled") Boolean enabled
     )throws DwException {
         final DwThemeDomainQueryCommand command = new DwThemeDomainQueryCommand();
         command.setName(name);
         command.setPage(page);
         command.setSize(size);
+        command.setEnabled(enabled);
         Message message = this.dwThemeDomainService.queryPage(request, command);
         return Message.messageToResponse(message);
     }
