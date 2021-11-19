@@ -41,4 +41,6 @@ public class DwStatisticalPeriodVO {
     private String layerArea;
 
     transient private Boolean status;
+
+//    private int referenceCount;
 }

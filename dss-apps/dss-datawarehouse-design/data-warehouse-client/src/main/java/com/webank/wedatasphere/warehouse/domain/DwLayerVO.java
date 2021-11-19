@@ -19,4 +19,5 @@ public class DwLayerVO {
     private Boolean isAvailable;
     private Long createTime;
     private Long updateTime;
+    private int referenceCount;
 }
