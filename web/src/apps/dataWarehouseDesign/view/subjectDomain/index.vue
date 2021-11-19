@@ -189,6 +189,10 @@ export default {
           slot: "isAvailable",
         },
         {
+          title: "引用次数",
+          key: "referenceCount",
+        },
+        {
           title: "描述",
           key: "description",
           ellipsis: true,

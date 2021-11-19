@@ -266,6 +266,10 @@ export default {
           slot: "principalName",
         },
         {
+          title: "引用次数",
+          key: "referenceCount",
+        },
+        {
           title: "可用库",
           key: "dbs",
           slot: "dbs",

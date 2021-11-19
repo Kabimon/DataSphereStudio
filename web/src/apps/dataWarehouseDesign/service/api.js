@@ -6,10 +6,15 @@ import api from "@/common/service/api";
  * @params {workspaceId}
  * @returns Array
  */
-export const getThemedomains = ({ page, size, name } = {}) =>
+export const getThemedomains = ({
+  page,
+  size,
+  name,
+  enabled = undefined
+} = {}) =>
   api.fetch(
     `${API_PATH.WAREHOUSE_PATH}data-warehouse/themedomains`,
-    { page, size, name },
+    { page, size, name, enabled },
     "get"
   );
 
@@ -90,8 +95,12 @@ export const editThemedomains = (id, body) =>
  * @params {workspaceId}
  * @returns Array
  */
-export const getLayersAll = () =>
-  api.fetch(`${API_PATH.WAREHOUSE_PATH}data-warehouse/layers/all`, {}, "get");
+export const getLayersAll = ({ isAvailable = undefined }) =>
+  api.fetch(
+    `${API_PATH.WAREHOUSE_PATH}data-warehouse/layers/all`,
+    { isAvailable },
+    "get"
+  );
 
 /**
  * 查询所有预置分层
@@ -99,11 +108,7 @@ export const getLayersAll = () =>
  * @returns Array
  */
 export const getLayersPreset = () =>
-  api.fetch(
-    `${API_PATH.WAREHOUSE_PATH}data-warehouse/layers/preset`,
-    {},
-    "get"
-  );
+  api.fetch(`${API_PATH.WAREHOUSE_PATH}data-warehouse/layers/preset`, "get");
 
 /**
  * 分页查询自定义分层
@@ -111,11 +116,7 @@ export const getLayersPreset = () =>
  * @returns Array
  */
 export const getLayersCustom = (page = 1, size = 10) =>
-  api.fetch(
-    `${API_PATH.WAREHOUSE_PATH}data-warehouse/layers/custom`,
-    { page, size },
-    "get"
-  );
+  api.fetch(`${API_PATH.WAREHOUSE_PATH}data-warehouse/layers/custom`, "get");
 
 /**
  * 新增自定义分层

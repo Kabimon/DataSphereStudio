@@ -97,7 +97,12 @@
     </Form>
     <Spin v-if="loading" fix></Spin>
     <div class="drawer-footer">
-      <Button style="margin-right: 8px" type="primary" @click="handleOk">
+      <Button
+        style="margin-right: 8px"
+        type="primary"
+        @click="handleOk"
+        :disabled="referenced && mode === 'edit'"
+      >
         确定
       </Button>
       <Button @click="handleCancel">取消</Button>
@@ -179,6 +184,8 @@ export default {
       subjectDomainList: [],
       // 分层列表
       layeredList: [],
+      // 是否有引用
+      referenced: false,
       // 验证规则
       ruleValidate: {
         typeName: [
@@ -233,6 +240,7 @@ export default {
       });
       this.formState.layerId = item.layerId;
       this.formState.themeDomainId = item.themeDomainId;
+      this.referenced = item.referenced;
     },
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
@@ -276,8 +284,8 @@ export default {
     },
     async handleGetLayerListAndSubjectDomainList() {
       this.loading = true;
-      let { page } = await getThemedomains();
-      let { list } = await getLayersAll();
+      let { page } = await getThemedomains({ enabled: 1 });
+      let { list } = await getLayersAll({ isAvailable: true });
       this.loading = false;
       this.subjectDomainList = page.items;
       this.layeredList = list;

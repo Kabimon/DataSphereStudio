@@ -336,10 +336,16 @@
         type="primary"
         v-if="mode === 'edit'"
         @click="handleAddVersion"
+        :disabled="mode === 'edit' && refCount !== 0"
       >
         新增版本
       </Button>
-      <Button style="margin-right: 8px" type="primary" @click="handleOk">
+      <Button
+        style="margin-right: 8px"
+        type="primary"
+        @click="handleOk"
+        :disabled="mode === 'edit' && refCount !== 0"
+      >
         确定
       </Button>
       <Button @click="handleCancel">取消</Button>
@@ -741,6 +747,7 @@ export default {
         detail.content.indicatorSourceInfo
       );
       this.formState = newFormState;
+      this.refCount = detail.refCount;
     },
     cancelCallBack() {
       this.$refs["formRef"].resetFields();

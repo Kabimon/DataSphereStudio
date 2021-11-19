@@ -223,6 +223,10 @@ export default {
           key: "layerArea",
         },
         {
+          title: "引用次数",
+          key: "referenceCount",
+        },
+        {
           title: "选择权限",
           key: "principalName",
           slot: "principalName",

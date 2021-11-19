@@ -242,7 +242,6 @@ export default {
         return this.$refs["assets-index-wrap"].scrollHeight;
       };
       if (getScrollTop() + getClientHeight() >= getScrollHeight()) {
-        // 拉数据
         this.handleReachBottom();
       }
     },

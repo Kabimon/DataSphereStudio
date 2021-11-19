@@ -70,7 +70,13 @@
     <Spin v-if="loading" fix></Spin>
     <template slot="footer">
       <Button @click="handleCancel">取消</Button>
-      <Button type="primary" @click="handleOk">确定</Button>
+      <Button
+        type="primary"
+        @click="handleOk"
+        :disabled="referenced && mode === 'edit'"
+      >
+        确定
+      </Button>
     </template>
   </Modal>
 </template>
@@ -125,6 +131,8 @@ export default {
         description: "",
         order: 0,
       },
+      // 是否有引用
+      referenced: false,
       // 验证规则
       ruleValidate: {
         name: [
@@ -201,6 +209,7 @@ export default {
       this.formState.databases = item.dbs;
       this.formState.description = item.description;
       this.formState.order = item.sort;
+      this.referenced = item.referenced;
     },
     // 弹框取消回调
     cancelCallBack() {

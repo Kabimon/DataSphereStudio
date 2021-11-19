@@ -98,7 +98,13 @@
     <Spin v-if="loading" fix></Spin>
     <template slot="footer">
       <Button @click="handleCancel">取消</Button>
-      <Button type="primary" @click="handleOk">确定</Button>
+      <Button
+        type="primary"
+        @click="handleOk"
+        :disabled="referenced && mode === 'edit'"
+      >
+        确定
+      </Button>
     </template>
   </Modal>
 </template>
@@ -120,12 +126,10 @@ export default {
   },
   mixins: [mixin],
   props: {
-    // 是否可见
     _visible: {
       type: Boolean,
       required: true,
     },
-    // 模式
     mode: {
       type: String,
       required: true,
@@ -199,6 +203,8 @@ export default {
         layerId: "",
         themeDomainId: "",
       },
+      // 是否有引用
+      referenced: false,
       // 主题列表
       subjectDomainList: [],
       // 分层列表
@@ -234,6 +240,7 @@ export default {
       this.formState.layerId = item.layerId;
       this.formState.themeDomainId = item.themeDomainId;
       this.formState.description = item.description;
+      this.referenced = item.referenced;
     },
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
@@ -267,8 +274,8 @@ export default {
     },
     async handleGetLayerListAndSubjectDomainList() {
       this.loading = true;
-      let { page } = await getThemedomains();
-      let { list } = await getLayersAll();
+      let { page } = await getThemedomains({ enabled: 1 });
+      let { list } = await getLayersAll({ isAvailable: true });
       this.loading = false;
       this.subjectDomainList = page.items;
       this.layeredList = list;

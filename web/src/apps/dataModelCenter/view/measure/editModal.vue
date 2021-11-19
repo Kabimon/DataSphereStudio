@@ -71,7 +71,13 @@
     <Spin v-if="loading" fix></Spin>
     <template slot="footer">
       <Button @click="handleCancel">取消</Button>
-      <Button type="primary" @click="handleOk">确定</Button>
+      <Button
+        type="primary"
+        @click="handleOk"
+        :disabled="mode === 'edit' && refCount !== 0"
+      >
+        确定
+      </Button>
     </template>
   </Modal>
 </template>
@@ -163,6 +169,7 @@ export default {
           label: "ALL",
         },
       ],
+      refCount: 0,
     };
   },
   methods: {
@@ -181,6 +188,7 @@ export default {
       this.formState.fieldIdentifier = detail.fieldIdentifier;
       this.formState._warehouseTheme = `${detail.warehouseThemeName}|${detail.warehouseThemeNameEn}`;
       this.formState.formula = detail.formula;
+      this.refCount = detail.refCount;
     },
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
