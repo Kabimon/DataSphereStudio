@@ -226,6 +226,8 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
         LOGGER.info("indicatorModifierList vo : {}",vo);
         ListDwModifierAction action = new ListDwModifierAction();
         action.setUser(getStrategyUser(req));
+        action.setLayer(vo.getLayer());
+        action.setTheme(vo.getTheme());
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listModifiers(action).getAll()));
     }
 
