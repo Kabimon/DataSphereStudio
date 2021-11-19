@@ -61,12 +61,13 @@ public class TableStatsDTO {
     private String version;
 
 
-    public static TableStatsDTO from(HiveTblStatsDTO hiveTblStatsDTO){
+    public static TableStatsDTO from(HiveTblStatsDTO hiveTblStatsDTO,Integer collectCount){
         TableStatsDTO dto = new TableStatsDTO();
         dto.setColumnCount(hiveTblStatsDTO.getColumnCount());
         dto.setFileCount(hiveTblStatsDTO.getNumFiles());
         dto.setPartitionCount(hiveTblStatsDTO.getPartitionCount());
         dto.setStorageSize(hiveTblStatsDTO.getTotalSize());
+        dto.setCollectCount(collectCount);
         return dto;
     }
 }

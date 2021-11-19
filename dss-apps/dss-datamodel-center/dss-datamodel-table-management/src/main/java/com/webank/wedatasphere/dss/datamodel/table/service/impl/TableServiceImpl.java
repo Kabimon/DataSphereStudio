@@ -217,13 +217,14 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
                 tableMaterializedHistoryService.isMaterialized(table.getName(), table.getVersion()) ? 1 : 0);
         tableQueryDTO.setHeadline(headlineDTO);
 
+        Integer collectionCount = tableCollectService.getBaseMapper().selectCount(Wrappers.<DssDatamodelTableCollcetion>lambdaQuery().eq(DssDatamodelTableCollcetion::getName,table.getName()));
         String dbName = StringUtils.substringBefore(table.getName(),".");
         String tblName = StringUtils.substringAfter(table.getName(),".");
         HiveTblStatsResult hiveTblStatsResult = linkisDataAssetsRemoteClient.searchHiveTblStats(HiveTblStatsAction.builder().setUser(DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser())
                 .setTableName(tblName)
                 .setDbName(dbName)
                 .build());
-        tableQueryDTO.setStats(TableStatsDTO.from(hiveTblStatsResult.getInfo()));
+        tableQueryDTO.setStats(TableStatsDTO.from(hiveTblStatsResult.getInfo(),collectionCount));
         return tableQueryDTO;
     }
 

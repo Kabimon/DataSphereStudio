@@ -208,7 +208,8 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
      */
     @POST
     @Path("/indicators/cycles/list")
-    public Response indicatorCycleList(@Context HttpServletRequest req){
+    public Response indicatorCycleList(@Context HttpServletRequest req,@RequestBody IndicatorCycleVO vo){
+        LOGGER.info("indicatorCycleList vo : {}",vo);
         ListDwStatisticalPeriodAction action = new ListDwStatisticalPeriodAction();
         action.setUser(getStrategyUser(req));
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listStatisticalPeriods(action).getAll()));
@@ -221,7 +222,8 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
      */
     @POST
     @Path("/indicators/modifiers/list")
-    public Response indicatorModifierList(@Context HttpServletRequest req){
+    public Response indicatorModifierList(@Context HttpServletRequest req,@RequestBody IndicatorModifierVO vo){
+        LOGGER.info("indicatorModifierList vo : {}",vo);
         ListDwModifierAction action = new ListDwModifierAction();
         action.setUser(getStrategyUser(req));
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listModifiers(action).getAll()));

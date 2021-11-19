@@ -68,7 +68,6 @@ public class DSSDataGovernanceAssetRestful {
                                   @QueryParam("offset") @DefaultValue(DEFAULT_OFFSET) int offset) throws Exception {
 
 
-
         if (ClassificationConstant.isTypeScope(type)) {
             if (StringUtils.isNotBlank(classification)) {
                 classification = ClassificationConstant.getPrefix(type).orElse(null) + classification;
@@ -251,6 +250,7 @@ public class DSSDataGovernanceAssetRestful {
 
     /**
      * 删除模型
+     *
      * @param req
      * @param vo
      * @return
@@ -267,6 +267,7 @@ public class DSSDataGovernanceAssetRestful {
 
     /**
      * 绑定模型
+     *
      * @param req
      * @param vo
      * @return
@@ -282,6 +283,7 @@ public class DSSDataGovernanceAssetRestful {
 
     /**
      * 解绑模型
+     *
      * @param req
      * @param vo
      * @return
@@ -298,6 +300,7 @@ public class DSSDataGovernanceAssetRestful {
 
     /**
      * 更新模型
+     *
      * @param req
      * @param vo
      * @return
@@ -316,6 +319,7 @@ public class DSSDataGovernanceAssetRestful {
     @POST
     @Path("/label/{guid}")
     public Response setLabels(@PathParam("guid") String guid, @RequestBody Set<String> labels) throws Exception {
+        logger.info("setLabels guid : {}, labels : {}", guid, labels);
         assetService.setLabels(guid, labels);
 
         return Message.messageToResponse(Message.ok().data("result", "设置成功"));

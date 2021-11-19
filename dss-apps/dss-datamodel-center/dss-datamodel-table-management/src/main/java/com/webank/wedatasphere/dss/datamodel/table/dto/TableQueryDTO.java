@@ -152,7 +152,7 @@ public class TableQueryDTO {
         headlineDTO.setEntityType(1);
         dto.setHeadline(headlineDTO);
 
-        dto.setStats(TableStatsDTO.from(hiveTblStatsDTO));
+        dto.setStats(TableStatsDTO.from(hiveTblStatsDTO,0));
         return dto;
     }
 }
