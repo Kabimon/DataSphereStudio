@@ -176,8 +176,12 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
         PreconditionUtil.checkState(layer.getStatus(), DwException.stateReject("layer has been removed"));
 
 //        DwLayerDTO dto = this.dwLayerModelMapper.toDTO(layer);
+        String username = SecurityFilter.getLoginUsername(request);
+        boolean inUse = isLayerInUse(layer.getId(), username);
+
         DwLayerDTO dto = new DwLayerDTO();
         BeanUtils.copyProperties(layer, dto);
+        dto.setReferenced(inUse);
 
         return Message.ok().data("item", dto);
     }
@@ -280,11 +284,12 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceChec
         boolean inUse = isLayerInUse(layer.getId(), username);
         PreconditionUtil.checkState(!inUse, DwException.stateReject("layer is in use"));
 
-        if (Objects.equals(Boolean.FALSE, layer.getStatus())) {
-            return Message.ok();
-        }
-        layer.setStatus(Boolean.FALSE);
-        int i = this.dwLayerMapper.updateById(layer);
+//        if (Objects.equals(Boolean.FALSE, layer.getStatus())) {
+//            return Message.ok();
+//        }
+//        layer.setStatus(Boolean.FALSE);
+//        int i = this.dwLayerMapper.updateById(layer);
+        int i = this.dwLayerMapper.deleteById(layer);
         PreconditionUtil.checkState(1 == i, DwException.stateReject("remove action failed"));
 
         // 删除关联

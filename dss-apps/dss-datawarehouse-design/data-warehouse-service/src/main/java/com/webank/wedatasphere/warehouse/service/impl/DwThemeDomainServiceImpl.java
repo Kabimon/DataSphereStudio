@@ -226,9 +226,11 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         PreconditionUtil.checkState(record.getStatus(), DwException.stateReject("theme domain has been removed"));
 
 //        DwThemeDomainDTO dto = this.dwThemeDomainModelMapper.toDTO(record);
-
+        String username = SecurityFilter.getLoginUsername(request);
+        boolean inUse = isThemeDomainInUse(record.getId(), username);
         DwThemeDomainDTO dto = new DwThemeDomainDTO();
         BeanUtils.copyProperties(record, dto);
+        dto.setReferenced(inUse);
 
         return Message.ok().data("item", dto);
     }
@@ -247,11 +249,13 @@ public class DwThemeDomainServiceImpl implements DwThemeDomainService, DwDomainR
         boolean inUse = isThemeDomainInUse(record.getId(), username);
         PreconditionUtil.checkState(!inUse, DwException.stateReject("theme domain is in use"));
 
-        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
-            return Message.ok();
-        }
-        record.setStatus(Boolean.FALSE);
-        int i = this.dwThemeDomainMapper.updateById(record);
+//        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
+//            return Message.ok();
+//        }
+//        record.setStatus(Boolean.FALSE);
+//        int i = this.dwThemeDomainMapper.updateById(record);
+        // physical delete, because of name unique
+        int i = this.dwThemeDomainMapper.deleteById(record);
         PreconditionUtil.checkState(1 == i, DwException.stateReject("remove action failed"));
 
         // 删除关联

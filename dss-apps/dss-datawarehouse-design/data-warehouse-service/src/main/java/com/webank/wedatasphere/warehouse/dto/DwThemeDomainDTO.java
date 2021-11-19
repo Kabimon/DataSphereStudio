@@ -17,4 +17,5 @@ public class DwThemeDomainDTO {
     private String principalName;
     private Integer sort;
     private String description;
+    private boolean referenced;
 }

@@ -11,4 +11,6 @@ import lombok.ToString;
 public class DwModifierQueryCommand extends PageCommand {
     private String name;
     private Boolean enabled;
+    private String theme;
+    private String layer;
 }

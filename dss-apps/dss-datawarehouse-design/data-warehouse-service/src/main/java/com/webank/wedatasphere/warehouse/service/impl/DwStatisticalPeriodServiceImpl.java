@@ -151,9 +151,8 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         Page<DwStatisticalPeriod> _page = this.dwStatisticalPeriodMapper.selectPage(queryPage, queryWrapper);
         List<DwStatisticalPeriod> recs = _page.getRecords();
         List<DwStatisticalPeriodVo> records = new ArrayList<>();
-        DwStatisticalPeriodVo vo;
         for (DwStatisticalPeriod rec : recs) {
-            vo = new DwStatisticalPeriodVo();
+            DwStatisticalPeriodVo vo = new DwStatisticalPeriodVo();
             vo.setId(rec.getId());
             vo.setName(rec.getName());
             vo.setEnName(rec.getEnName());
@@ -170,10 +169,15 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
             vo.setIsAvailable(rec.getIsAvailable());
             // 单独查询
             DwLayer dwLayer = this.dwLayerMapper.selectById(rec.getLayerId());
-            vo.setLayerArea(dwLayer.getName());
+            Optional.ofNullable(dwLayer).ifPresent(layer -> {
+                vo.setLayerArea(layer.getName());
+                vo.setLayerAreaEn(layer.getEnName());
+            });
             DwThemeDomain dwThemeDomain = dwThemeDomainMapper.selectById(rec.getThemeDomainId());
-            vo.setThemeArea(dwThemeDomain.getName());
-
+            Optional.ofNullable(dwThemeDomain).ifPresent(theme -> {
+                vo.setThemeArea(theme.getName());
+                vo.setThemeAreaEn(theme.getEnName());
+            });
             records.add(vo);
         }
 
@@ -276,7 +280,10 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
             DwThemeDomain dwThemeDomain = dwThemeDomainMapper.selectById(tid);
             record.setThemeArea(dwThemeDomain.getName());
         });
-
+        // 应用查询
+        String username = SecurityFilter.getLoginUsername(request);
+        boolean inUse = isStatisticalPeriodInUse(record.getId(), username);
+        record.setReferenced(inUse);
         return Message.ok().data("item", record);
     }
 
@@ -291,19 +298,20 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         boolean inUse = isStatisticalPeriodInUse(record.getId(), username);
         PreconditionUtil.checkState(!inUse, DwException.stateReject("statistical period is in use, id = {}, name = {}", record.getId(), record.getName()));
 
-        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
-            return Message.ok();
-        }
-        Long oldLockVersion = record.getLockVersion();
-        QueryWrapper<DwStatisticalPeriod> updateWrapper = new QueryWrapper<>();
-        updateWrapper.eq("lock_version", oldLockVersion);
-        updateWrapper.eq("id", record.getId());
-
-        DwStatisticalPeriod updateBean = new DwStatisticalPeriod();
-        updateBean.setLockVersion(oldLockVersion + 1);
-        updateBean.setStatus(Boolean.FALSE);
-
-        int i = this.dwStatisticalPeriodMapper.update(updateBean, updateWrapper);
+//        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
+//            return Message.ok();
+//        }
+//        Long oldLockVersion = record.getLockVersion();
+//        QueryWrapper<DwStatisticalPeriod> updateWrapper = new QueryWrapper<>();
+//        updateWrapper.eq("lock_version", oldLockVersion);
+//        updateWrapper.eq("id", record.getId());
+//
+//        DwStatisticalPeriod updateBean = new DwStatisticalPeriod();
+//        updateBean.setLockVersion(oldLockVersion + 1);
+//        updateBean.setStatus(Boolean.FALSE);
+//
+//        int i = this.dwStatisticalPeriodMapper.update(updateBean, updateWrapper);
+        int i = this.dwStatisticalPeriodMapper.deleteById(record);
         PreconditionUtil.checkState(1 == i, DwException.stateReject("remove action failed"));
         return Message.ok();
     }

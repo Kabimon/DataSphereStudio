@@ -20,4 +20,5 @@ public class DwModifierDTO {
     private String themeArea;
     private String description;
     private List<DwModifierListDTO> list;
+    private boolean referenced;
 }

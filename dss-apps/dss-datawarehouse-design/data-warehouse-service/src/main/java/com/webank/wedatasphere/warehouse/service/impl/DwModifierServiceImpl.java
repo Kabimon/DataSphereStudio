@@ -82,12 +82,21 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
     public Message queryAllModifiers(HttpServletRequest request, DwModifierQueryCommand command) throws DwException {
         String typeName = command.getName();
         Boolean isAvailable = command.getEnabled();
+        String theme = command.getTheme();
+        String layer = command.getLayer();
 
         QueryWrapper<DwModifier> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", Boolean.TRUE);
         if (!Objects.isNull(isAvailable)) {
             queryWrapper.eq("is_available", isAvailable);
         }
+        if (Strings.isNotBlank(theme)) {
+            queryWrapper.like("theme_area_en", theme);
+        }
+        if (Strings.isNotBlank(layer)) {
+            queryWrapper.like("layer_area_en", layer);
+        }
+
         if (Strings.isNotBlank(typeName)) {
             queryWrapper.and(qw -> {
                 queryWrapper.like("modifier_type", typeName).or().like("modifier_type_en", typeName);
@@ -201,8 +210,10 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         DwModifier record = new DwModifier();
         record.setThemeDomainId(dwThemeDomain.getId());
         record.setThemeArea(dwThemeDomain.getName());
+        record.setThemeAreaEn(dwThemeDomain.getEnName());
         record.setLayerId(dwLayer.getId());
         record.setLayerArea(dwLayer.getName());
+        record.setLayerAreaEn(dwLayer.getEnName());
         record.setModifierType(typeName);
         record.setModifierTypeEn(typeEnName);
         record.setDescription(description);
@@ -251,6 +262,9 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         DwModifierDTO dto = new DwModifierDTO();
 //        DwModifierDTO dto = this.dwModifierModelMapper.toDTO(record);
         BeanUtils.copyProperties(record, dto);
+        String username = SecurityFilter.getLoginUsername(request);
+        boolean inUse = isModifierInUse(record.getId(), username);
+        dto.setReferenced(inUse);
 
         QueryWrapper<DwModifierList> dwModifierListQueryWrapper = new QueryWrapper<>();
         dwModifierListQueryWrapper.eq("modifier_id", record.getId());
@@ -279,11 +293,12 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
         boolean inUse = isModifierInUse(record.getId(), username);
         PreconditionUtil.checkState(!inUse, DwException.stateReject("modifier is in use, id = {}, name = {}", record.getId(), record.getModifierType()));
 
-        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
-            return Message.ok();
-        }
-        record.setStatus(Boolean.FALSE);
-        int i = this.dwModifierMapper.updateById(record);
+//        if (Objects.equals(Boolean.FALSE, record.getStatus())) {
+//            return Message.ok();
+//        }
+//        record.setStatus(Boolean.FALSE);
+//        int i = this.dwModifierMapper.updateById(record);
+        int i = this.dwModifierMapper.deleteById(record);
         PreconditionUtil.checkState(1 == i, DwException.stateReject("remove action failed"));
         return Message.ok();
     }
