@@ -277,6 +277,7 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
         IndicatorQueryDTO indicatorQueryDTO = modelMapper.map(indicator, IndicatorQueryDTO.class);
         IndicatorContentQueryDTO indicatorContentQueryDTO = modelMapper.map(content, IndicatorContentQueryDTO.class);
         indicatorQueryDTO.setContent(indicatorContentQueryDTO);
+        indicatorQueryDTO.setRefCount(datamodelReferencService.indicatorReferenceCount(indicator.getName()));
         return Message.ok().data("detail", indicatorQueryDTO);
     }
 

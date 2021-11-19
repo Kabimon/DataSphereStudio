@@ -104,7 +104,7 @@ public class TableMaterializedHistoryServiceImpl extends ServiceImpl<DssDatamode
     public void checkData(DssDatamodelTable current, String user) throws ErrorException {
         //linkisJobCheck(current);
         //如果表存在且存在数据
-        if (tableExists(current.getName(),user ) && hasData(current.getName(), user)) {
+        if (hasData(current.getName(), user)) {
             LOGGER.error("errorCode : {}, table id : {} has data", ErrorCode.TABLE_CHECK_ERROR.getCode(), current.getId());
             throw new DSSDatamodelCenterException(ErrorCode.TABLE_CHECK_ERROR.getCode(), " table id : " + current.getId() + " has data");
         }

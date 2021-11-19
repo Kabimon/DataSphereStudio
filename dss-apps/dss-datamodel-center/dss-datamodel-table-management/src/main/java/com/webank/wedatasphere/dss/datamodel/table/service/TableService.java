@@ -238,4 +238,13 @@ public interface TableService extends IService<DssDatamodelTable> {
      * @param id
      */
     void bindModel(long id) throws ErrorException;
+
+
+    /**
+     * 删除逻辑表
+     * @param id
+     * @return
+     * @throws ErrorException
+     */
+    int deleteTable(Long id) throws ErrorException;
 }

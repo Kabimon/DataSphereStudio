@@ -205,6 +205,8 @@ public class MeasureServiceImpl extends ServiceImpl<DssDatamodelMeasureMapper, D
         if (dssDatamodelMeasure == null) {
             throw new DSSDatamodelCenterException(ErrorCode.MEASURE_QUERY_ERROR.getCode(), "measure id " + id + " not exists");
         }
+        MeasureQueryDTO dto = modelMapper.map(dssDatamodelMeasure, MeasureQueryDTO.class);
+        dto.setRefCount(datamodelReferencService.measureReferenceCount(dssDatamodelMeasure.getName()));
         return modelMapper.map(dssDatamodelMeasure, MeasureQueryDTO.class);
     }
 

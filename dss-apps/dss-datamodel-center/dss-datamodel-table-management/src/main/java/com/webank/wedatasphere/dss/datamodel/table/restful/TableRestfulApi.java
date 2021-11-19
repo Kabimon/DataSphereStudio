@@ -78,6 +78,20 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
         return Message.messageToResponse(Message.ok().data("count",tableService.updateTable(id,vo)));
     }
 
+    /**
+     * 删除
+     *
+     * @param req
+     * @return
+     * @throws IOException
+     */
+    @DELETE
+    @Path("/tables/{id}")
+    public Response delete(@Context HttpServletRequest req, @PathParam("id") Long id) throws ErrorException {
+        LOGGER.info("delete id : {}", id);
+        return Message.messageToResponse(Message.ok().data("count",tableService.deleteTable(id)));
+    }
+
 
     /**
      * 主动绑定
@@ -93,6 +107,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
         tableService.bindModel(id);
         return Message.messageToResponse(Message.ok());
     }
+
 
 
     /**

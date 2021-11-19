@@ -206,7 +206,9 @@ public class DimensionServiceImpl extends ServiceImpl<DssDatamodelDimensionMappe
         if (dssDatamodelDimension == null){
             throw new DSSDatamodelCenterException(ErrorCode.DIMENSION_QUERY_ERROR.getCode(), "dimension id " +id +" not exists");
         }
-        return modelMapper.map(dssDatamodelDimension,DimensionQueryDTO.class);
+        DimensionQueryDTO dto = modelMapper.map(dssDatamodelDimension,DimensionQueryDTO.class);
+        dto.setRefCount(datamodelReferencService.dimensionReferenceCount(dssDatamodelDimension.getName()));
+        return dto;
     }
 
 

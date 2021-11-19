@@ -27,10 +27,7 @@ import com.webank.wedatasphere.dss.datamodel.table.dao.DssDatamodelTableMapper;
 import com.webank.wedatasphere.dss.datamodel.table.dao.TableQueryMapper;
 import com.webank.wedatasphere.dss.datamodel.table.dto.*;
 import com.webank.wedatasphere.dss.datamodel.table.entity.*;
-import com.webank.wedatasphere.dss.datamodel.table.event.BindModelByColumnsEvent;
-import com.webank.wedatasphere.dss.datamodel.table.event.BindModelByTableEvent;
-import com.webank.wedatasphere.dss.datamodel.table.event.UpdateBindModelByColumnsEvent;
-import com.webank.wedatasphere.dss.datamodel.table.event.UpdateBindModelByTableEvent;
+import com.webank.wedatasphere.dss.datamodel.table.event.*;
 import com.webank.wedatasphere.dss.datamodel.table.service.*;
 import com.webank.wedatasphere.dss.datamodel.table.vo.*;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
@@ -194,7 +191,7 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
             GetHiveTblBasicResult result = linkisDataAssetsRemoteClient.getHiveTblBasic(GetHiveTblBasicAction.builder().setUser(vo.getUser()).setGuid(vo.getGuid()).build());
             HiveTblDetailInfoDTO dto = assertsGson.fromJson(assertsGson.toJson(result.getResult()), HiveTblDetailInfoDTO.class);
             HiveTblStatsResult hiveTblStatsResult = linkisDataAssetsRemoteClient.searchHiveTblStats(HiveTblStatsAction.builder().setUser(vo.getUser()).setGuid(vo.getGuid()).build());
-            return TableQueryDTO.toTableStatsDTO(dto,hiveTblStatsResult.getInfo(), vo.getName());
+            return TableQueryDTO.toTableStatsDTO(dto, hiveTblStatsResult.getInfo(), vo.getName());
         }
         return queryTable(table);
     }
@@ -217,14 +214,14 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
                 tableMaterializedHistoryService.isMaterialized(table.getName(), table.getVersion()) ? 1 : 0);
         tableQueryDTO.setHeadline(headlineDTO);
 
-        Integer collectionCount = tableCollectService.getBaseMapper().selectCount(Wrappers.<DssDatamodelTableCollcetion>lambdaQuery().eq(DssDatamodelTableCollcetion::getName,table.getName()));
-        String dbName = StringUtils.substringBefore(table.getName(),".");
-        String tblName = StringUtils.substringAfter(table.getName(),".");
+        Integer collectionCount = tableCollectService.getBaseMapper().selectCount(Wrappers.<DssDatamodelTableCollcetion>lambdaQuery().eq(DssDatamodelTableCollcetion::getName, table.getName()));
+        String dbName = StringUtils.substringBefore(table.getName(), ".");
+        String tblName = StringUtils.substringAfter(table.getName(), ".");
         HiveTblStatsResult hiveTblStatsResult = linkisDataAssetsRemoteClient.searchHiveTblStats(HiveTblStatsAction.builder().setUser(DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser())
                 .setTableName(tblName)
                 .setDbName(dbName)
                 .build());
-        tableQueryDTO.setStats(TableStatsDTO.from(hiveTblStatsResult.getInfo(),collectionCount));
+        tableQueryDTO.setStats(TableStatsDTO.from(hiveTblStatsResult.getInfo(), collectionCount));
         return tableQueryDTO;
     }
 
@@ -693,7 +690,7 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
 
 
     @Override
-    public void bindModel(long id) throws ErrorException{
+    public void bindModel(long id) throws ErrorException {
         DssDatamodelTable current = getBaseMapper().selectById(id);
         if (current == null) {
             LOGGER.error("errorCode : {}, bind table error not exists", ErrorCode.TABLE_BIND_ERROR.getCode());
@@ -701,7 +698,41 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         }
         String user = DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser();
         List<DssDatamodelTableColumns> currentColumns = tableColumnsService.listByTableId(id);
-        publisher.publishEvent(new BindModelByTableEvent(this,user,current));
-        publisher.publishEvent(new BindModelByColumnsEvent(this,user,current.getName(),currentColumns));
+        publisher.publishEvent(new BindModelByTableEvent(this, user, current));
+        publisher.publishEvent(new BindModelByColumnsEvent(this, user, current.getName(), currentColumns));
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int deleteTable(Long id) throws ErrorException {
+        DssDatamodelTable current = getBaseMapper().selectById(id);
+        if (current == null) {
+            return 0;
+        }
+        //有数据则不能删除
+        if (tableMaterializedHistoryService.hasData(current.getName(), DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser())) {
+            LOGGER.error("errorCode : {},  table id : {} has data", ErrorCode.TABLE_DELETE_ERROR.getCode(), id);
+            throw new DSSDatamodelCenterException(ErrorCode.TABLE_DELETE_ERROR.getCode(), "bind table id " + id + "has  data");
+        }
+        List<DssDatamodelTableColumns> columns = tableColumnsService.listByTableId(id);
+
+        String user =DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser();
+
+        //删除表相关内容
+        getBaseMapper().deleteById(id);
+        //删除字段
+        tableColumnsService.deleteByTableId(id);
+        //删除版本
+        tableVersionService.getBaseMapper().delete(Wrappers.<DssDatamodelTableVersion>lambdaQuery().eq(DssDatamodelTableVersion::getName,current.getName()));
+        //删除收藏信息
+        tableCollectService.getBaseMapper().delete(Wrappers.<DssDatamodelTableCollcetion>lambdaQuery().eq(DssDatamodelTableCollcetion::getName,current.getName()));
+        //删除物化信息
+        tableMaterializedHistoryService.getBaseMapper().delete(Wrappers.<DssDatamodelTableMaterializedHistory>lambdaQuery().eq(DssDatamodelTableMaterializedHistory::getTablename,current.getName()));
+        //发布表解绑模型事件
+        publisher.publishEvent(new UnBindModelByTableEvent(this, user, current));
+        publisher.publishEvent(new UnBindModelByColumnsEvent(this, user, current.getName(), columns));
+
+        return 1;
     }
 }

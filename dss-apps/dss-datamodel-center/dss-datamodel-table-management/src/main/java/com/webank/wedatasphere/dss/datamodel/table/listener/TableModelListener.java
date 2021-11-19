@@ -6,10 +6,7 @@ import com.webank.wedatasphere.dss.datamodel.center.common.event.BindModelEvent;
 import com.webank.wedatasphere.dss.datamodel.center.common.event.UnBindModelEvent;
 import com.webank.wedatasphere.dss.datamodel.table.dto.ModelTypeDTO;
 import com.webank.wedatasphere.dss.datamodel.table.entity.DssDatamodelTable;
-import com.webank.wedatasphere.dss.datamodel.table.event.BindModelByColumnsEvent;
-import com.webank.wedatasphere.dss.datamodel.table.event.BindModelByTableEvent;
-import com.webank.wedatasphere.dss.datamodel.table.event.UpdateBindModelByColumnsEvent;
-import com.webank.wedatasphere.dss.datamodel.table.event.UpdateBindModelByTableEvent;
+import com.webank.wedatasphere.dss.datamodel.table.event.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +33,12 @@ public class TableModelListener {
     @Async
     public void bindByTable(BindModelByTableEvent event){
         bindByTable(event.getUser(),event.getTable());
+    }
+
+    @EventListener
+    @Async
+    public void unBindByTable(UnBindModelByTableEvent event){
+        unBindByTable(event.getUser(),event.getTable());
     }
 
     @Async
@@ -85,6 +88,11 @@ public class TableModelListener {
         unBindByColumnsModel(event.getUser(), event.getTableName(), unBindModels);
     }
 
+    private void unBindByTable(String user,DssDatamodelTable deleteOne) {
+        publishUnBind(user,null, deleteOne.getName(), deleteOne.getWarehouseThemeNameEn(),ClassificationConstant.THEME);
+        publishUnBind(user,null, deleteOne.getName(), deleteOne.getWarehouseLayerNameEn(),ClassificationConstant.LAYER);
+    }
+
     private void bindByTable(String user,DssDatamodelTable newOne) {
         publishBind(user,null, newOne.getName(), newOne.getWarehouseThemeNameEn(),ClassificationConstant.THEME);
         publishBind(user,null, newOne.getName(), newOne.getWarehouseLayerNameEn(),ClassificationConstant.LAYER);
@@ -102,6 +110,12 @@ public class TableModelListener {
     @Async
     public void bindByColumnsModel(BindModelByColumnsEvent event){
         bindByColumnsModel(event.getUser(),event.getTableName(),event.getColumns().stream().map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet()));
+    }
+
+    @EventListener
+    @Async
+    public void unBindByColumnsModel(UnBindModelByColumnsEvent event){
+        unBindByColumnsModel(event.getUser(),event.getTableName(),event.getColumns().stream().map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet()));
     }
 
     private void bindByColumnsModel(String user, String tableName, Set<ModelTypeDTO> modelTypeDTOS){
