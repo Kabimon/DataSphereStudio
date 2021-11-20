@@ -3,18 +3,28 @@
     <Spin fix v-if="loading"></Spin>
     <Row :gutter="15" style="margin-bottom: 16px">
       <Col span="18">
-        <div>
-          <Icon type="ios-home" :size="24" />
-          <span> 表信息 </span>
-          /
-          <span>{{ extraInfo.name }}</span>
-          &nbsp;
-          <Tag color="primary">V{{ extraInfo.version }}</Tag>
+        <div style="display: flex; justify-content: space-between">
+          <div>
+            <Icon type="ios-home" :size="26" />
+            <span style="font-size: 16px"> 表信息 / {{ extraInfo.name }}</span>
+            &nbsp;
+            <Tag color="primary">V{{ extraInfo.version || 0 }}</Tag>
+          </div>
+          <div>
+            <Button type="primary" style="margin-right: 15px">
+              验证规范性
+            </Button>
+            <Button
+              type="primary"
+              @click="() => $refs['ColumnEditor'].handleAddColumn()"
+            >
+              添加字段
+            </Button>
+          </div>
         </div>
       </Col>
       <Col span="6">
         <div style="display: flex; justify-content: flex-end">
-          <Button type="primary" style="margin-right: 15px">验证规范性</Button>
           <Button
             type="success"
             style="margin-right: 15px"
@@ -27,7 +37,7 @@
             type="primary"
             style="margin-right: 15px"
             @click="handleFormFinish"
-            v-if="!checkTableData"
+            v-if="config.mode === 'create' || !checkTableData"
           >
             保存
           </Button>
@@ -44,7 +54,7 @@
 
     <Row :gutter="15">
       <Col span="18">
-        <ColumnEditor v-model="formState.columns" />
+        <ColumnEditor ref="ColumnEditor" v-model="formState.columns" />
       </Col>
       <Col span="6">
         <Card title="基本信息" dis-hover style="margin-bottom: 15px">
@@ -52,7 +62,7 @@
             :model="formState"
             ref="baseicInfoForm"
             :rules="ruleValidateBaseicInfo"
-            :label-width="80"
+            :label-width="90"
             label-position="left"
           >
             <FormItem label="表名" prop="name">
@@ -83,29 +93,29 @@
             </FormItem>
             <FormItem label="所属分层" prop="warehouseLayerName">
               <Select
-                v-model="formState.warehouseLayerName"
+                v-model="formState._warehouseLayer"
                 placeholder="选择分层"
               >
                 <Option
-                  v-for="layer in layersList"
-                  :key="layer.id"
-                  :value="layer.name"
+                  v-for="item in layersList"
+                  :key="item.id"
+                  :value="`${item.name}|${item.enName}`"
                 >
-                  {{ layer.name }}
+                  {{ item.name }}
                 </Option>
               </Select>
             </FormItem>
             <FormItem label="主题域" prop="warehouseThemeName">
               <Select
-                v-model="formState.warehouseThemeName"
+                v-model="formState._warehouseTheme"
                 placeholder="请选择主题域"
               >
                 <Option
-                  v-for="theme in themesList"
-                  :key="theme.id"
-                  :value="theme.name"
+                  v-for="item in themesList"
+                  :key="item.id"
+                  :value="`${item.name}|${item.enName}`"
                 >
-                  {{ theme.name }}
+                  {{ item.name }}
                 </Option>
               </Select>
             </FormItem>
@@ -143,7 +153,7 @@
             :model="formState"
             ref="coreInfoForm"
             :rules="ruleValidateCoreInfo"
-            :label-width="80"
+            :label-width="90"
             label-position="left"
           >
             <FormItem label="是否分区表" prop="isPartitionTable">
@@ -159,13 +169,13 @@
               </RadioGroup>
             </FormItem>
             <FormItem label="生命周期" prop="lifecycle">
-              <Select v-model="formState.lifecycle">
+              <Select v-model="formState._lifecycle">
                 <Option
                   v-for="item in lifecycleList"
                   :key="item.id"
-                  :value="item.code"
+                  :value="`${item.name}|${item.enName}`"
                 >
-                  {{ item.description }}
+                  {{ item.name }}
                 </Option>
               </Select>
             </FormItem>
@@ -223,6 +233,7 @@ import {
   generatorNewVersion,
   checkTableData,
 } from "@dataModelCenter/service/tableManageApi";
+import { getCyclesList } from "@dataModelCenter/service/api";
 import ColumnEditor from "./columnEditor.vue";
 export default {
   components: { ColumnEditor },
@@ -236,20 +247,17 @@ export default {
             message: "表名必填",
             trigger: "submit",
           },
+          {
+            message: "仅支持英文，下划线，数字",
+            pattern: /^[a-zA-Z0-9_]+$/g,
+            trigger: "submit",
+          },
         ],
         // 表别名
         alias: [
           {
             required: true,
             message: "表别名必填",
-            trigger: "submit",
-          },
-        ],
-        // 地址
-        location: [
-          {
-            required: true,
-            message: "地址必填",
             trigger: "submit",
           },
         ],
@@ -262,7 +270,7 @@ export default {
           },
         ],
         // 分层
-        warehouseLayerName: [
+        _warehouseLayer: [
           {
             required: true,
             message: "分层必选",
@@ -270,7 +278,7 @@ export default {
           },
         ],
         // 主题
-        warehouseThemeName: [
+        _warehouseTheme: [
           {
             required: true,
             message: "主题必选",
@@ -280,7 +288,7 @@ export default {
       },
       ruleValidateCoreInfo: {
         // 生命周期
-        lifecycle: [
+        _lifecycle: [
           {
             required: true,
             message: "必选",
@@ -343,11 +351,17 @@ export default {
         // 是否外部表
         isExternal: 0,
         // 分层
-        warehouseLayerName: "",
+        _warehouseLayer: "",
+        // warehouseLayerName
+        // warehouseLayerNameEn
         // 主题
-        warehouseThemeName: "",
+        _warehouseTheme: "",
+        // warehouseThemeName
+        // warehouseThemeNameEn
         // 生命周期
-        lifecycle: "永久",
+        _lifecycle: "永久",
+        // lifecycle
+        // lifecycleEn
         // 是否分区表
         isPartitionTable: 1,
         // 是否启用
@@ -373,14 +387,6 @@ export default {
           value: "ALL",
           label: "ALL",
         },
-        {
-          value: "角色1",
-          label: "角色1",
-        },
-        {
-          value: "角色2",
-          label: "角色2",
-        },
       ],
       // 主题列表
       themesList: [],
@@ -396,7 +402,6 @@ export default {
       fileTypeList: [],
       // 存储引擎列表
       storageTypeList: [],
-
       // 是否加载中
       loading: false,
       // 一些额外的信息
@@ -418,20 +423,32 @@ export default {
   mounted() {
     this.handleGetFrontData();
     // 检查当前表是否有数据
-    this.handleCheckTableData();
+    if (this.config.mode === "update") {
+      this.handleCheckTableData();
+    }
     if (this.config.id || (this.config.name && this.config.guid)) {
       this.handleGetData();
     }
   },
   methods: {
-    // 检查当前是否有数据
+    /**
+     * @description 检查当前表是否存在数据，有数据的情况下某些操作是不允许的
+     */
     async handleCheckTableData() {
-      try {
-        let { status } = await checkTableData(this.config.name).catch(() => {});
-        this.checkTableData = !!status;
-      } catch (error) {}
+      this.loading = true;
+      return checkTableData(this.config.name)
+        .then((res) => {
+          this.loading = false;
+          this.checkTableData = !!res.status;
+        })
+        .catch(() => {
+          this.loading = false;
+          this.checkTableData = true;
+        });
     },
-    // 获取数据
+    /**
+     * @description 获取当前表数据
+     */
     async handleGetData() {
       this.loading = true;
       let data;
@@ -458,11 +475,11 @@ export default {
         // 是否外部表
         isExternal: detail.isExternal,
         // 分层
-        warehouseLayerName: detail.warehouseLayerName,
+        _warehouseLayer: `${detail.warehouseLayerName}|${detail.warehouseLayerNameEn}`,
         // 主题
-        warehouseThemeName: detail.warehouseThemeName,
+        _warehouseTheme: `${detail.warehouseThemeName}|${detail.warehouseThemeNameEn}`,
         // 生命周期
-        lifecycle: detail.lifecycle,
+        _lifecycle: `${detail.lifecycle}|${detail.lifecycleEn}`,
         // 是否分区表
         isPartitionTable: detail.isPartitionTable,
         // 是否启用
@@ -497,21 +514,37 @@ export default {
       };
       this.formState = newFormState;
     },
-    // 生成新版本
+    /**
+     * @description 新增版本
+     */
     handleGeneratorNewVersion() {
-      generatorNewVersion(this.config.id, this.handlegetFormatData()).then(
-        () => {
+      this.loading = true;
+      return generatorNewVersion(this.config.id, this.handleGetFormatData())
+        .then(() => {
+          this.loading = false;
           this.$Message.success("新增版本成功");
-        }
-      );
+        })
+        .catch(() => {
+          this.loading = false;
+        });
     },
-    // 执行表创建
-    handleTableCreate() {
-      createTable(this.config.id).then(() => {
-        this.$Message.success("创建成功");
-      });
+    /**
+     * @description 执行表创建
+     */
+    handleTableCreate(id) {
+      this.loading = true;
+      return createTable(id || this.config.id)
+        .then(() => {
+          this.loading = false;
+          this.$Message.success("建表成功");
+        })
+        .catch(() => {
+          this.loading = false;
+        });
     },
-    // 获取前置选填数据
+    /**
+     * @description 获取前置选填数据
+     */
     handleGetFrontData() {
       this.loading = true;
       Promise.all([
@@ -519,56 +552,83 @@ export default {
         getThemesList(),
         getDataBasesList(),
         getDictionariesList(),
-      ]).then(([res1, res2, res3, res4]) => {
+        getCyclesList(),
+      ]).then(([res1, res2, res3, res4, res5]) => {
         this.loading = false;
-        // 分层
         this.layersList = res1.list;
-        // 主题
         this.themesList = res2.list;
-        // 库
         this.dataBasesList = res3.list;
-        // 生命周期列表
-        this.lifecycleList = res4.list.filter(
-          (item) => item.type === "LIFECYCLE"
-        );
-        // 压缩格式列表
+        this.lifecycleList = res5.list;
         this.compressList = res4.list.filter(
           (item) => item.type === "COMPRESS"
         );
-        // 文件格式列表
         this.fileTypeList = res4.list.filter(
           (item) => item.type === "FILE_STORAGE"
         );
-        // 存储引擎列表
         this.storageTypeList = res4.list.filter(
           (item) => item.type === "STORAGE_ENGINE"
         );
       });
     },
-    // 获取格式化之后的数据
-    handlegetFormatData() {
+    /**
+     * @description 获取格式化之后的数据
+     * @return Object
+     */
+    handleGetFormatData() {
+      let [warehouseLayerName, warehouseLayerNameEn] =
+        this.formState._warehouseLayer.split("|");
+      let [warehouseThemeName, warehouseThemeNameEn] =
+        this.formState._warehouseTheme.split("|");
+      let [lifecycle, lifecycleEn] = this.formState._lifecycle.split("|");
       return Object.assign({}, this.formState, {
+        _warehouseLayer: undefined,
+        _warehouseTheme: undefined,
+        _lifecycle: undefined,
         name: `${this.formState.dataBase}.${this.formState.name}`,
+        warehouseLayerName,
+        warehouseLayerNameEn,
+        warehouseThemeName,
+        warehouseThemeNameEn,
+        lifecycle,
+        lifecycleEn,
       });
     },
-    // 表单完成逻辑
+    /**
+     * @description 表单完成逻辑
+     */
     handleFormFinish() {
+      // 表单验证
+      if (this.$refs["ColumnEditor"].isEditMode()) {
+        return this.$Message.warning("请先保存字段");
+      }
       Promise.all([
         this.$refs["baseicInfoForm"].validate(),
         this.$refs["coreInfoForm"].validate(),
       ]).then(([valid1, valid2]) => {
         if (valid1 && valid2) {
           if (this.config.mode === "create") {
-            addTable(this.handlegetFormatData()).then(() => {
+            addTable(this.handleGetFormatData()).then((res) => {
               this.$Message.success("创建成功");
-              this.$router.push({
-                path: "/dataModelCenter/tableManage/tableSearch",
+              this.$Modal.confirm({
+                title: "提示",
+                content: "是否立即执行建表？",
+                onOk: async () => {
+                  await this.handleTableCreate(res.id);
+                  this.$router.push({
+                    path: "/dataModelCenter/tableManage/tableSearch",
+                  });
+                },
+                onCancel: async () => {
+                  this.$router.push({
+                    path: "/dataModelCenter/tableManage/tableSearch",
+                  });
+                },
               });
             });
             return;
           }
           if (this.config.mode === "update") {
-            updateTable(this.config.id, this.handlegetFormatData()).then(() => {
+            updateTable(this.config.id, this.handleGetFormatData()).then(() => {
               this.$Message.success("更新成功");
               this.$router.push({
                 path: "/dataModelCenter/tableManage/tableSearch",

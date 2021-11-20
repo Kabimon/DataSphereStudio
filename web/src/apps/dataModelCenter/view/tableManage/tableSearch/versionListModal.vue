@@ -117,7 +117,7 @@ export default {
         this.loading = false;
       }
     },
-    // 版本
+    // 打开版本
     async handleOpenVersion(data) {
       this.$emit("_changeVisible", false);
       this.$emit("open", data);

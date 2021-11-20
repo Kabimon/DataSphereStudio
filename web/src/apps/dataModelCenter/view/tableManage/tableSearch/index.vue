@@ -178,14 +178,15 @@ import {
   getLayersList,
 } from "@dataModelCenter/service/tableManageApi";
 import formatDate from "@dataModelCenter/utils/formatDate";
-import storage from "@/common/helper/storage";
 import VersionListModal from "./versionListModal.vue";
+import mixin from "@/common/service/mixin";
 export default {
   filters: { formatDate },
   components: { VersionListModal },
+  mixins: [mixin],
   data() {
     return {
-      // 版本列表
+      // 版本列表弹窗
       versionListCfg: {
         visible: false,
         name: "",
@@ -193,29 +194,29 @@ export default {
       // 搜索类型列表
       searchTypeOption: [
         {
-          label: "按表名",
+          label: "按逻辑表名",
           value: 1,
         },
         {
-          label: "按指标名",
+          label: "按物理表名",
           value: 2,
         },
         {
-          label: "按维度名",
+          label: "按指标名",
           value: 3,
         },
         {
-          label: "按度量名",
+          label: "按维度名",
           value: 4,
         },
         {
-          label: "按表描述",
+          label: "按度量名",
           value: 5,
         },
       ],
-      // 数据库搜索
+      // 数据库搜索关键字
       searchDataBaseValue: "",
-      // 输入框搜索
+      // 输入框搜索参数
       searchParams: {
         // 搜索词
         searchToken: "",
@@ -318,6 +319,7 @@ export default {
       loading: false,
       // 分页
       pageCfg: {
+        // 是否显示分页
         visible: true,
         page: 1,
         pageSize: 10,
@@ -338,22 +340,19 @@ export default {
     },
   },
   watch: {
+    // 监听分页变化获取数据
     "pageCfg.page"() {
       this.handleSearchTables(true);
     },
   },
   mounted() {
-    // 分层
     this.handleGetThemesData();
-    // 主题
     this.handleGetLayersData();
-    // 数据库
     this.handleGetDataBaseData();
-    // 执行搜索
     this.handleSearchTables(true);
   },
   methods: {
-    // 表单完成回调
+    // 版本列表弹窗完成回调
     handleModalFinish() {
       this.handleSearchTables(true);
     },
@@ -368,7 +367,7 @@ export default {
     handleDelete(id) {
       this.$Modal.confirm({
         title: "警告",
-        content: "确定删除此项吗？" + id,
+        content: "确定删除此项吗？",
         onOk: () => {
           this.$Message.info("删除");
         },
@@ -384,8 +383,41 @@ export default {
         return (this.pageCfg.page = 1);
       }
       this.loading = true;
+      let modelName;
+      let name;
+      let tableType;
+      let modelType;
+      switch (this.searchParams.searchType) {
+        // 逻辑表
+        case 1:
+          name = this.searchParams.searchToken;
+          break;
+        // 物理表
+        case 2:
+          name = this.searchParams.searchToken;
+          tableType = 1;
+          break;
+        // 指标
+        case 3:
+          modelName = this.searchParams.searchToken;
+          modelType = 1;
+          break;
+        // 维度
+        case 4:
+          modelName = this.searchParams.searchToken;
+          modelType = 0;
+          break;
+        // 度量
+        case 5:
+          modelName = this.searchParams.searchToken;
+          modelType = 2;
+          break;
+      }
       searchTable({
-        name: this.searchParams.searchToken,
+        modelType: modelType, //0 维度 1 指标 2 度量
+        modelName: modelName, //模型名称
+        tableType: tableType,
+        name: name,
         warehouseLayerName: this.currentLayer,
         warehouseThemeName: this.currentTheme,
         pageSize: this.pageCfg.pageSize,
@@ -396,30 +428,29 @@ export default {
         this.pageCfg.total = res.total;
       });
     },
-    // 处理获取收藏列表
+    // 获取收藏列表
     async handleGetCollectionData() {
-      let userName = storage.get("baseInfo", "local").username;
       this.loading = true;
-      let { list } = await getCollectList(userName);
+      let { list } = await getCollectList(this.getUserName());
       this.loading = false;
       this.dataList = list;
       this.pageCfg.visible = false;
     },
-    // 处理获取所有数据库
+    // 获取所有数据库
     async handleGetDataBaseData() {
       this.loading = true;
       let { list } = await getDataBasesList();
       this.loading = false;
       this.dataBaseList = list;
     },
-    // 处理获取主题
+    // 获取主题
     async handleGetThemesData() {
       this.loading = true;
       let { list } = await getThemesList();
       this.loading = false;
       this.themeList = list;
     },
-    // 处理获取分层
+    // 获取分层
     async handleGetLayersData() {
       this.loading = true;
       let { list } = await getLayersList();
@@ -431,7 +462,7 @@ export default {
       this.searchParams.searchToken = `${name}.`;
       this.handleSearchTables();
     },
-    // 打开查看版本信息
+    // 打开某个版本信息
     handleShowVersion(data) {
       window.sessionStorage.setItem("_tableVersionInfo", JSON.stringify(data));
       this.$router.push("/datamodelcenter/tableManage/tableVersionInfo");

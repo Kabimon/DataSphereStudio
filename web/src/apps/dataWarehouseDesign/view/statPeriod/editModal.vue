@@ -15,10 +15,8 @@
         <Input v-model="formState.name" placeholder="建议输入中文名称"></Input>
       </FormItem>
       <FormItem label="英文缩写" prop="enName">
-        <Input
-          v-model="formState.enName"
-          placeholder="只支持英文数据及下划线"
-        ></Input>
+        <Input v-model="formState.enName" placeholder="只支持英文数据及下划线">
+        </Input>
       </FormItem>
       <h3 style="margin-bottom: 12px"><b>作用范围</b></h3>
       <Row :gutter="12">
@@ -100,7 +98,13 @@
     <Spin v-if="loading" fix></Spin>
     <template slot="footer">
       <Button @click="handleCancel">取消</Button>
-      <Button type="primary" @click="handleOk">确定</Button>
+      <Button
+        type="primary"
+        @click="handleOk"
+        :disabled="referenced && mode === 'edit'"
+      >
+        确定
+      </Button>
     </template>
   </Modal>
 </template>
@@ -113,20 +117,19 @@ import {
   getThemedomains,
   getLayersAll,
 } from "@dataWarehouseDesign/service/api";
-import storage from "@/common/helper/storage";
-let userName = storage.get("baseInfo", "local").username;
+import mixin from "@/common/service/mixin";
+
 export default {
   model: {
     prop: "_visible",
     event: "_changeVisible",
   },
+  mixins: [mixin],
   props: {
-    // 是否可见
     _visible: {
       type: Boolean,
       required: true,
     },
-    // 模式
     mode: {
       type: String,
       required: true,
@@ -139,6 +142,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
+      if (val) this.handleGetLayerListAndSubjectDomainList();
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -149,14 +153,24 @@ export default {
         name: [
           {
             required: true,
-            message: "统计周期名称必填",
+            message: "名称必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持中文，下划线，数字",
+            pattern: /^[0-9_\u4e00-\u9fa5]+$/g,
             trigger: "submit",
           },
         ],
         enName: [
           {
             required: true,
-            message: "英文缩写必填",
+            message: "英文名必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持英文，下划线，数字",
+            pattern: /^[a-zA-Z0-9_]+$/g,
             trigger: "submit",
           },
         ],
@@ -185,10 +199,12 @@ export default {
         statEndFormula: "",
         principalName: "ALL",
         description: "",
-        owner: userName,
+        owner: this.getUserName(),
         layerId: "",
         themeDomainId: "",
       },
+      // 是否有引用
+      referenced: false,
       // 主题列表
       subjectDomainList: [],
       // 分层列表
@@ -210,9 +226,6 @@ export default {
       ],
     };
   },
-  mounted() {
-    this.handleGetLayerListAndSubjectDomainList();
-  },
   methods: {
     async handleGetById(id) {
       this.loading = true;
@@ -227,6 +240,7 @@ export default {
       this.formState.layerId = item.layerId;
       this.formState.themeDomainId = item.themeDomainId;
       this.formState.description = item.description;
+      this.referenced = item.referenced;
     },
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
@@ -260,8 +274,8 @@ export default {
     },
     async handleGetLayerListAndSubjectDomainList() {
       this.loading = true;
-      let { page } = await getThemedomains();
-      let { list } = await getLayersAll();
+      let { page } = await getThemedomains({ enabled: true });
+      let { list } = await getLayersAll({ isAvailable: true });
       this.loading = false;
       this.subjectDomainList = page.items;
       this.layeredList = list;

@@ -9,7 +9,7 @@
           /
           <span>{{ generalData.name }}</span>
           &nbsp;
-          <Tag color="primary">V{{ generalData.version }}</Tag>
+          <Tag color="primary">V{{ generalData.version || 0 }}</Tag>
         </div>
         <div slot="extra">
           <Icon
@@ -18,14 +18,13 @@
             @click="handleSwitchCollect"
             :color="isCollect ? '#3399ff' : '#657180'"
           />
-          <Icon type="ios-copy" :size="24" color="#3399ff" />
+          <!-- <Icon type="ios-copy" :size="24" color="#3399ff" /> -->
           <Icon
             type="ios-create"
             :size="24"
             color="#3399ff"
             @click="handleToEditor"
           />
-
           <Dropdown style="margin-left: 20px">
             <Button type="primary"> 更多 </Button>
             <DropdownMenu slot="list">
@@ -273,7 +272,7 @@
       </div>
       <template v-slot:footer>
         <div>
-          <Button type="primary" @click="copy"> 复制 </Button>
+          <Button type="primary" @click="handleCopy"> 复制 </Button>
         </div>
       </template>
     </Modal>
@@ -296,8 +295,8 @@ import {
   fomatSqlForShow,
   fomatSqlForCopy,
 } from "@dataModelCenter/utils/fomatSQL";
-import storage from "@/common/helper/storage";
 import handleClipboard from "@dataModelCenter/utils/clipboard";
+import mixin from "@/common/service/mixin";
 
 const columnInfoTableColumn = [
   {
@@ -369,6 +368,7 @@ const partitionCensusInfoTableColumn = [
 ];
 export default {
   filters: { formatDate },
+  mixins: [mixin],
   data() {
     return {
       // 当前tab
@@ -427,7 +427,7 @@ export default {
     // 是否被收藏
     isCollect() {
       let name = this.config.name;
-      return !!this.collectList.find((item) => item.name === name);
+      return Boolean(this.collectList.find((item) => item.name === name));
     },
     // viewSelectSql
     viewSelectSql() {
@@ -471,9 +471,9 @@ export default {
     },
     // 切换收藏
     handleSwitchCollect() {
-      let { id, name } = this.config;
+      let { name } = this.config;
       if (this.isCollect) {
-        delCancel(name).then((res) => {
+        delCancel(name).then(() => {
           this.handleGetCollectionData();
         });
       } else {
@@ -497,8 +497,7 @@ export default {
           label: this.baseicData.label.join(";"),
           guid: this.config.guid,
         };
-
-        addCollect(collectData).then((res) => {
+        addCollect(collectData).then(() => {
           this.handleGetCollectionData();
         });
       }
@@ -604,14 +603,13 @@ export default {
     },
     // 处理获取收藏列表
     async handleGetCollectionData() {
-      let userName = storage.get("baseInfo", "local").username;
       this.loading = true;
-      let { list } = await getCollectList(userName);
+      let { list } = await getCollectList(this.getUserName());
       this.loading = false;
       this.collectList = list;
     },
     // 复制
-    copy(e) {
+    handleCopy(e) {
       handleClipboard(fomatSqlForCopy(this.selectSqlCfg.sql), e);
     },
   },

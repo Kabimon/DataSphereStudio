@@ -31,7 +31,6 @@
     "paths": {
       "@/*": ["src/*"],
       "@component/*": ["src/component/*"],
-      // 各个子应用
       "@apiServices": ["src/apps/apiServices"],
       "@dataAssetManage": ["src/apps/dataAssetManage"],
       "@dataModelCenter": ["src/apps/dataModelCenter"],

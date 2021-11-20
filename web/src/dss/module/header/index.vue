@@ -96,8 +96,8 @@
         <li
           v-if="
             $route.path !== '/newhome' &&
-              $route.path !== '/bankhome' &&
-              $route.query.workspaceId
+            $route.path !== '/bankhome' &&
+            $route.query.workspaceId
           "
           class="menu-item"
           @click="goSpaceHome"

@@ -17,6 +17,9 @@
       <FormItem label="修饰词类别" prop="typeName">
         <Input v-model="formState.typeName" placeholder="建议为中文名" />
       </FormItem>
+      <FormItem label="英文名" prop="typeEnName">
+        <Input v-model="formState.typeEnName" placeholder="英文名"></Input>
+      </FormItem>
       <FormItem label="描述" prop="description">
         <Input
           type="textarea"
@@ -94,7 +97,12 @@
     </Form>
     <Spin v-if="loading" fix></Spin>
     <div class="drawer-footer">
-      <Button style="margin-right: 8px" type="primary" @click="handleOk">
+      <Button
+        style="margin-right: 8px"
+        type="primary"
+        @click="handleOk"
+        :disabled="referenced && mode === 'edit'"
+      >
         确定
       </Button>
       <Button @click="handleCancel">取消</Button>
@@ -135,6 +143,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
+      if (val) this.handleGetLayerListAndSubjectDomainList();
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -175,6 +184,8 @@ export default {
       subjectDomainList: [],
       // 分层列表
       layeredList: [],
+      // 是否有引用
+      referenced: false,
       // 验证规则
       ruleValidate: {
         typeName: [
@@ -183,20 +194,35 @@ export default {
             message: "修饰词类别必填",
             trigger: "submit",
           },
+          {
+            message: "仅支持中文，下划线，数字",
+            pattern: /^[0-9_\u4e00-\u9fa5]+$/g,
+            trigger: "submit",
+          },
+        ],
+        typeEnName: [
+          {
+            required: true,
+            message: "英文名必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持英文，下划线，数字",
+            pattern: /^[a-zA-Z0-9_]+$/g,
+            trigger: "submit",
+          },
         ],
       },
       // 表单数据
       formState: {
         typeName: "",
+        typeEnName: "",
         description: "",
         layerId: "",
         themeDomainId: "",
         list: [],
       },
     };
-  },
-  mounted() {
-    this.handleGetLayerListAndSubjectDomainList();
   },
   methods: {
     async handleGetById(id) {
@@ -214,6 +240,7 @@ export default {
       });
       this.formState.layerId = item.layerId;
       this.formState.themeDomainId = item.themeDomainId;
+      this.referenced = item.referenced;
     },
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
@@ -257,8 +284,8 @@ export default {
     },
     async handleGetLayerListAndSubjectDomainList() {
       this.loading = true;
-      let { page } = await getThemedomains();
-      let { list } = await getLayersAll();
+      let { page } = await getThemedomains({ enabled: true });
+      let { list } = await getLayersAll({ isAvailable: true });
       this.loading = false;
       this.subjectDomainList = page.items;
       this.layeredList = list;

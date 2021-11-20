@@ -26,12 +26,16 @@
         >
         </Input>
       </FormItem>
-      <FormItem label="主题域" prop="warehouseThemeName">
+      <FormItem label="主题域" prop="_warehouseTheme">
         <Select
-          v-model="formState.warehouseThemeName"
+          v-model="formState._warehouseTheme"
           placeholder="请选择主题域和主题"
         >
-          <Option v-for="item in themesList" :value="item.name" :key="item.id">
+          <Option
+            v-for="item in themesList"
+            :value="`${item.name}|${item.enName}`"
+            :key="item.id"
+          >
             {{ item.name }}
           </Option>
         </Select>
@@ -42,8 +46,9 @@
 
       <FormItem label="可用角色" prop="principalName">
         <Select
-          v-model="formState.principalName"
           multiple
+          :value="(formState.principalName || '').split(',')"
+          @input="formState.principalName = $event.join()"
           placeholder="可用角色"
         >
           <Option
@@ -63,7 +68,13 @@
     <Spin v-if="loading" fix></Spin>
     <template slot="footer">
       <Button @click="handleCancel">取消</Button>
-      <Button type="primary" @click="handleOk">确定</Button>
+      <Button
+        type="primary"
+        @click="handleOk"
+        :disabled="mode === 'edit' && refCount !== 0"
+      >
+        确定
+      </Button>
     </template>
   </Modal>
 </template>
@@ -75,14 +86,14 @@ import {
   editDimensions,
   getThemesList,
 } from "@dataModelCenter/service/api";
-import storage from "@/common/helper/storage";
-let userName = storage.get("baseInfo", "local").username;
+import mixin from "@/common/service/mixin";
 
 export default {
   model: {
     prop: "_visible",
     event: "_changeVisible",
   },
+  mixins: [mixin],
   props: {
     // 是否可见
     _visible: {
@@ -100,6 +111,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
+      if (val) this.handleGetSubjectDomainList();
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -109,11 +121,11 @@ export default {
       formState: {
         name: "",
         fieldIdentifier: "",
-        owner: userName,
+        owner: this.getUserName(),
         comment: "",
         formula: "",
-        warehouseThemeName: "",
-        principalName: ["ALL"],
+        _warehouseTheme: "",
+        principalName: "ALL",
         isAvailable: 1,
       },
       // 验证规则
@@ -121,7 +133,12 @@ export default {
         name: [
           {
             required: true,
-            message: "维度名称必填",
+            message: "名称必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持中文，下划线，数字",
+            pattern: /^[0-9_\u4e00-\u9fa5]+$/g,
             trigger: "submit",
           },
         ],
@@ -129,6 +146,11 @@ export default {
           {
             required: true,
             message: "标识符必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持英文，下划线，数字",
+            pattern: /^[a-zA-Z0-9_]+$/g,
             trigger: "submit",
           },
         ],
@@ -147,15 +169,9 @@ export default {
           value: "角色1",
           label: "角色1",
         },
-        {
-          value: "角色2",
-          label: "角色2",
-        },
       ],
+      refCount: 0,
     };
-  },
-  mounted() {
-    this.handleGetSubjectDomainList();
   },
   methods: {
     // 编辑的时候获取现有数据
@@ -166,11 +182,12 @@ export default {
       this.formState.name = detail.name;
       this.formState.isAvailable = detail.isAvailable;
       this.formState.owner = detail.owner;
-      this.formState.principalName = detail.principalName.split(",");
+      this.formState.principalName = detail.principalName;
       this.formState.comment = detail.comment;
       this.formState.fieldIdentifier = detail.fieldIdentifier;
-      this.formState.warehouseThemeName = detail.warehouseThemeName;
+      this.formState._warehouseTheme = `${detail.warehouseThemeName}|${detail.warehouseThemeNameEn}`;
       this.formState.formula = detail.formula;
+      this.refCount = detail.refCount;
     },
     // 取消清空表单
     cancelCallBack() {
@@ -181,6 +198,18 @@ export default {
       this.$refs["formRef"].resetFields();
       this.$emit("_changeVisible", false);
     },
+    /**
+     * @description 获取格式化数据
+     */
+    handleGetFormatData() {
+      let [warehouseThemeName, warehouseThemeNameEn] =
+        this.formState._warehouseTheme.split("|");
+      return Object.assign({}, this.formState, {
+        _warehouseTheme: undefined,
+        warehouseThemeName,
+        warehouseThemeNameEn,
+      });
+    },
     // 点击确定
     async handleOk() {
       // 触发表单验证
@@ -190,20 +219,11 @@ export default {
           this.loading = true;
           try {
             if (this.mode === "create") {
-              await createDimensions(
-                Object.assign({}, this.formState, {
-                  principalName: this.formState.principalName.join(","),
-                })
-              );
+              await createDimensions(this.handleGetFormatData());
               this.loading = false;
             }
             if (this.mode === "edit") {
-              await editDimensions(
-                this.id,
-                Object.assign({}, this.formState, {
-                  principalName: this.formState.principalName.join(","),
-                })
-              );
+              await editDimensions(this.id, this.handleGetFormatData());
               this.loading = false;
             }
             // 完成之后，清空表单，关闭弹窗，触发回调
