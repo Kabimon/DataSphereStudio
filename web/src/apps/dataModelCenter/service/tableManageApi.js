@@ -10,11 +10,23 @@ export const searchTable = ({
   warehouseLayerName,
   warehouseThemeName,
   pageSize,
-  pageNum
+  pageNum,
+  modelType,
+  modelName,
+  tableType
 }) =>
   api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/list`,
-    { name, warehouseLayerName, warehouseThemeName, pageSize, pageNum },
+    {
+      name,
+      warehouseLayerName,
+      warehouseThemeName,
+      pageSize,
+      pageNum,
+      modelType,
+      modelName,
+      tableType
+    },
     "post"
   );
 

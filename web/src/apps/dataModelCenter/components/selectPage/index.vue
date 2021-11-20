@@ -7,7 +7,8 @@
     :multiple="multiple"
     :filterable="searchMode"
     :remote="searchMode"
-    :remote-method="handleGetData"
+    :remote-method="() => {}"
+    @on-query-change="handleGetData"
   >
     <Option
       v-for="(item, index) in dataList"
@@ -44,29 +45,18 @@ export default {
     value: {
       handler(value) {
         if (value === undefined) return;
-        if (value.length === 0) return;
+        if (value.toString() === "") return;
+        if (this.dataList.join() !== "") return;
         let nowData = [];
         if (Object.prototype.toString.call(value) === "[object Array]") {
           nowData.push(...value);
         } else if (typeof value === "string") {
           nowData.push(value);
         }
-        if (nowData.length) {
-          for (let i = 0; i < nowData.length; i++) {
-            const element = nowData[i];
-            if (element) {
-              let isExist = this.dataList.find(
-                (item) => item.value === element
-              );
-              if (!isExist) {
-                this.dataList.unshift({
-                  label: element,
-                  value: element,
-                });
-              }
-            }
-          }
-        }
+        this.dataList = nowData.map((value) => ({
+          label: value,
+          value: value,
+        }));
       },
       immediate: true,
     },
@@ -95,6 +85,7 @@ export default {
   methods: {
     // 搜索方法
     handleGetData(query = "") {
+      console.log(query === "");
       // 结束之前的任务
       if (this.sign) clearTimeout(this.sign);
       // 创建新任务

@@ -78,7 +78,7 @@ export default {
       currentTheme: "",
       // 当前右侧数据
       rightDataList: [],
-      // 当前选中的右侧数据f
+      // 当前选中的右侧数据
       currentRightItem: "",
       // 加载中
       loading: false,
@@ -173,6 +173,3 @@ export default {
   },
 };
 </script>
-
-<style>
-</style>

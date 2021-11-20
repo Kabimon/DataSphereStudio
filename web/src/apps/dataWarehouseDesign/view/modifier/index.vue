@@ -130,7 +130,7 @@ export default {
         content: "确定删除此项吗？",
         onOk: async () => {
           this.loading = true;
-          await deleteModifiers(id);
+          await deleteModifiers(id).catch(() => {});
           this.loading = false;
           this.handleGetData(true);
         },
@@ -213,6 +213,10 @@ export default {
           title: "状态",
           key: "isAvailable",
           slot: "isAvailable",
+        },
+        {
+          title: "引用次数",
+          key: "referenceCount",
         },
         {
           title: "描述",
