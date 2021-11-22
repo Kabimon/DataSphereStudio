@@ -411,7 +411,12 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         PageInfo<DssDatamodelTableCollcetion> pageInfo = new PageInfo<>(tableCollectService.getBaseMapper().selectList(queryWrapper));
 
         return Message.ok()
-                .data("list", pageInfo.getList().stream().map(entity -> modelMapper.map(entity, TableCollectionDTO.class)).collect(Collectors.toList()))
+                .data("list", pageInfo.getList().stream().map(entity -> {
+                    TableCollectionDTO dto = modelMapper.map(entity, TableCollectionDTO.class);
+                    //收藏表的Id 不返回前端
+                    dto.setId(null);
+                    return dto;
+                }).collect(Collectors.toList()))
                 .data("total", pageInfo.getTotal());
     }
 
@@ -717,18 +722,18 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         }
         List<DssDatamodelTableColumns> columns = tableColumnsService.listByTableId(id);
 
-        String user =DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser();
+        String user = DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser();
 
         //删除表相关内容
         getBaseMapper().deleteById(id);
         //删除字段
         tableColumnsService.deleteByTableId(id);
         //删除版本
-        tableVersionService.getBaseMapper().delete(Wrappers.<DssDatamodelTableVersion>lambdaQuery().eq(DssDatamodelTableVersion::getName,current.getName()));
+        tableVersionService.getBaseMapper().delete(Wrappers.<DssDatamodelTableVersion>lambdaQuery().eq(DssDatamodelTableVersion::getName, current.getName()));
         //删除收藏信息
-        tableCollectService.getBaseMapper().delete(Wrappers.<DssDatamodelTableCollcetion>lambdaQuery().eq(DssDatamodelTableCollcetion::getName,current.getName()));
+        tableCollectService.getBaseMapper().delete(Wrappers.<DssDatamodelTableCollcetion>lambdaQuery().eq(DssDatamodelTableCollcetion::getName, current.getName()));
         //删除物化信息
-        tableMaterializedHistoryService.getBaseMapper().delete(Wrappers.<DssDatamodelTableMaterializedHistory>lambdaQuery().eq(DssDatamodelTableMaterializedHistory::getTablename,current.getName()));
+        tableMaterializedHistoryService.getBaseMapper().delete(Wrappers.<DssDatamodelTableMaterializedHistory>lambdaQuery().eq(DssDatamodelTableMaterializedHistory::getTablename, current.getName()));
         //发布表解绑模型事件
         publisher.publishEvent(new UnBindModelByTableEvent(this, user, current));
         publisher.publishEvent(new UnBindModelByColumnsEvent(this, user, current.getName(), columns));
