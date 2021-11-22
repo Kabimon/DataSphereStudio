@@ -107,7 +107,9 @@ import EditModal from "./editModal.vue";
 export default {
   components: { EditModal },
   methods: {
-    // modal 完成回调
+    /**
+     * @description 编辑框完成回调
+     */
     handleModalFinish() {
       this.handleGetData(true);
     },
@@ -122,11 +124,12 @@ export default {
     handleDelete(id) {
       this.$Modal.confirm({
         title: "警告",
-        content: "确定删除此项吗？" + id,
-        onOk: () => {
-          delDimensions(id).then(() => {
-            this.handleGetData(true);
-          });
+        content: "确定删除此项吗？",
+        onOk: async () => {
+          this.loading = true;
+          await delDimensions(id).catch(() => {});
+          this.loading = false;
+          this.handleGetData(true);
         },
       });
     },

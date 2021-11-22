@@ -33,17 +33,15 @@
 import {
   getIndicatorsVersionList,
   rollbackIndicatorsVersion,
-} from "../../service/api";
-import formatDate from "../../utils/formatDate";
+} from "@dataModelCenter/service/api";
+import formatDate from "@dataModelCenter/utils/formatDate";
 
 export default {
   model: {
     prop: "_visible",
     event: "_changeVisible",
   },
-  filters: {
-    formatDate,
-  },
+  filters: { formatDate },
   props: {
     _visible: {
       type: Boolean,
@@ -91,12 +89,14 @@ export default {
     };
   },
   methods: {
+    // 根据name获取版本列表
     async handleGetByName(name) {
       this.loading = true;
       let { list } = await getIndicatorsVersionList(name);
       this.loading = false;
       this.data = list;
     },
+    // 回退到某个版本
     async handleGoBackVersion(version) {
       this.loading = true;
       try {
@@ -108,6 +108,7 @@ export default {
         this.loading = false;
       }
     },
+    // 查看某版本的详细信息
     async handleOpenVersion(data) {
       this.$emit("_changeVisible", false);
       this.$emit("open", data);

@@ -70,7 +70,13 @@
     <Spin v-if="loading" fix></Spin>
     <template slot="footer">
       <Button @click="handleCancel">取消</Button>
-      <Button type="primary" @click="handleOk">确定</Button>
+      <Button
+        type="primary"
+        @click="handleOk"
+        :disabled="referenced && mode === 'edit'"
+      >
+        确定
+      </Button>
     </template>
   </Modal>
 </template>
@@ -81,13 +87,14 @@ import {
   getLayersById,
   editLayersCustom,
 } from "@dataWarehouseDesign/service/api";
-import storage from "@/common/helper/storage";
-let userName = storage.get("baseInfo", "local").username;
+import mixin from "@/common/service/mixin";
+
 export default {
   model: {
     prop: "_visible",
     event: "_changeVisible",
   },
+  mixins: [mixin],
   props: {
     // 是否可见
     _visible: {
@@ -118,12 +125,14 @@ export default {
       formState: {
         name: "",
         enName: "",
-        owner: userName,
+        owner: this.getUserName(),
         principalName: "ALL",
         databases: "",
         description: "",
         order: 0,
       },
+      // 是否有引用
+      referenced: false,
       // 验证规则
       ruleValidate: {
         name: [
@@ -200,6 +209,7 @@ export default {
       this.formState.databases = item.dbs;
       this.formState.description = item.description;
       this.formState.order = item.sort;
+      this.referenced = item.referenced;
     },
     // 弹框取消回调
     cancelCallBack() {

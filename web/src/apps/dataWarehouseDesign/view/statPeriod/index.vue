@@ -135,7 +135,7 @@ export default {
         content: "确定删除此项吗？",
         onOk: async () => {
           this.loading = true;
-          await deleteStatisticalPeriods(id);
+          await deleteStatisticalPeriods(id).catch(() => {});
           this.loading = false;
           this.handleGetData(true);
         },
@@ -221,6 +221,10 @@ export default {
         {
           title: "分层",
           key: "layerArea",
+        },
+        {
+          title: "引用次数",
+          key: "referenceCount",
         },
         {
           title: "选择权限",

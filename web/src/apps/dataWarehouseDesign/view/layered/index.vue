@@ -176,7 +176,7 @@ export default {
         content: "确定删除此项吗？",
         onOk: async () => {
           this.customloading = true;
-          await deleteLayers(id);
+          await deleteLayers(id).catch(() => {});
           this.customloading = false;
           this.handleGetLayersCustom(true);
         },
@@ -264,6 +264,10 @@ export default {
           title: "分层选择权限",
           key: "principalName",
           slot: "principalName",
+        },
+        {
+          title: "引用次数",
+          key: "referenceCount",
         },
         {
           title: "可用库",
