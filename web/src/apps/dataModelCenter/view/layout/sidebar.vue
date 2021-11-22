@@ -11,7 +11,7 @@
 </template>
 <script>
 import SidebarSubMenu from "./sidebar-sub-menu.vue";
-import routers from "@/apps/dataModelCenter/router.js";
+import routers from "@dataModelCenter/router.js";
 export default {
   name: "sidebar",
   components: {
@@ -19,7 +19,6 @@ export default {
   },
   data() {
     return {
-      menuActiveName: "hive",
       menuList: routers[0].children,
     };
   },

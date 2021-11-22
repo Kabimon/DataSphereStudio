@@ -4,43 +4,46 @@
       ref="searchbox"
       v-model="searchText"
       :placeholder="placeholder"
-      :style="{'width': getWidth()}"/>
-    <div
-      class="we-file-navbar-nav">
+      :style="{ width: getWidth() }"
+    />
+    <div class="we-file-navbar-nav">
       <Icon
         v-if="nav.isShowNav('export')"
         :size="16"
         type="ios-share-outline"
         :title="$t('message.common.navBar.dataStudio.outTable')"
         class="navbar-cursor"
-        @click="exportFrom"/>
+        @click="exportFrom"
+      />
       <Icon
         v-if="nav.isShowNav('import')"
         :size="20"
         type="ios-archive-outline"
         :title="$t('message.common.navBar.dataStudio.importHive')"
         class="navbar-cursor"
-        @click="importTo"/>
-      <Icon
+        @click="importTo"
+      />
+      <!-- <Icon
         v-if="nav.isShowNav('newFile')"
         :size="16"
         type="ios-add-circle-outline"
         :title="addTitle"
         class="navbar-cursor"
-        @click="addFile"/>
+        @click="addFile"/> -->
       <Icon
         v-if="nav.isShowNav('refresh')"
         :size="20"
         type="ios-refresh"
         :title="$t('message.common.refresh')"
         class="navbar-cursor"
-        @click="refresh"/>
+        @click="refresh"
+      />
     </div>
   </div>
 </template>
 <script>
-import weSearchbox from './searchbox.vue';
-import Nav from './nav.js';
+import weSearchbox from "./searchbox.vue";
+import Nav from "./nav.js";
 export default {
   components: {
     weSearchbox,
@@ -52,27 +55,27 @@ export default {
     },
     placeholder: {
       type: String,
-      default () {
+      default() {
         // 这里不能写成箭头函数 要拿到this值
-        return this.$t('message.common.navBar.dataStudio.searchPlaceholder')
-      }
+        return this.$t("message.common.navBar.dataStudio.searchPlaceholder");
+      },
     },
     addTitle: {
       type: String,
-      default () {
-        return this.$t('message.common.navBar.dataStudio.addTitle')
-      }
+      default() {
+        return this.$t("message.common.navBar.dataStudio.addTitle");
+      },
     },
   },
   data() {
     return {
       nav: null,
-      searchText: '',
+      searchText: "",
     };
   },
   watch: {
-    searchText: function(value) {
-      this.$emit('text-change', value);
+    searchText: function (value) {
+      this.$emit("text-change", value);
     },
   },
   created() {
@@ -87,24 +90,24 @@ export default {
       });
     },
     refresh() {
-      this.$emit('on-refresh');
+      this.$emit("on-refresh");
     },
     addFile() {
-      this.$emit('on-add');
+      this.$emit("on-add");
     },
     importTo() {
-      this.$emit('on-import');
+      this.$emit("on-import");
     },
     exportFrom() {
-      this.$emit('on-export');
+      this.$emit("on-export");
     },
     getWidth() {
       const len = this.navList.length;
-      let px = '23px';
+      let px = "23px";
       if (len === 4) {
-        px = '62px';
+        px = "62px";
       } else if (len === 3) {
-        px = '39px';
+        px = "39px";
       }
       return `calc(100% - ${px})`;
     },

@@ -47,7 +47,13 @@
     <Spin v-if="loading" fix></Spin>
     <template slot="footer">
       <Button @click="handleCancel">取消</Button>
-      <Button type="primary" @click="handleOk">确定</Button>
+      <Button
+        type="primary"
+        @click="handleOk"
+        :disabled="referenced && mode === 'edit'"
+      >
+        确定
+      </Button>
     </template>
   </Modal>
 </template>
@@ -58,13 +64,13 @@ import {
   getThemedomainsById,
   editThemedomains,
 } from "@dataWarehouseDesign/service/api";
-import storage from "@/common/helper/storage";
-let userName = storage.get("baseInfo", "local").username;
+import mixin from "@/common/service/mixin";
 export default {
   model: {
     prop: "_visible",
     event: "_changeVisible",
   },
+  mixins: [mixin],
   props: {
     // 是否可见
     _visible: {
@@ -93,7 +99,12 @@ export default {
         name: [
           {
             required: true,
-            message: "主题域名称必填",
+            message: "名称必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持中文，下划线，数字",
+            pattern: /^[0-9_\u4e00-\u9fa5]+$/g,
             trigger: "submit",
           },
         ],
@@ -101,6 +112,11 @@ export default {
           {
             required: true,
             message: "英文名必填",
+            trigger: "submit",
+          },
+          {
+            message: "仅支持英文，下划线，数字",
+            pattern: /^[a-zA-Z0-9_]+$/g,
             trigger: "submit",
           },
         ],
@@ -118,10 +134,13 @@ export default {
       formState: {
         name: "",
         enName: "",
-        owner: userName,
+        owner: this.getUserName(),
         principalName: "ALL",
         description: "",
       },
+      // 是否有引用
+      referenced: false,
+      // 可用角色列表
       authorityList: [
         {
           value: "ALL",
@@ -144,6 +163,7 @@ export default {
       this.formState.owner = item.owner;
       this.formState.principalName = item.principalName;
       this.formState.description = item.description;
+      this.referenced = item.referenced;
     },
     // 弹框取消回调
     cancelCallBack() {

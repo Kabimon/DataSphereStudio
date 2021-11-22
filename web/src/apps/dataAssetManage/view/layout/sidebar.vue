@@ -11,16 +11,13 @@
 </template>
 <script>
 import SidebarSubMenu from "./sidebar-sub-menu.vue";
-import routers from "@/apps/dataAssetManage/router.js";
+import routers from "@dataAssetManage/router.js";
 export default {
   name: "sidebar",
-  components: {
-    SidebarSubMenu,
-  },
+  components: { SidebarSubMenu },
   data() {
     return {
-      menuActiveName: "hive",
-      menuList: routers,
+      menuList: routers[0].children,
     };
   },
   computed: {

@@ -68,6 +68,7 @@
         <Button
           size="small"
           @click="handleEdit(row.id)"
+          :disabled="!row.isAvailable"
           style="margin-right: 5px"
         >
           编辑
@@ -128,8 +129,8 @@ import {
   getIndicators,
   switcIndicatorsStatus,
   delIndicators,
-} from "../../service/api";
-import formatDate from "../../utils/formatDate";
+} from "@dataModelCenter/service/api";
+import formatDate from "@dataModelCenter/utils/formatDate";
 import EditModal from "./editModal.vue";
 import VersionListModal from "./versionListModal.vue";
 import ShowVersionModal from "./showVersionModal.vue";
@@ -149,15 +150,16 @@ export default {
         mode: "create",
       };
     },
-    // 删除操作 // 开发中
+    // 删除操作
     handleDelete(id) {
       this.$Modal.confirm({
         title: "警告",
-        content: "确定删除此项吗？" + id,
-        onOk: () => {
-          delIndicators(id).then(() => {
-            this.handleGetData(true);
-          });
+        content: "确定删除此项吗？",
+        onOk: async () => {
+          this.loading = true;
+          await delIndicators(id).catch(() => {});
+          this.loading = false;
+          this.handleGetData(true);
         },
       });
     },

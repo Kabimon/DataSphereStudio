@@ -21,4 +21,6 @@ public class DwThemeDomainVO {
     private Date updateTime;
     private Boolean preset;
     private Boolean isAvailable;
+
+    private int referenceCount;
 }
