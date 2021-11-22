@@ -33,11 +33,15 @@ public class DwStatisticalPeriodRestfulApi {
     public Response queryAll(
             @Context HttpServletRequest request,
             @QueryParam("name") String name,
-            @QueryParam(value = "isAvailable") Boolean isAvailable
+            @QueryParam(value = "isAvailable") Boolean isAvailable,
+            @QueryParam(value = "theme") String theme,
+            @QueryParam(value = "layer") String layer
     )throws DwException {
         final DwStatisticalPeriodQueryCommand command = new DwStatisticalPeriodQueryCommand();
         command.setName(name);
         command.setEnabled(isAvailable);
+        command.setTheme(theme);
+        command.setLayer(layer);
         Message message = this.dwStatisticalPeriodService.queryAll(request, command);
         return Message.messageToResponse(message);
     }

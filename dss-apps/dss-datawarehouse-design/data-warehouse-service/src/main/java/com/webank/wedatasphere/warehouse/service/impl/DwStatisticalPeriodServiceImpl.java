@@ -76,10 +76,23 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
     public Message queryAll(HttpServletRequest request, DwStatisticalPeriodQueryCommand command) throws DwException {
         String name = command.getName();
         Boolean enabled = command.getEnabled();
+        String layer = command.getLayer();
+        String theme = command.getTheme();
+
         QueryWrapper<DwStatisticalPeriod> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", Boolean.TRUE);
         if (!Objects.isNull(enabled)) {
             queryWrapper.eq("is_available", enabled);
+        }
+
+        if (Strings.isNotBlank(layer)) {
+            Optional<DwLayer> layerOptional = this.dwLayerMapper.findByName(layer);
+            layerOptional.ifPresent(dwLayer -> queryWrapper.eq("layer_id", dwLayer.getId()));
+        }
+
+        if (Strings.isNotBlank(theme)) {
+            Optional<DwThemeDomain> themeOptional = this.dwThemeDomainMapper.findByName(theme);
+            themeOptional.ifPresent(dwThemeDomain -> queryWrapper.eq("theme_domain_id", dwThemeDomain.getId()));
         }
 
         if (Strings.isNotBlank(name)) {
@@ -91,9 +104,8 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         List<DwStatisticalPeriod> recs = this.dwStatisticalPeriodMapper.selectList(queryWrapper);
 
         List<DwStatisticalPeriodVo> records = new ArrayList<>();
-        DwStatisticalPeriodVo vo;
         for (DwStatisticalPeriod rec : recs) {
-            vo = new DwStatisticalPeriodVo();
+            DwStatisticalPeriodVo vo = new DwStatisticalPeriodVo();
             vo.setId(rec.getId());
             vo.setName(rec.getName());
             vo.setEnName(rec.getEnName());
@@ -108,11 +120,11 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
             vo.setLayerId(rec.getLayerId());
             vo.setThemeDomainId(rec.getThemeDomainId());
             vo.setIsAvailable(rec.getIsAvailable());
-            // 单独查询
             DwLayer dwLayer = this.dwLayerMapper.selectById(rec.getLayerId());
-            vo.setLayerArea(dwLayer.getName());
+            Optional.ofNullable(dwLayer).ifPresent(layerBean -> vo.setLayerArea(layerBean.getName()));
+
             DwThemeDomain dwThemeDomain = dwThemeDomainMapper.selectById(rec.getThemeDomainId());
-            vo.setThemeArea(dwThemeDomain.getName());
+            Optional.ofNullable(dwThemeDomain).ifPresent(themeBean -> vo.setThemeArea(themeBean.getName()));
 
             records.add(vo);
         }
