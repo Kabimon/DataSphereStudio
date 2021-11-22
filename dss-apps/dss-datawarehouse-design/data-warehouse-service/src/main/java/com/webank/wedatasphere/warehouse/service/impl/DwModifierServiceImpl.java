@@ -91,10 +91,10 @@ public class DwModifierServiceImpl implements DwModifierService, DwDomainReferen
             queryWrapper.eq("is_available", isAvailable);
         }
         if (Strings.isNotBlank(theme)) {
-            queryWrapper.like("theme_area_en", theme);
+            queryWrapper.eq("theme_area_en", theme);
         }
         if (Strings.isNotBlank(layer)) {
-            queryWrapper.like("layer_area_en", layer);
+            queryWrapper.eq("layer_area_en", layer);
         }
 
         if (Strings.isNotBlank(typeName)) {
