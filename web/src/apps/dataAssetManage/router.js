@@ -44,7 +44,7 @@ const routes = [
           },
           {
             name: "assetsInfo",
-            path: "/dataAssetManage/assets/info",
+            path: "/dataAssetManage/assets/info/:guid",
             component: () => import("./view/assetsInfo/index.vue"),
             meta: {
               title: "数据资产详情",
