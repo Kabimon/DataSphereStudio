@@ -42,7 +42,7 @@
         </dependency>
 
       <dependency>
-            <groupId>com.webank.wedatasphere.governance</groupId>
+            <groupId>com.webank.wedatasphere.dss</groupId>
             <artifactId>data-warehouse-client</artifactId>
             <version>1.0.0</version>
         </dependency>
