@@ -213,8 +213,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @POST
     @Path("/tables/themes/list")
     public Response tableThemesList(@Context HttpServletRequest req) {
-        ListDwThemeDomainAction action = new ListDwThemeDomainAction();
-        action.setUser(getStrategyUser(req));
+        ListDwThemeDomainAction action = ListDwThemeDomainAction.builder().setUser(getStrategyUser(req)).setIsAvailable(true).build();
         return Message.messageToResponse(Message.ok().data("list", governanceDwRemoteClient.listThemeDomains(action).getAll()));
     }
 
@@ -241,8 +240,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @POST
     @Path("/tables/layers/list")
     public Response tableLayerList(@Context HttpServletRequest req) {
-        ListDwLayerAction action = new ListDwLayerAction();
-        action.setUser(getStrategyUser(req));
+        ListDwLayerAction action = ListDwLayerAction.builder().setIsAvailable(true).setUser(getStrategyUser(req)).build();
         return Message.messageToResponse(Message.ok().data("list", governanceDwRemoteClient.listLayers(action).getAll()));
     }
 

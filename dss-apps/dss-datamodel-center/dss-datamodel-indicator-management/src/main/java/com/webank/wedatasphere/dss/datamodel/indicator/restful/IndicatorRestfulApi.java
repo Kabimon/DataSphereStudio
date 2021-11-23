@@ -183,8 +183,7 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
     @POST
     @Path("/indicators/themes/list")
     public Response indicatorThemesList(@Context HttpServletRequest req){
-        ListDwThemeDomainAction action = new ListDwThemeDomainAction();
-        action.setUser(getStrategyUser(req));
+        ListDwThemeDomainAction action = ListDwThemeDomainAction.builder().setUser(getStrategyUser(req)).setIsAvailable(true).build();
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listThemeDomains(action).getAll()));
     }
 
@@ -196,8 +195,7 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
     @POST
     @Path("/indicators/layers/list")
     public Response indicatorLayerList(@Context HttpServletRequest req){
-        ListDwLayerAction action = new ListDwLayerAction();
-        action.setUser(getStrategyUser(req));
+        ListDwLayerAction action = ListDwLayerAction.builder().setIsAvailable(true).setUser(getStrategyUser(req)).build();
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listLayers(action).getAll()));
     }
 
@@ -210,8 +208,7 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
     @Path("/indicators/cycles/list")
     public Response indicatorCycleList(@Context HttpServletRequest req,@RequestBody IndicatorCycleVO vo){
         LOGGER.info("indicatorCycleList vo : {}",vo);
-        ListDwStatisticalPeriodAction action = new ListDwStatisticalPeriodAction();
-        action.setUser(getStrategyUser(req));
+        ListDwStatisticalPeriodAction action =ListDwStatisticalPeriodAction.builder().setLayer(vo.getLayer()).setIsAvailable(true).setTheme(vo.getTheme()).build();
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listStatisticalPeriods(action).getAll()));
     }
 
@@ -224,10 +221,7 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
     @Path("/indicators/modifiers/list")
     public Response indicatorModifierList(@Context HttpServletRequest req,@RequestBody IndicatorModifierVO vo){
         LOGGER.info("indicatorModifierList vo : {}",vo);
-        ListDwModifierAction action = new ListDwModifierAction();
-        action.setUser(getStrategyUser(req));
-        action.setLayer(vo.getLayer());
-        action.setTheme(vo.getTheme());
+        ListDwModifierAction action = ListDwModifierAction.builder().setUser(getStrategyUser(req)).setLayer(vo.getLayer()).setIsAvailable(true).setTheme(vo.getTheme()).build();
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listModifiers(action).getAll()));
     }
 
