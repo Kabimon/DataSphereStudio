@@ -208,7 +208,7 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
     @Path("/indicators/cycles/list")
     public Response indicatorCycleList(@Context HttpServletRequest req,@RequestBody IndicatorCycleVO vo){
         LOGGER.info("indicatorCycleList vo : {}",vo);
-        ListDwStatisticalPeriodAction action =ListDwStatisticalPeriodAction.builder().setLayer(vo.getLayer()).setIsAvailable(true).setTheme(vo.getTheme()).build();
+        ListDwStatisticalPeriodAction action =ListDwStatisticalPeriodAction.builder().setUser(getStrategyUser(req)).setLayer(vo.getLayer()).setIsAvailable(true).setTheme(vo.getTheme()).build();
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listStatisticalPeriods(action).getAll()));
     }
 
