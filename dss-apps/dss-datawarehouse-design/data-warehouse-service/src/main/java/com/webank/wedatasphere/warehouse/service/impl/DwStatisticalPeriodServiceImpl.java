@@ -288,12 +288,16 @@ public class DwStatisticalPeriodServiceImpl implements DwStatisticalPeriodServic
         // 单独查询
         Optional.ofNullable(period.getLayerId()).ifPresent(lid -> {
             DwLayer dwLayer = this.dwLayerMapper.selectById(lid);
-            record.setLayerArea(dwLayer.getName());
+            Optional.ofNullable(dwLayer).ifPresent(layer -> {
+                record.setLayerArea(layer.getName());
+            });
         });
 
         Optional.ofNullable(period.getThemeDomainId()).ifPresent(tid -> {
             DwThemeDomain dwThemeDomain = dwThemeDomainMapper.selectById(tid);
-            record.setThemeArea(dwThemeDomain.getName());
+            Optional.ofNullable(dwThemeDomain).ifPresent(theme -> {
+                record.setThemeArea(theme.getName());
+            });
         });
         // 应用查询
         String username = SecurityFilter.getLoginUsername(request);

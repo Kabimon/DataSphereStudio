@@ -3,12 +3,14 @@ package com.webank.wedatasphere.warehouse.domain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.util.Date;
 
 @Setter
 @Getter
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DwStatisticalPeriodVO {
     private Long id;
 
@@ -38,9 +40,15 @@ public class DwStatisticalPeriodVO {
 
     private String themeArea;
 
+    private String themeAreaEn;
+
     private String layerArea;
+
+    private String layerAreaEn;
 
     transient private Boolean status;
 
-//    private int referenceCount;
+    private Boolean referenced;
+
+    private int referenceCount;
 }
