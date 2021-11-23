@@ -35,7 +35,9 @@ object ListDwThemeDomainAction {
 
     def build(): ListDwThemeDomainAction = {
       val action = new ListDwThemeDomainAction
-      action.setUser(user)
+      if (null != user) {
+        action.setUser(user)
+      }
       action.setParameter("isAvailable", isAvailable)
       action
     }

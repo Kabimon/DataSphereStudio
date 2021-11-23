@@ -32,7 +32,7 @@ public class RemoteClientTest {
                 .setAuthTokenValue("hdfs"))).setDWSVersion("v1").build();
         GovernanceDwRemoteClient governanceDwRemoteClient = new GovernanceDwRemoteClient(clientConfig);
 
-        ListDwStatisticalPeriodAction action = new ListDwStatisticalPeriodAction.Builder().setUser("hdfs").setIsAvailable(false).build();
+        ListDwStatisticalPeriodAction action = new ListDwStatisticalPeriodAction.Builder().setLayer(null).setTheme(null).setUser("hdfs").setIsAvailable(false).build();
         ListStatisticalPeriodsResult listStatisticalPeriodsResult = governanceDwRemoteClient.listStatisticalPeriods(action);
         System.out.println(listStatisticalPeriodsResult.getAll().size());
 

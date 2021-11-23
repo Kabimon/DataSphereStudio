@@ -53,11 +53,19 @@ object ListDwStatisticalPeriodAction {
 
     def build(): ListDwStatisticalPeriodAction = {
       val action = new ListDwStatisticalPeriodAction
-      action.setUser(user)
+      if (null != user) {
+        action.setUser(user)
+      }
       action.setParameter("isAvailable", isAvailable)
-      action.setParameter("name", name)
-      action.setParameter("layer", layer)
-      action.setParameter("theme", theme)
+      if (null != name) {
+        action.setParameter("name", name)
+      }
+      if (null != layer) {
+        action.setParameter("layer", layer)
+      }
+      if (null != theme) {
+        action.setParameter("theme", theme)
+      }
       action
     }
   }

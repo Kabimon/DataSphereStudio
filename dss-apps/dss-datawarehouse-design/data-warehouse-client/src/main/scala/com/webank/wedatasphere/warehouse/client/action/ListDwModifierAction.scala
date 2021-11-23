@@ -65,11 +65,24 @@ object ListDwModifierAction {
 
     def build(): ListDwModifierAction = {
       val action = new ListDwModifierAction
-      action.setUser(user)
+//      action.setUser(user)
+//      action.setParameter("isAvailable", isAvailable)
+//      action.setParameter("typeName", name)
+//      action.setParameter("layer", layer)
+//      action.setParameter("theme", theme)
+      if (null != user) {
+        action.setUser(user)
+      }
       action.setParameter("isAvailable", isAvailable)
-      action.setParameter("typeName", name)
-      action.setParameter("layer", layer)
-      action.setParameter("theme", theme)
+      if (null != name) {
+        action.setParameter("typeName", name)
+      }
+      if (null != layer) {
+        action.setParameter("layer", layer)
+      }
+      if (null != theme) {
+        action.setParameter("theme", theme)
+      }
       action
     }
   }

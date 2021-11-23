@@ -35,7 +35,9 @@ object ListDwLayerAction {
 
     def build(): ListDwLayerAction = {
       val action = new ListDwLayerAction
-      action.setUser(user)
+      if (null != user) {
+        action.setUser(user)
+      }
       action.setParameter("isAvailable", isAvailable)
       action
     }
