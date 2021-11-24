@@ -6,6 +6,8 @@
     @on-close="cancelCallBack"
     width="920"
     :styles="styles"
+    :inner="true"
+    :transfer="false"
   >
     <Form
       ref="formRef"
@@ -231,6 +233,7 @@ export default {
       this.loading = false;
       this.formState.description = item.description;
       this.formState.typeName = item.modifierType;
+      this.formState.typeEnName = item.modifierTypeEn;
       this.formState.list = item.list.map((item) => {
         return {
           name: item.name,

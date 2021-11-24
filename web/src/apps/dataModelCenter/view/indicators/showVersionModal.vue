@@ -5,6 +5,8 @@
     @on-cancel="cancelCallBack"
     :value="_visible"
     @input="$emit('_changeVisible', $event)"
+    :inner="true"
+    :transfer="false"
   >
     <div v-if="_visible">
       <Form

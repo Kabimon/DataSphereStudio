@@ -6,6 +6,8 @@
     width="920"
     :styles="styles"
     @on-close="cancelCallBack"
+    :inner="true"
+    :transfer="false"
   >
     <div v-if="_visible">
       <Form

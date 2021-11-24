@@ -197,7 +197,10 @@
             <Col span="3">
               <div class="census-item">
                 <p class="value">
-                  {{ tableCensusInfo.storageSize }}<span class="unit">kb</span>
+                  {{ transformCompany(tableCensusInfo.storageSize).num }}
+                  <span class="unit">
+                    {{ transformCompany(tableCensusInfo.storageSize).unit }}
+                  </span>
                 </p>
                 <p class="label">表大小</p>
               </div>
@@ -611,6 +614,16 @@ export default {
     // 复制
     handleCopy(e) {
       handleClipboard(fomatSqlForCopy(this.selectSqlCfg.sql), e);
+    },
+    transformCompany(number) {
+      let unitArr = ["B", "KB", "MB", "GB", "TB"];
+      for (let i = unitArr.length - 1; i >= 0; i--) {
+        const unit = unitArr[i];
+        let res = number / Math.pow(1024, i);
+        if (res > 1) {
+          return { num: res.toFixed(2), unit, str: res.toFixed(2) + unit };
+        }
+      }
     },
   },
 };

@@ -1,9 +1,13 @@
 <template>
-  <Modal
-    title="新建/编辑"
+  <Drawer
+    title="新建/编辑统计周期"
     :value="_visible"
     @input="$emit('_changeVisible', $event)"
-    @on-cancel="cancelCallBack"
+    @on-close="cancelCallBack"
+    width="920"
+    :styles="styles"
+    :inner="true"
+    :transfer="false"
   >
     <Form
       ref="formRef"
@@ -96,17 +100,18 @@
       </FormItem>
     </Form>
     <Spin v-if="loading" fix></Spin>
-    <template slot="footer">
-      <Button @click="handleCancel">取消</Button>
+    <div class="drawer-footer">
       <Button
+        style="margin-right: 8px"
         type="primary"
         @click="handleOk"
         :disabled="referenced && mode === 'edit'"
       >
         确定
       </Button>
-    </template>
-  </Modal>
+      <Button @click="handleCancel">取消</Button>
+    </div>
+  </Drawer>
 </template>
 
 <script>
@@ -219,11 +224,14 @@ export default {
           value: "New York",
           label: "New York",
         },
-        {
-          value: "London",
-          label: "London",
-        },
       ],
+      // 底部样式
+      styles: {
+        height: "calc(100% - 55px)",
+        overflow: "auto",
+        paddingBottom: "53px",
+        position: "static",
+      },
     };
   },
   methods: {
@@ -284,4 +292,15 @@ export default {
 };
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="scss">
+.drawer-footer {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  border-top: 1px solid #e8e8e8;
+  padding: 10px 16px;
+  text-align: left;
+  background: #fff;
+}
+</style>
