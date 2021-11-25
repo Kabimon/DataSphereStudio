@@ -314,6 +314,102 @@ public class DSSDataGovernanceAssetRestful {
     }
 
     /**
+     * 创建标签
+     *
+     * @param req
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    @POST
+    @Path("/labels")
+    public Response createLabel(@Context HttpServletRequest req, @RequestBody CreateLabelVO vo) throws Exception {
+        logger.info("createLabel vo : {}", vo);
+        return Message.messageToResponse(Message.ok().data("result",assetService.createLabel(vo)));
+    }
+
+    /**
+     * 更新标签
+     *
+     * @param req
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    @POST
+    @Path("/labels/modify")
+    public Response updateLabel(@Context HttpServletRequest req, @RequestBody UpdateLabelVO vo) throws Exception {
+        logger.info("updateLabel vo : {}", vo);
+        return Message.messageToResponse(Message.ok().data("result",assetService.updateLabel(vo)));
+    }
+
+    /**
+     * 删除标签
+     *
+     * @param req
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    @POST
+    @Path("/labels/delete")
+    public Response deleteLabel(@Context HttpServletRequest req, @RequestBody DeleteLabelVO vo) throws Exception {
+        logger.info("deleteLabel vo : {}", vo);
+        assetService.deleteLabel(vo);
+        return Message.messageToResponse(Message.ok().data("result","删除成功"));
+    }
+
+    /**
+     * 实体绑定标签
+     *
+     * @param req
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    @POST
+    @Path("/labels/bind")
+    public Response bindLabel(@Context HttpServletRequest req, @RequestBody BindLabelVO vo) throws Exception {
+        logger.info("bindLabel vo : {}", vo);
+        assetService.bindLabel(vo);
+        return Message.messageToResponse(Message.ok().data("result","绑定成功"));
+    }
+
+
+    /**
+     * 实体解绑标签
+     *
+     * @param req
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    @POST
+    @Path("/labels/unbind")
+    public Response unBindLabel(@Context HttpServletRequest req, @RequestBody UnBindLabelVO vo) throws Exception {
+        logger.info("unBindLabel vo : {}", vo);
+        assetService.unBindLabel(vo);
+        return Message.messageToResponse(Message.ok().data("result","解绑成功"));
+    }
+
+
+
+    /**
+     * 搜索标签
+     *
+     * @param req
+     * @param query
+     * @return
+     * @throws Exception
+     */
+    @GET
+    @Path("/labels")
+    public Response searchLabel(@Context HttpServletRequest req, @QueryParam("query") String query) throws Exception {
+        logger.info("query : {}", query);
+        return Message.messageToResponse(Message.ok());
+    }
+
+    /**
      * 设置单个表或单个列的标签
      */
     @POST

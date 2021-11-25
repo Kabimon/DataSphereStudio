@@ -107,4 +107,46 @@ public interface AssetService {
      */
     Long hiveTblSize(String dbName, String tableName, String guid) throws Exception;
 
+
+    /**
+     * 新建标签
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    CreateLabelInfo createLabel(CreateLabelVO vo) throws Exception;
+
+
+    /**
+     * 删除标签
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    void deleteLabel(DeleteLabelVO vo) throws Exception;
+
+
+    /**
+     * 删除标签
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    UpdateLabelInfo updateLabel(UpdateLabelVO vo) throws Exception;
+
+
+    /**
+     * 绑定标签
+     * @param vo
+     * @throws Exception
+     */
+    void bindLabel(BindLabelVO vo) throws Exception;
+
+
+    /**
+     * 解绑实体
+     * @param vo
+     * @throws Exception
+     */
+    void unBindLabel(UnBindLabelVO vo) throws Exception;
 }
