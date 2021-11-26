@@ -82,6 +82,15 @@ export default {
         this.loading = false;
       });
   },
+  beforeDestroy() {
+    let value;
+    if (this.value instanceof Array) {
+      value = [];
+    } else {
+      value = "";
+    }
+    this.$emit("input", value);
+  },
   methods: {
     // 搜索方法
     handleGetData(query = "") {

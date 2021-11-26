@@ -124,6 +124,10 @@
                   版本列表
                 </Button>
               </template>
+              <template slot-scope="{ row }" slot="warehouseAttr">
+                <p>主题：{{ row.warehouseThemeName }}</p>
+                <p>分层：{{ row.warehouseLayerName }}</p>
+              </template>
               <template slot-scope="{ row }" slot="createTime">
                 {{ row.createTime | formatDate }}
               </template>
@@ -139,6 +143,7 @@
                   编辑
                 </Button>
                 <Button
+                  v-if="row.id"
                   size="small"
                   @click="handleDelete(row.id)"
                   style="margin-right: 5px"
@@ -176,6 +181,7 @@ import {
   getDataBasesList,
   getThemesList,
   getLayersList,
+  deleteTableById,
 } from "@dataModelCenter/service/tableManageApi";
 import formatDate from "@dataModelCenter/utils/formatDate";
 import VersionListModal from "./versionListModal.vue";
@@ -278,8 +284,9 @@ export default {
         {
           title: "数仓属性",
           key: "warehouseAttr",
+          slot: "warehouseAttr",
           align: "center",
-          width: 120,
+          width: 190,
         },
         {
           title: "版本",
@@ -368,11 +375,11 @@ export default {
       this.$Modal.confirm({
         title: "警告",
         content: "确定删除此项吗？",
-        onOk: () => {
-          this.$Message.info("删除");
-        },
-        onCancel: () => {
-          this.$Message.info("取消");
+        onOk: async () => {
+          this.loading = true;
+          await deleteTableById(id).catch(() => {});
+          this.loading = false;
+          this.handleSearchTables(true);
         },
       });
     },

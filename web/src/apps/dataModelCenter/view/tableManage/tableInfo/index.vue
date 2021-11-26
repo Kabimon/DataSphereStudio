@@ -25,14 +25,14 @@
             color="#3399ff"
             @click="handleToEditor"
           />
-          <Dropdown style="margin-left: 20px">
+          <!-- <Dropdown style="margin-left: 20px">
             <Button type="primary"> 更多 </Button>
             <DropdownMenu slot="list">
               <DropdownItem>查看授权</DropdownItem>
               <DropdownItem>生成api</DropdownItem>
               <DropdownItem>导出表</DropdownItem>
             </DropdownMenu>
-          </Dropdown>
+          </Dropdown> -->
         </div>
         <p style="margin-bottom: 16px">{{ generalData.comment }}</p>
         <p>

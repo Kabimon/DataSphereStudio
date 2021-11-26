@@ -114,6 +114,8 @@ export default {
         .catch((err) => {
           console.log("Search", err);
         });
+    }else{
+      this.onSearch()
     }
   },
   mounted() {

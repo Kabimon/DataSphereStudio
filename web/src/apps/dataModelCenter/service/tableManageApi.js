@@ -219,3 +219,11 @@ export const checkTableData = tableName =>
     { tableName },
     "post"
   );
+
+/**
+ * @description 删除表
+ * @param {String} id
+ * @returns {Promise}
+ */
+export const deleteTableById = id =>
+  api.fetch(`${API_PATH.DATAMODEL_PATH}tables/${id}`, {}, "delete");

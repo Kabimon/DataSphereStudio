@@ -3,12 +3,11 @@
     <!-- top -->
     <div class="assets-info-top">
       <div class="assets-info-top-bgs">
-        <Button>
+        <!-- <Button>
           <SvgIcon icon-class="star" />
           收藏表
         </Button>
-        <!-- <Button>申请权限</Button> -->
-        <Button>生成API</Button>
+        <Button>生成API</Button> -->
       </div>
     </div>
 

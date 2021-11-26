@@ -9,14 +9,14 @@
     :inner="true"
     :transfer="false"
   >
-    <div v-if="_visible">
-      <Form
-        ref="formRef"
-        :model="formState"
-        :rules="ruleValidate"
-        label-position="left"
-        :label-width="120"
-      >
+    <Form
+      ref="formRef"
+      :model="formState"
+      :rules="ruleValidate"
+      label-position="left"
+      :label-width="120"
+    >
+      <div v-if="_visible">
         <h2 class="form-block-title">基本信息</h2>
         <FormItem label="名称" prop="name">
           <Input v-model="formState.name" placeholder="指标名"></Input>
@@ -329,8 +329,8 @@
           >
           </Input>
         </FormItem>
-      </Form>
-    </div>
+      </div>
+    </Form>
     <Spin v-if="loading" fix></Spin>
     <div class="drawer-footer">
       <Button
