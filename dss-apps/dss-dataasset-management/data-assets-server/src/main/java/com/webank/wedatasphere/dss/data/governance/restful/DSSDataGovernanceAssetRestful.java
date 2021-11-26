@@ -402,7 +402,7 @@ public class DSSDataGovernanceAssetRestful {
      * @throws Exception
      */
     @GET
-    @Path("/labels")
+    @Path("/labels/search")
     public Response searchLabel(@Context HttpServletRequest req
                                     , @QueryParam("query") String query
                                     , @QueryParam("limit") @DefaultValue(DEFAULT_LIMIT) int limit

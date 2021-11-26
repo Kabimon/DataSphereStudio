@@ -7,10 +7,11 @@ import com.webank.wedatasphere.dss.data.governance.atlas.AtlasService;
 import com.webank.wedatasphere.dss.data.governance.dao.*;
 import com.webank.wedatasphere.dss.data.governance.dao.impl.MetaInfoMapperImpl;
 import com.webank.wedatasphere.dss.data.governance.dto.HiveTblStatsDTO;
-import com.webank.wedatasphere.dss.data.governance.dto.ListLabelDTO;
+import com.webank.wedatasphere.dss.data.governance.dto.SearchLabelDTO;
 import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.exception.DAOException;
 import com.webank.wedatasphere.dss.data.governance.exception.DataGovernanceException;
+import com.webank.wedatasphere.dss.data.governance.restful.DSSDataGovernanceAssetRestful;
 import com.webank.wedatasphere.dss.data.governance.service.AssetService;
 import com.webank.wedatasphere.dss.data.governance.utils.DateUtil;
 import com.webank.wedatasphere.dss.data.governance.vo.*;
@@ -24,17 +25,21 @@ import org.apache.atlas.model.instance.AtlasStruct;
 import org.apache.atlas.model.lineage.AtlasLineageInfo;
 import org.apache.atlas.model.typedef.AtlasClassificationDef;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
 @Service
 public class AssetServiceImpl implements AssetService {
+    private static final Logger logger = LoggerFactory.getLogger(AssetServiceImpl.class);
     private AtlasService atlasService;
     private MetaInfoMapper metaInfoMapper;
     private WorkspaceInfoMapper workspaceInfoMapper;
@@ -679,21 +684,34 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public UpdateLabelInfo updateLabel(UpdateLabelVO vo) throws Exception {
+
+        if (StringUtils.equals(vo.getName(),vo.getOrgName())){
+            throw new DataGovernanceException(23000, "修改标签名称前后相同");
+        }
+
+        Optional<String> termGuidOptional = getTermGuidOptional(vo.getOrgName());
+        if (!termGuidOptional.isPresent()){
+            throw new DataGovernanceException(23000, "标签"+vo.getOrgName()+ "不存在");
+        }
+
         AtlasGlossaryTerm atlasGlossaryTerm = null;
         //首先新建标签
         try {
             atlasGlossaryTerm = atlasService.createLabel(vo.getName());
-        } catch (AtlasServiceException exception) {
+        } catch (Exception exception) {
             throw new DataGovernanceException(23000, exception.getMessage());
         }
         //尝试删除原标签
         try {
             atlasService.deleteLabel(vo.getOrgName());
-        } catch (AtlasServiceException exception) {
+        } catch (Exception exception) {
+            //休眠五秒,atlas新建分词有延迟
+            logger.error("wait for 5 seconds to roll back term " + vo.getName());
+            TimeUnit.SECONDS.sleep(5);
             //回滚删除新建标签
             try {
                 atlasService.deleteLabel(vo.getName());
-            } catch (AtlasServiceException exception1) {
+            } catch (Exception exception1) {
                 throw new DataGovernanceException(23000, exception1.getMessage());
             }
             throw new DataGovernanceException(23000, exception.getMessage());
@@ -769,7 +787,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public List<ListLabelDTO> listLabels(String query, Integer limit, Integer offset) throws Exception {
+    public List<SearchLabelDTO> listLabels(String query, Integer limit, Integer offset) throws Exception {
         List<AtlasEntityHeader>  atlasEntityHeaders = atlasService.listLabels(query,limit,offset);
         Optional<String> labelOptional =atlasService.getRootGlossaryGuid(GlossaryConstant.LABEL);
         if (!labelOptional.isPresent()){
@@ -778,6 +796,6 @@ public class AssetServiceImpl implements AssetService {
         return atlasEntityHeaders.stream()
                 .filter(atlasEntityHeader ->
                         StringUtils.endsWith(atlasEntityHeader.getAttribute("qualifiedName").toString(),GlossaryConstant.LABEL.endWith()))
-                .map(ListLabelDTO::from).collect(Collectors.toList());
+                .map(SearchLabelDTO::from).collect(Collectors.toList());
     }
 }

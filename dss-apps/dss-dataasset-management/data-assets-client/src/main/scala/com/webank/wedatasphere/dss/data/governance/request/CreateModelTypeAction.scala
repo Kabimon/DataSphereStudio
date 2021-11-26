@@ -7,8 +7,6 @@ import com.webank.wedatasphere.linkis.httpclient.request.POSTAction
 
 class CreateModelTypeAction extends POSTAction with DataAssetsAction {
 
-
-
   private var name:String= _
 
   private var `type`:String= _

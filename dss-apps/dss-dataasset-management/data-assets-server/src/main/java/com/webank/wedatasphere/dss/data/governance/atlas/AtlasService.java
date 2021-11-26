@@ -278,9 +278,7 @@ public class AtlasService {
      */
     public void deleteLabel(String labelName) throws AtlasServiceException{
         Optional<String> optional = getTermGuid(GlossaryConstant.LABEL,labelName);
-        if(optional.isPresent()) {
-            atlasClient.deleteGlossaryTermByGuid(optional.get());
-        }
+        atlasClient.deleteGlossaryTermByGuid(optional.get());
     }
 
     /**

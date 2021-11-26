@@ -2,7 +2,7 @@ package com.webank.wedatasphere.dss.data.governance.service;
 
 
 import com.webank.wedatasphere.dss.data.governance.dto.HiveTblStatsDTO;
-import com.webank.wedatasphere.dss.data.governance.dto.ListLabelDTO;
+import com.webank.wedatasphere.dss.data.governance.dto.SearchLabelDTO;
 import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.exception.DAOException;
 import com.webank.wedatasphere.dss.data.governance.exception.DataGovernanceException;
@@ -158,5 +158,5 @@ public interface AssetService {
      * @param offset
      * @return
      */
-    List<ListLabelDTO> listLabels(String query,Integer limit,Integer offset) throws AtlasServiceException, Exception;
+    List<SearchLabelDTO> listLabels(String query, Integer limit, Integer offset) throws AtlasServiceException, Exception;
 }

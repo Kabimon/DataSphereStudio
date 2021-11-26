@@ -5,12 +5,12 @@ import lombok.Data;
 import org.apache.atlas.model.instance.AtlasEntityHeader;
 
 @Data
-public class ListLabelDTO {
+public class SearchLabelDTO {
     private String name;
     private String guid;
 
-    public static ListLabelDTO from(AtlasEntityHeader atlasEntityHeader){
-        ListLabelDTO dto = new ListLabelDTO();
+    public static SearchLabelDTO from(AtlasEntityHeader atlasEntityHeader){
+        SearchLabelDTO dto = new SearchLabelDTO();
         dto.setGuid(atlasEntityHeader.getGuid());
         dto.setName(atlasEntityHeader.getAttribute("name").toString());
         return dto;

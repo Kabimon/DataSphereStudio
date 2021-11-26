@@ -1,7 +1,7 @@
 package com.webank.wedatasphere.dss.data.governance
 
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient
-import com.webank.wedatasphere.dss.data.governance.request.{HiveTblSizeAction, HiveTblStatsAction}
+import com.webank.wedatasphere.dss.data.governance.request.{BindLabelAction, CreateLabelAction, DeleteLabelAction, HiveTblSizeAction, HiveTblStatsAction, SearchLabelAction, UnBindLabelAction, UpdateLabelAction}
 import com.webank.wedatasphere.linkis.httpclient.dws.config.DWSClientConfigBuilder
 
 import java.util.concurrent.TimeUnit
@@ -68,16 +68,35 @@ object TestDataAssetsRemoteClient {
 //            .setModelType(ClassificationConstant.INDICATOR).build())
 //    println(unBindResult.getResult)
 
-    val hiveTableSizeResult = dataAssetsClient.searchHiveTblSize(HiveTblSizeAction.builder()
-      .setUser("hdfs")
-      .setTableName("test04")
-      .setDbName("default").build())
-     println(hiveTableSizeResult.getResult)
-    val hiveTableStatsResult = dataAssetsClient.searchHiveTblStats(HiveTblStatsAction.builder()
-      .setUser("hdfs")
-      .setTableName("test04")
-      .setDbName("default").build())
+//    val hiveTableSizeResult = dataAssetsClient.searchHiveTblSize(HiveTblSizeAction.builder()
+//      .setUser("hdfs")
+//      .setTableName("test04")
+//      .setDbName("default").build())
+//     println(hiveTableSizeResult.getResult)
+//    val hiveTableStatsResult = dataAssetsClient.searchHiveTblStats(HiveTblStatsAction.builder()
+//      .setUser("hdfs")
+//      .setTableName("test04")
+//      .setDbName("default").build())
+//    println(hiveTableStatsResult.getResult)
 
-    println(hiveTableStatsResult.getResult)
+    val searchLabelResult = dataAssetsClient.searchLabel(SearchLabelAction.builder().setUser("hdfs").setQuery("t").build());
+    println(searchLabelResult.getLabelList)
+
+    val createLabelResult = dataAssetsClient.createLabel(CreateLabelAction.builder().setUser("hdfs").setName("label007").build())
+    println(createLabelResult.getInfo)
+
+    TimeUnit.SECONDS.sleep(5)
+
+    val bindLabelResult = dataAssetsClient.bindLabel(BindLabelAction.builder().setUser("hdfs").setLabel("term1").setTableName("linkis_db.linkis_test01").build())
+    println(bindLabelResult.getResult)
+//
+    val unbindLabelResult = dataAssetsClient.unBindLabel(UnBindLabelAction.builder().setUser("hdfs").setLabel("term1").setTableName("linkis_db.linkis_test01").build())
+    println(unbindLabelResult.getResult)
+
+    val updateLabelResult = dataAssetsClient.updateLabel(UpdateLabelAction.builder().setUser("hdfs").setName("label008").setOrgName("label007").build())
+    println(updateLabelResult.getInfo)
+
+    val deleteLabelResult = dataAssetsClient.deleteLabel(DeleteLabelAction.builder().setUser("hdfs").setName("label008").build())
+    println(deleteLabelResult.getResult)
   }
 }
