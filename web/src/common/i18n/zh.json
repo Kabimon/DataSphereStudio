@@ -23,7 +23,7 @@
       "cancel": "取消",
       "delete": "删除",
       "failedNotice": "验证项未通过，请检查后再试！",
-      "logoName": "DataSphere Studio",
+      "logoName": "仙翁数据中台",
       "project": "工程",
       "home": "首页",
       "management": "管理台",
@@ -189,7 +189,7 @@
         "GYFSYGWYF": "该语法属于高危语法，请谨慎操作！"
       },
       "resourceSimple": {
-        "YS": "Scriptis",
+        "YS": "数据开发",
         "FL": "分类",
         "ZH": "Visualis",
         "FLOW1": "实时工作流",
@@ -243,7 +243,7 @@
         "comingSoon": "尚未开源，敬请期待！"
       },
       "login": {
-        "loginTitle": "欢迎登录DataSphere Studio系统！",
+        "loginTitle": "欢迎登录仙翁数据中台系统！",
         "userName": "请输入用户名",
         "remenber": "记住当前用户",
         "login": "登录",

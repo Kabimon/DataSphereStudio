@@ -49,7 +49,7 @@ router.beforeEach((to, from, next) => {
 // 路由跳转之后 设置标题
 router.afterEach(to => {
   if (to.meta) {
-    document.title = to.meta.title || "DataSphere Studio";
+    document.title = to.meta.title || "仙翁数据中台";
   }
 });
 

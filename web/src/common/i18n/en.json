@@ -23,7 +23,7 @@
       "cancel": "Cancel",
       "delete": "Delete",
       "failedNotice": "Invalid items found, please check and then retry!",
-      "logoName": "DataSphere Studio",
+      "logoName": "仙翁数据中台",
       "home": "Home",
       "management": "Console",
       "feedback": "Feedback",
@@ -188,7 +188,7 @@
         "GYFSYGWYF": "This is highly dangerous syntax, please be cautious!"
       },
       "resourceSimple": {
-        "YS": "Scriptis",
+        "YS": "数据开发",
         "FL": "Category",
         "ZH": "Visualis",
         "FLOW1": "flowexecution",
@@ -242,7 +242,7 @@
         "comingSoon": "Planning in progress, please stay tuned!"
       },
       "login": {
-        "loginTitle": "Welcome to DataSphere Studio！",
+        "loginTitle": "Welcome to 仙翁数据中台！",
         "userName": "Please enter your phone",
         "remenber": "Remember me",
         "login": "Login",

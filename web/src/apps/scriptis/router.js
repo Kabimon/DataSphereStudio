@@ -20,7 +20,7 @@ export const subAppRoutes = {
   component: () => import('./view/layout.vue'),
   redirect: '/home',
   meta: {
-    title: 'DataSphere Studio',
+    title: '仙翁数据中台',
     publicPage: true, // 权限公开
   },
   children: []
@@ -31,7 +31,7 @@ export default [
     path: 'home',
     name: 'Home',
     meta: {
-      title: 'Scriptis',
+      title: '数据开发',
       keepAlive: false, // 缓存导致页面有多个编辑器，广播事件会触发报错
       publicPage: true, // 权限公开
     },
