@@ -181,16 +181,16 @@ public class DSSWorkspaceRoleRestful {
         Message retMessage = Message.ok();
         //工作空间中，加上用户在顶部的菜单
         if (roles.contains("analyser")){
-            retMessage.data("topName", "Scriptis");
+            retMessage.data("topName", "数据开发");
             retMessage.data("topUrl", "/home");
         } else if (roles.contains("developer")){
-            retMessage.data("topName", "Scriptis");
+            retMessage.data("topName", "数据开发");
             retMessage.data("topUrl", "/home");
         }else if(roles.contains("apiUser") && roles.size() == 1){
-            retMessage.data("topName","Scriptis");
+            retMessage.data("topName","数据开发");
             retMessage.data("topUrl", "/home");
         }else{
-            retMessage.data("topName", "Scriptis");
+            retMessage.data("topName", "数据开发");
             retMessage.data("topUrl", "/home");
         }
         //如果其他的角色也是有这个api权限的，那么就加上这个apiUser
