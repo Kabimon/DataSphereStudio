@@ -2,6 +2,7 @@ package com.webank.wedatasphere.dss.data.governance.service;
 
 
 import com.webank.wedatasphere.dss.data.governance.dto.HiveTblStatsDTO;
+import com.webank.wedatasphere.dss.data.governance.dto.ListLabelDTO;
 import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.exception.DAOException;
 import com.webank.wedatasphere.dss.data.governance.exception.DataGovernanceException;
@@ -149,4 +150,13 @@ public interface AssetService {
      * @throws Exception
      */
     void unBindLabel(UnBindLabelVO vo) throws Exception;
+
+    /**
+     * 标签搜索列表
+     * @param query
+     * @param limit
+     * @param offset
+     * @return
+     */
+    List<ListLabelDTO> listLabels(String query,Integer limit,Integer offset) throws AtlasServiceException, Exception;
 }

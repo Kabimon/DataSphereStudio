@@ -325,7 +325,7 @@ public class DSSDataGovernanceAssetRestful {
     @Path("/labels")
     public Response createLabel(@Context HttpServletRequest req, @RequestBody CreateLabelVO vo) throws Exception {
         logger.info("createLabel vo : {}", vo);
-        return Message.messageToResponse(Message.ok().data("result",assetService.createLabel(vo)));
+        return Message.messageToResponse(Message.ok().data("result", assetService.createLabel(vo)));
     }
 
     /**
@@ -340,7 +340,7 @@ public class DSSDataGovernanceAssetRestful {
     @Path("/labels/modify")
     public Response updateLabel(@Context HttpServletRequest req, @RequestBody UpdateLabelVO vo) throws Exception {
         logger.info("updateLabel vo : {}", vo);
-        return Message.messageToResponse(Message.ok().data("result",assetService.updateLabel(vo)));
+        return Message.messageToResponse(Message.ok().data("result", assetService.updateLabel(vo)));
     }
 
     /**
@@ -356,7 +356,7 @@ public class DSSDataGovernanceAssetRestful {
     public Response deleteLabel(@Context HttpServletRequest req, @RequestBody DeleteLabelVO vo) throws Exception {
         logger.info("deleteLabel vo : {}", vo);
         assetService.deleteLabel(vo);
-        return Message.messageToResponse(Message.ok().data("result","删除成功"));
+        return Message.messageToResponse(Message.ok().data("result", "删除成功"));
     }
 
     /**
@@ -372,7 +372,7 @@ public class DSSDataGovernanceAssetRestful {
     public Response bindLabel(@Context HttpServletRequest req, @RequestBody BindLabelVO vo) throws Exception {
         logger.info("bindLabel vo : {}", vo);
         assetService.bindLabel(vo);
-        return Message.messageToResponse(Message.ok().data("result","绑定成功"));
+        return Message.messageToResponse(Message.ok().data("result", "绑定成功"));
     }
 
 
@@ -389,9 +389,8 @@ public class DSSDataGovernanceAssetRestful {
     public Response unBindLabel(@Context HttpServletRequest req, @RequestBody UnBindLabelVO vo) throws Exception {
         logger.info("unBindLabel vo : {}", vo);
         assetService.unBindLabel(vo);
-        return Message.messageToResponse(Message.ok().data("result","解绑成功"));
+        return Message.messageToResponse(Message.ok().data("result", "解绑成功"));
     }
-
 
 
     /**
@@ -404,9 +403,12 @@ public class DSSDataGovernanceAssetRestful {
      */
     @GET
     @Path("/labels")
-    public Response searchLabel(@Context HttpServletRequest req, @QueryParam("query") String query) throws Exception {
-        logger.info("query : {}", query);
-        return Message.messageToResponse(Message.ok());
+    public Response searchLabel(@Context HttpServletRequest req
+                                    , @QueryParam("query") String query
+                                    , @QueryParam("limit") @DefaultValue(DEFAULT_LIMIT) int limit
+                                    , @QueryParam("offset") @DefaultValue(DEFAULT_OFFSET) int offset) throws Exception {
+        logger.info("searchLabel query : {}", query);
+        return Message.messageToResponse(Message.ok().data("result",assetService.listLabels(query,limit,offset)));
     }
 
     /**

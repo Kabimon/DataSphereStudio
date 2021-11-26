@@ -1,11 +1,14 @@
 package com.webank.wedatasphere.dss.data.governance.entity;
 
 
+import com.webank.wedatasphere.dss.data.governance.conf.GovernanceConf;
+
 public enum GlossaryConstant {
-    LABEL(0,"label","AtlasGlossaryTerm","标签"),
-    COLLECTION(1,"collection","AtlasGlossaryTerm","收藏");
+    LABEL(0,"label","AtlasGlossaryTerm", GovernanceConf.ATLAS_ROOT_LABEL.getValue()),
+    COLLECTION(1,"collection","AtlasGlossaryTerm",GovernanceConf.ATLAS_ROOT_COLLECTION.getValue());
 
     private int type;
+
 
     private String typeCode;
 
@@ -14,6 +17,8 @@ public enum GlossaryConstant {
     private String root;
 
     public static final String SEPARATOR = "@";
+
+
 
     public static final String ARR = "qualifiedName";
 
@@ -42,5 +47,9 @@ public enum GlossaryConstant {
 
     public String formatQuery(String query){
         return query+SEPARATOR+this.getRoot();
+    }
+
+    public String endWith(){
+        return SEPARATOR+this.getRoot();
     }
 }

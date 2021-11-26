@@ -7,9 +7,7 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.webank.wedatasphere.dss.data.governance.entity.GlossaryConstant;
 import org.apache.atlas.AtlasClientV2;
 import org.apache.atlas.AtlasServiceException;
-import org.apache.atlas.model.discovery.AtlasSearchResult;
 import org.apache.atlas.model.discovery.SearchParameters;
-import org.apache.atlas.model.glossary.AtlasGlossary;
 import org.apache.atlas.model.glossary.AtlasGlossaryTerm;
 import org.apache.atlas.model.glossary.relations.AtlasGlossaryHeader;
 import org.apache.atlas.model.instance.AtlasRelatedObjectId;
@@ -21,10 +19,8 @@ import org.apache.commons.configuration.Configuration;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -178,17 +174,22 @@ public class AtlasClient extends AtlasClientV2 {
      * @return
      * @throws AtlasServiceException
      */
-    public String attributeSearch(GlossaryConstant glossaryConstant, String name) throws AtlasServiceException {
+    public String attributeSearchByName(GlossaryConstant glossaryConstant, String name) throws AtlasServiceException {
+        return attributeSearch0(glossaryConstant.getAtlasType(),glossaryConstant.formatQuery(name), GlossaryConstant.ARR,1,0);
+    }
+
+    public String attributeSearch0(String typeName, String name, String attrName, Integer limit, Integer offset) throws AtlasServiceException {
         MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
 
-        queryParams.add("attrName", GlossaryConstant.ARR);
-        queryParams.add("attrValuePrefix", glossaryConstant.formatQuery(name));
-        queryParams.add("typeName", glossaryConstant.getAtlasType());
-        queryParams.add(LIMIT, "1");
-        queryParams.add(OFFSET, "0");
+        queryParams.add("attrName", attrName);
+        queryParams.add("attrValuePrefix",name);
+        queryParams.add("typeName", typeName);
+        queryParams.add(LIMIT, limit+"");
+        queryParams.add(OFFSET, offset+"");
 
         return callAPI(API_V2.ATTRIBUTE_SEARCH, String.class, queryParams);
     }
+
 
     /**
      * 实体绑定分词

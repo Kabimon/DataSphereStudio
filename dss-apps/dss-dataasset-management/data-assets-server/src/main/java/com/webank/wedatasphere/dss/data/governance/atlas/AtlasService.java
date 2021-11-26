@@ -1,7 +1,6 @@
 package com.webank.wedatasphere.dss.data.governance.atlas;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
@@ -14,7 +13,6 @@ import org.apache.atlas.AtlasException;
 import org.apache.atlas.AtlasServiceException;
 import org.apache.atlas.model.AtlasBaseModelObject;
 import org.apache.atlas.model.discovery.AtlasSearchResult;
-import org.apache.atlas.model.discovery.SearchParameters;
 import org.apache.atlas.model.glossary.AtlasGlossary;
 import org.apache.atlas.model.glossary.AtlasGlossaryTerm;
 import org.apache.atlas.model.instance.*;
@@ -26,7 +24,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.ws.rs.core.MultivaluedMap;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -294,10 +291,16 @@ public class AtlasService {
      * @throws AtlasServiceException
      */
     public Optional<String> getTermGuid(GlossaryConstant glossaryConstant, String name) throws AtlasServiceException {
-        String result = atlasClient.attributeSearch(glossaryConstant, name);
+        String result = atlasClient.attributeSearchByName(glossaryConstant, name);
         AtlasSearchResult atlasSearchResult = gson.fromJson(result, AtlasSearchResult.class);
         return !CollectionUtils.isEmpty(atlasSearchResult.getEntities()) ?
                 Optional.ofNullable(atlasSearchResult.getEntities().get(0).getGuid()) : Optional.empty();
+    }
+
+    public List<AtlasEntityHeader> listLabels(String query,Integer limit,Integer offset) throws AtlasServiceException{
+        String result = atlasClient.attributeSearch0(GlossaryConstant.LABEL.getAtlasType(),query,GlossaryConstant.ARR,limit,offset);
+        AtlasSearchResult atlasSearchResult = gson.fromJson(result, AtlasSearchResult.class);
+        return !CollectionUtils.isEmpty(atlasSearchResult.getEntities())?atlasSearchResult.getEntities():Lists.newArrayList();
     }
 
 

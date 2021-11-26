@@ -7,6 +7,7 @@ import com.webank.wedatasphere.dss.data.governance.atlas.AtlasService;
 import com.webank.wedatasphere.dss.data.governance.dao.*;
 import com.webank.wedatasphere.dss.data.governance.dao.impl.MetaInfoMapperImpl;
 import com.webank.wedatasphere.dss.data.governance.dto.HiveTblStatsDTO;
+import com.webank.wedatasphere.dss.data.governance.dto.ListLabelDTO;
 import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.exception.DAOException;
 import com.webank.wedatasphere.dss.data.governance.exception.DataGovernanceException;
@@ -765,5 +766,18 @@ public class AssetServiceImpl implements AssetService {
             throw new DataGovernanceException(23000, tableName + "表不存在");
         }
         return entityHeaders;
+    }
+
+    @Override
+    public List<ListLabelDTO> listLabels(String query, Integer limit, Integer offset) throws Exception {
+        List<AtlasEntityHeader>  atlasEntityHeaders = atlasService.listLabels(query,limit,offset);
+        Optional<String> labelOptional =atlasService.getRootGlossaryGuid(GlossaryConstant.LABEL);
+        if (!labelOptional.isPresent()){
+            throw new DataGovernanceException(23000,"需要创建 "+GlossaryConstant.LABEL.getRoot()+" glossary ");
+        }
+        return atlasEntityHeaders.stream()
+                .filter(atlasEntityHeader ->
+                        StringUtils.endsWith(atlasEntityHeader.getAttribute("qualifiedName").toString(),GlossaryConstant.LABEL.endWith()))
+                .map(ListLabelDTO::from).collect(Collectors.toList());
     }
 }
