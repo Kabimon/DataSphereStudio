@@ -615,7 +615,11 @@ export default {
     handleCopy(e) {
       handleClipboard(fomatSqlForCopy(this.selectSqlCfg.sql), e);
     },
+    // 转换存储单位
     transformCompany(number) {
+      if (!number) {
+        return { num: 0, unit: "B", str: "0B" };
+      }
       let unitArr = ["B", "KB", "MB", "GB", "TB"];
       for (let i = unitArr.length - 1; i >= 0; i--) {
         const unit = unitArr[i];

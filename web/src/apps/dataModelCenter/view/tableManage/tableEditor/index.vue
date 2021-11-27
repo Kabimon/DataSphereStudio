@@ -28,7 +28,7 @@
           <Button
             type="success"
             style="margin-right: 15px"
-            @click="handleTableCreate"
+            @click="handleTableCreate()"
             v-if="config.mode === 'update' && config.id && !checkTableData"
           >
             执行建表
@@ -523,6 +523,9 @@ export default {
         .then(() => {
           this.loading = false;
           this.$Message.success("新增版本成功");
+          this.$router.push({
+            path: "/dataModelCenter/tableManage/tableSearch",
+          });
         })
         .catch(() => {
           this.loading = false;
@@ -533,6 +536,7 @@ export default {
      */
     handleTableCreate(id) {
       this.loading = true;
+      console.log(id || this.config.id);
       return createTable(id || this.config.id)
         .then(() => {
           this.loading = false;
