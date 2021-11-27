@@ -7,6 +7,7 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.webank.wedatasphere.dss.data.governance.conf.GovernanceConf;
 import com.webank.wedatasphere.dss.data.governance.entity.GlossaryConstant;
 import com.webank.wedatasphere.dss.data.governance.entity.RelatedObjectId;
+import com.webank.wedatasphere.dss.data.governance.exception.DataGovernanceException;
 import org.apache.atlas.ApplicationProperties;
 import org.apache.atlas.AtlasClientV2;
 import org.apache.atlas.AtlasException;
@@ -276,8 +277,11 @@ public class AtlasService {
      * @param labelName
      * @throws AtlasServiceException
      */
-    public void deleteLabel(String labelName) throws AtlasServiceException{
+    public void deleteLabel(String labelName) throws Exception{
         Optional<String> optional = getTermGuid(GlossaryConstant.LABEL,labelName);
+        if (!optional.isPresent()){
+            throw new DataGovernanceException(23000, labelName + "标签不存在");
+        }
         atlasClient.deleteGlossaryTermByGuid(optional.get());
     }
 

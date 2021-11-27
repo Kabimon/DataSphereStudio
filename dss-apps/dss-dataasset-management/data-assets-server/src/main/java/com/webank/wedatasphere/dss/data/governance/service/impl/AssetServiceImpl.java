@@ -676,7 +676,7 @@ public class AssetServiceImpl implements AssetService {
     public void deleteLabel(DeleteLabelVO vo) throws Exception {
         try {
             atlasService.deleteLabel(vo.getName());
-        } catch (AtlasServiceException exception) {
+        } catch (Exception exception) {
             throw new DataGovernanceException(23000, exception.getMessage());
         }
     }
