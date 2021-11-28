@@ -585,7 +585,7 @@
             "save": "Save",
             "saveAs": "Save As"
           },
-          "tips": "What is Scriptis？\nScriptis is a one-stop interactive data analysis & exploration tool built by WeDataSphere at Webank. Using Linkis as its kernel, Scriptis provides functionalities including multiple computation engines(Spark, Hive, TiSpark...), Hive database management, resource management(such as Yarn resource and server resource), application management and user resource management(such as UDF and variables). \nScriptis？\n1. Select a directory in workspace, and create a sub directory; \n2. Right-click a directory => Create script; \n3. Select script type, for example: SQL, Pyspark, HQL, etc... \n4. Edit script, click & run, wait for result sets.",
+          "tips": "What is 数据开发\n数据开发 is a one-stop interactive data analysis & exploration tool built by WeDataSphere at Webank. Using Linkis as its kernel, 数据开发 provides functionalities including multiple computation engines(Spark, Hive, TiSpark...), Hive database management, resource management(such as Yarn resource and server resource), application management and user resource management(such as UDF and variables). \n数据开发？\n1. Select a directory in workspace, and create a sub directory; \n2. Right-click a directory => Create script; \n3. Select script type, for example: SQL, Pyspark, HQL, etc... \n4. Edit script, click & run, wait for result sets.",
           "warning": {
             "noDBInfo": "Failed to request database/table information, word association in script may not be working well! Please refresh to retry!",
             "noUDF": "Failed to request UDF and Method information, word association in script may not be working well! Please refresh to retry!",
