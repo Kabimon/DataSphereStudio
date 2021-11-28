@@ -238,7 +238,7 @@
           </Row>
         </Card>
         <Card :bordered="false" title="分区统计信息" dis-hover>
-          <div style="margin-bottom: 15px">
+          <!-- <div style="margin-bottom: 15px">
             <Select style="width: 200px" placeholder="分区">
               <Option value="1" label="1" />
             </Select>
@@ -246,7 +246,7 @@
               <Option value="1" label="1" />
             </Select>
             <Button type="primary">搜索</Button>
-          </div>
+          </div> -->
           <Table
             :columns="partitionCensusInfoTableColumn"
             :data="partitionCensusInfoTableData"

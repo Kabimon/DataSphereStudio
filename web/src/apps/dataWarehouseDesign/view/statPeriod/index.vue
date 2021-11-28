@@ -70,7 +70,12 @@
         >
           启用
         </Button>
-        <Button type="error" size="small" @click="handleDelete(row.id)">
+        <Button
+          type="error"
+          size="small"
+          :disabled="!!row.referenceCount"
+          @click="handleDelete(row.id)"
+        >
           删除
         </Button>
       </template>

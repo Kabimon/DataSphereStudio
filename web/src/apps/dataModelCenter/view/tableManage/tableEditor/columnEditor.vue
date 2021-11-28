@@ -300,7 +300,7 @@ export default {
      */
     checkEditValue() {
       let resArr = [];
-      if (!Boolean(/^[a-zA-Z]{1,10}$/g.test(this.editData.name))) {
+      if (!Boolean(/^[a-zA-Z]{1,100}$/g.test(this.editData.name))) {
         resArr.push("字段名必须是英文字母,且长度在1-10字符之间");
       }
       return resArr;
