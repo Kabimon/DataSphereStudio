@@ -113,4 +113,98 @@ public class AssertsSyncService {
             throw e;
         }
     }
+
+
+    public CreateLabelResult syncCreateLabel(CreateLabelEvent event){
+        LOGGER.info("createLabel event : {}", event);
+        try {
+            CreateLabelResult result = client.createLabel(CreateLabelAction.builder()
+                    .setUser(event.getUser())
+                    .setName(event.getName())
+                    .build());
+            LOGGER.info("createLabel result : {}",result.getResult());
+            return result;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            throw e;
+        }
+    }
+
+
+    public UpdateLabelResult syncUpdateLabel(UpdateLabelEvent event){
+        LOGGER.info("updateLabel event : {}", event);
+        if(StringUtils.equals(event.getName(),event.getOriName())){
+            LOGGER.info("name is same ignore");
+            return null;
+        }
+        try {
+            UpdateLabelResult result = client.updateLabel(UpdateLabelAction.builder()
+                    .setUser(event.getUser())
+                    .setOrgName(event.getOriName())
+                    .setName(event.getName())
+                    .build());
+            LOGGER.info("updateLabel result : {}",result.getResult());
+            return result;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            throw e;
+        }
+    }
+
+    public DeleteLabelResult syncDeleteLabel(DeleteLabelEvent event){
+        LOGGER.info("deleteLabel event : {}", event);
+        try {
+            DeleteLabelResult result = client.deleteLabel(DeleteLabelAction.builder()
+                    .setUser(event.getUser())
+                    .setName(event.getName())
+                    .build());
+            LOGGER.info("deleteLabel result : {}",result.getResult());
+            return result;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            throw e;
+        }
+    }
+
+
+    public BindLabelResult syncBindLabel(BindLabelEvent event){
+        LOGGER.info("bindLabel event : {}", event);
+        try {
+            BindLabelResult result = client.bindLabel(BindLabelAction.builder()
+                    .setUser(event.getUser())
+                    .setLabel(event.getLabel())
+                    .setTableName(event.getTableName())
+                    .setLabelGuid(event.getLabelGuid())
+                    .setTableGuid(event.getTableGuid())
+                    .build());
+            LOGGER.info("bindLabel result : {}",result.getResult());
+            return result;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            throw e;
+        }
+    }
+
+
+    public UnBindLabelResult syncUnBindLabel(UnBindLabelEvent event){
+        LOGGER.info("unBindLabel event : {}", event);
+        try {
+            UnBindLabelResult result = client.unBindLabel(UnBindLabelAction.builder()
+                    .setUser(event.getUser())
+                    .setLabel(event.getLabel())
+                    .setTableName(event.getTableName())
+                    .setLabelGuid(event.getLabelGuid())
+                    .setTableGuid(event.getTableGuid())
+                    .setRelationGuid(event.getRelationGuid())
+                    .build());
+            LOGGER.info("unBindLabel result : {}",result.getResult());
+            return result;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+            throw e;
+        }
+    }
+
+
+
 }

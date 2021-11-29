@@ -33,4 +33,10 @@ public class DatamodelReferenceServiceImpl implements DatamodelReferencService {
         return datamodelIndicatorReferenceService.indicatorMeasuredReference(name)
                 + datamodelTableReferenceService.tableMeasuredReferenceService(name);
     }
+
+    @Override
+    public int labelReferenceCount(String name){
+        return datamodelTableReferenceService.tableLabelReferenceCount(name);
+    }
+
 }

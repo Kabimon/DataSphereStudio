@@ -1,11 +1,11 @@
 package com.webank.wedatasphere.dss.datamodel.center.common.service;
 
 
-public interface ThemeReferenceService {
+public interface LabelThemeReferenceService {
     /**
-     * 主题被引用情况
+     * 标签引用情况
      * @param name
      * @return
      */
-    int themeReferenceCount(String name);
+    int labelThemeReferenceCount(String name);
 }

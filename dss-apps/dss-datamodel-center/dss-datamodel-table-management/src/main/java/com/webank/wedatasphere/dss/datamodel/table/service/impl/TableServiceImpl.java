@@ -18,6 +18,7 @@ import com.webank.wedatasphere.dss.datamodel.center.common.constant.ErrorCode;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ModeType;
 import com.webank.wedatasphere.dss.datamodel.center.common.context.DataModelSecurityContextHolder;
 import com.webank.wedatasphere.dss.datamodel.center.common.dto.PreviewDataDTO;
+import com.webank.wedatasphere.dss.datamodel.center.common.event.BindLabelEvent;
 import com.webank.wedatasphere.dss.datamodel.center.common.event.BindModelEvent;
 import com.webank.wedatasphere.dss.datamodel.center.common.exception.DSSDatamodelCenterException;
 import com.webank.wedatasphere.dss.datamodel.center.common.ujes.task.DataModelUJESJobTask;
@@ -116,6 +117,9 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         publisher.publishEvent(new BindModelByTableEvent(this, user, newOne));
         publisher.publishEvent(new BindModelByColumnsEvent(this, user, newOne.getName(), columns));
 
+        //发布绑定标签事件
+        publisher.publishEvent(new BindLabelByTableEvent(this, user, newOne));
+
         return newOne.getId();
     }
 
@@ -140,11 +144,19 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
             LOGGER.error("errorCode : {}, update table error not exists", ErrorCode.TABLE_UPDATE_ERROR.getCode());
             throw new DSSDatamodelCenterException(ErrorCode.TABLE_UPDATE_ERROR.getCode(), "update table error not exists");
         }
+
         //判断数据表是否有数据
         tableMaterializedHistoryService.checkData(org, vo.getCreator());
 
-        //当更新表名称时,存在其他指标名称同名或者当前指标名称已经存在版本信息，则不允许修改指标名称
+        String user = DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser();
+
+        //当更新表名称时,存在其他名称同名或者当前名称已经存在版本信息，则不允许修改指标名称
         if (!StringUtils.equals(vo.getName(), org.getName())) {
+            //表如果已经物化不能修改名称
+            if (tableMaterializedHistoryService.tableExists(org.getName(), user)) {
+                LOGGER.error("errorCode : {}, table name can not change as table has materialized", ErrorCode.TABLE_UPDATE_ERROR.getCode());
+                throw new DSSDatamodelCenterException(ErrorCode.TABLE_UPDATE_ERROR.getCode(), "table name can not change as table has materialized");
+            }
             int repeat = getBaseMapper().selectCount(Wrappers.<DssDatamodelTable>lambdaQuery().eq(DssDatamodelTable::getName, vo.getName()));
             String lastVersion = tableVersionService.findLastVersion(org.getName());
             if (repeat > 0 || StringUtils.isNotBlank(lastVersion)) {
@@ -173,10 +185,9 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         tableColumnsService.batchUpdate(orgId, newColumns);
 
 
-        String user = DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser();
         publisher.publishEvent(new UpdateBindModelByTableEvent(this, user, org, updateOne));
         publisher.publishEvent(new UpdateBindModelByColumnsEvent(this, user, org.getName(), orgColumns, newColumns));
-
+        publisher.publishEvent(new UpdateBindLabelByTableEvent(this, user, org, updateOne));
 
         return 1;
     }
@@ -287,7 +298,7 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         String user = DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser();
         publisher.publishEvent(new UpdateBindModelByTableEvent(this, user, orgVersion, newOne));
         publisher.publishEvent(new UpdateBindModelByColumnsEvent(this, user, orgVersion.getName(), orgColumns, newColumns));
-
+        publisher.publishEvent(new UpdateBindLabelByTableEvent(this, user, orgVersion, newOne));
         return 1;
     }
 
@@ -358,7 +369,7 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         String user = DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser();
         publisher.publishEvent(new UpdateBindModelByTableEvent(this, user, current, rollbackOne));
         publisher.publishEvent(new UpdateBindModelByColumnsEvent(this, user, current.getName(), currentColumns, rollbackColumns));
-
+        publisher.publishEvent(new UpdateBindLabelByTableEvent(this, user, current, rollbackOne));
 
         return 1;
     }
@@ -695,7 +706,7 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
 
 
     @Override
-    public void bindModel(long id) throws ErrorException {
+    public void bind(long id) throws ErrorException {
         DssDatamodelTable current = getBaseMapper().selectById(id);
         if (current == null) {
             LOGGER.error("errorCode : {}, bind table error not exists", ErrorCode.TABLE_BIND_ERROR.getCode());
@@ -705,6 +716,7 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         List<DssDatamodelTableColumns> currentColumns = tableColumnsService.listByTableId(id);
         publisher.publishEvent(new BindModelByTableEvent(this, user, current));
         publisher.publishEvent(new BindModelByColumnsEvent(this, user, current.getName(), currentColumns));
+        publisher.publishEvent(new BindLabelByTableEvent(this, user, current));
     }
 
 
@@ -739,5 +751,20 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         publisher.publishEvent(new UnBindModelByColumnsEvent(this, user, current.getName(), columns));
 
         return 1;
+    }
+
+
+    @Override
+    public int tableLabelReferenceCount(String name) {
+        int currentCount = getBaseMapper().selectCount(Wrappers.<DssDatamodelTable>lambdaQuery()
+                .eq(DssDatamodelTable::getLabel, name)
+                .or()
+                .like(DssDatamodelTable::getLabel, name + ",")
+                .or()
+                .like(DssDatamodelTable::getLabel, "," + name + ",")
+                .or()
+                .like(DssDatamodelTable::getLabel, "," + name));
+        int versionCount = tableVersionService.tableContentMultipleReference(name);
+        return currentCount + versionCount;
     }
 }

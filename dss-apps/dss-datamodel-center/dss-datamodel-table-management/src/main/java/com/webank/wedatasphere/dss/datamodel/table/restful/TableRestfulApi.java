@@ -103,8 +103,8 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @PUT
     @Path("/tables/bind/{id}")
     public Response bind(@Context HttpServletRequest req, @PathParam("id") Long id) throws ErrorException {
-        LOGGER.info("bind model id : {}", id);
-        tableService.bindModel(id);
+        LOGGER.info("bind id : {}", id);
+        tableService.bind(id);
         return Message.messageToResponse(Message.ok());
     }
 
@@ -468,4 +468,96 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
         LOGGER.info("table partition stats vo : {}",vo);
         return Message.messageToResponse(Message.ok().data("status",tableService.tableCheckData(vo)));
     }
+
+
+
+    /**
+     * 新增标签
+     *
+     * @param req
+     * @param vo
+     * @return
+     * @throws IOException
+     */
+    @POST
+    @Path("/labels")
+    public Response addLabels(@Context HttpServletRequest req, @RequestBody LabelAddVO vo) throws ErrorException {
+        LOGGER.info("addLabels vo : {}", vo);
+        return Message.messageToResponse(Message.ok().data("id",1));
+    }
+
+
+    /**
+     * 更新标签
+     *
+     * @param req
+     * @param vo
+     * @return
+     * @throws IOException
+     */
+    @PUT
+    @Path("/labels/{id}")
+    public Response updateLabels(@Context HttpServletRequest req, @PathParam("id") Long id,@RequestBody LabelAddVO vo) throws ErrorException {
+        LOGGER.info("updateLabels id : {}, vo : {}",id, vo);
+        return Message.messageToResponse(Message.ok().data("id",1));
+    }
+
+    /**
+     * 删除标签
+     *
+     * @param req
+     * @return
+     * @throws IOException
+     */
+    @DELETE
+    @Path("/labels/{id}")
+    public Response deleteLabels(@Context HttpServletRequest req, @PathParam("id") Long id) throws ErrorException {
+        LOGGER.info("deleteLabels id : {}", id);
+        return Message.messageToResponse(Message.ok().data("count",1));
+    }
+
+    /**
+     * 查看标签
+     *
+     * @param req
+     * @param id
+     * @return
+     */
+    @GET
+    @Path("/labels/{id}")
+    public Response queryLabels(@Context HttpServletRequest req, @PathParam("id") Long id) throws ErrorException {
+        LOGGER.info("queryLabels id : {}", id);
+        return Message.messageToResponse(Message.ok().data("detail",1));
+    }
+
+
+
+    /**
+     * 标签搜索
+     *
+     * @param req
+     * @return
+     */
+    @POST
+    @Path("/labels/list")
+    public Response listLabels(@Context HttpServletRequest req, @RequestBody LabelsQueryVO vo) {
+        LOGGER.info("list vo : {}", vo);
+        return null;
+    }
+
+    /**
+     * 启用/禁用
+     * @param req
+     * @param id
+     * @param vo
+     * @return
+     */
+    @PUT
+    @Path("/labels/enable/{id}")
+    public Response enableLabel(@Context HttpServletRequest req, @PathParam("id") Long id, @RequestBody LabelEnableVO vo) {
+        LOGGER.info("enable id : {}, vo : {}", id, vo);
+        return Message.messageToResponse(Message.ok().data("count", 1));
+    }
+
+
 }

@@ -30,18 +30,18 @@ public class TableModelListener {
     private ApplicationEventPublisher publisher;
 
     @EventListener
-    @Async
+    @Async("taskExecutor")
     public void bindByTable(BindModelByTableEvent event){
         bindByTable(event.getUser(),event.getTable());
     }
 
     @EventListener
-    @Async
+    @Async("taskExecutor")
     public void unBindByTable(UnBindModelByTableEvent event){
         unBindByTable(event.getUser(),event.getTable());
     }
 
-    @Async
+    @Async("taskExecutor")
     @EventListener
     public void updateBindByTable(UpdateBindModelByTableEvent event){
         if (StringUtils.equals(event.getOrg().getName(),event.getUpdateOne().getName())){
@@ -71,7 +71,7 @@ public class TableModelListener {
 
 
 
-    @Async
+    @Async("taskExecutor")
     @EventListener
     public void updateBindByColumns(UpdateBindModelByColumnsEvent event){
         Set<ModelTypeDTO> orgModels = event.getUpdateColumns().stream().map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet());
@@ -107,13 +107,13 @@ public class TableModelListener {
     }
 
     @EventListener
-    @Async
+    @Async("taskExecutor")
     public void bindByColumnsModel(BindModelByColumnsEvent event){
         bindByColumnsModel(event.getUser(),event.getTableName(),event.getColumns().stream().map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet()));
     }
 
     @EventListener
-    @Async
+    @Async("taskExecutor")
     public void unBindByColumnsModel(UnBindModelByColumnsEvent event){
         unBindByColumnsModel(event.getUser(),event.getTableName(),event.getColumns().stream().map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet()));
     }

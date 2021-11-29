@@ -26,56 +26,111 @@ public class AssertsListener {
 
     @EventListener
     @Async("taskExecutor")
-    public void createModel(CreateModelEvent event){
+    public void createModel(CreateModelEvent event) {
         try {
-            CreateModelTypeResult result =assertsSyncService.syncCreateModel(event);
-        }catch (Exception e){
-            LOGGER.error(e.getMessage(),e);
+            CreateModelTypeResult result = assertsSyncService.syncCreateModel(event);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
 
     }
 
     @EventListener
     @Async("taskExecutor")
-    public void updateModel(UpdateModelEvent event){
+    public void updateModel(UpdateModelEvent event) {
         try {
             UpdateModelTypeResult result = assertsSyncService.syncUpdateModel(event);
-        }catch (Exception e){
-            LOGGER.error(e.getMessage(),e);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
     @EventListener
     @Async("taskExecutor")
-    public void deleteModel(DeleteModelEvent event){
-        LOGGER.info("deleteModel event : {}",event);
+    public void deleteModel(DeleteModelEvent event) {
+        LOGGER.info("deleteModel event : {}", event);
         try {
-           DeleteModelTypeResult result =  assertsSyncService.syncDeleteModel(event);
-           LOGGER.info("deleteModel result : {}",result.getResult());
-        }catch (Exception e){
-            LOGGER.error(e.getMessage(),e);
+            DeleteModelTypeResult result = assertsSyncService.syncDeleteModel(event);
+            LOGGER.info("deleteModel result : {}", result.getResult());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
     @EventListener
     @Async("taskExecutor")
-    public void bindModel(BindModelEvent event){
-        LOGGER.info("bindModel event : {}",event);
+    public void bindModel(BindModelEvent event) {
+        LOGGER.info("bindModel event : {}", event);
         try {
             BindModelTypeResult result = assertsSyncService.syncBindModel(event);
-        }catch (Exception e){
-            LOGGER.error(e.getMessage(),e);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
     @EventListener
     @Async("taskExecutor")
-    public void unBindModel(UnBindModelEvent event){
+    public void unBindModel(UnBindModelEvent event) {
         LOGGER.info("unBindModel event : {}", event);
         try {
             UnBindModelTypeResult result = assertsSyncService.syncUnBindModel(event);
-        }catch (Exception e){
-            LOGGER.error(e.getMessage(),e);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    @EventListener
+    @Async("taskExecutor")
+    public void createLabel(CreateLabelEvent event) {
+        LOGGER.info("createLabel event : {}", event);
+        try {
+            CreateLabelResult result = assertsSyncService.syncCreateLabel(event);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    @EventListener
+    @Async("taskExecutor")
+    public void updateLabel(UpdateLabelEvent event) {
+        LOGGER.info("updateLabel event : {}", event);
+        try {
+            UpdateLabelResult result = assertsSyncService.syncUpdateLabel(event);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    @EventListener
+    @Async("taskExecutor")
+    public void deleteLabel(DeleteLabelEvent event) {
+        LOGGER.info("deleteLabel event : {}", event);
+        try {
+            DeleteLabelResult result = assertsSyncService.syncDeleteLabel(event);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    @EventListener
+    @Async("taskExecutor")
+    public void bindLabel(BindLabelEvent event) {
+        LOGGER.info("bindLabel event : {}", event);
+        try {
+            BindLabelResult result = assertsSyncService.syncBindLabel(event);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    @EventListener
+    @Async("taskExecutor")
+    public void unBindLabel(UnBindLabelEvent event) {
+        LOGGER.info("unBindLabel event : {}", event);
+        try {
+            UnBindLabelResult result = assertsSyncService.syncUnBindLabel(event);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 }

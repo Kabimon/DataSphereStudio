@@ -237,7 +237,7 @@ public interface TableService extends IService<DssDatamodelTable> {
      * 主动绑定模型
      * @param id
      */
-    void bindModel(long id) throws ErrorException;
+    void bind(long id) throws ErrorException;
 
 
     /**
@@ -247,4 +247,12 @@ public interface TableService extends IService<DssDatamodelTable> {
      * @throws ErrorException
      */
     int deleteTable(Long id) throws ErrorException;
+
+
+    /**
+     * 标签引用情况
+     * @param name
+     * @return
+     */
+    int tableLabelReferenceCount(String name);
 }

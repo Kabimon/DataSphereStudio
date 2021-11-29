@@ -21,6 +21,9 @@ public class DataWarehouseReferenceServiceImpl implements DataWarehouseReference
     @Resource
     private DataWarehouseDimensionReferenceService dimensionReferenceService;
 
+    @Resource
+    private DataWarehouseLabelReferenceService labelReferenceService;
+
     @Override
     public int cycleReferenceCount(String name) {
         return tableReferenceService.tableCycleReferenceCount(name) + indicatorReferenceService.indicatorCycleReferenceCount(name);
@@ -41,6 +44,7 @@ public class DataWarehouseReferenceServiceImpl implements DataWarehouseReference
         return tableReferenceService.tableThemeReferenceCount(name)
                 + indicatorReferenceService.indicatorThemeReferenceCount(name)
                 + dimensionReferenceService.dimensionThemeReferenceCount(name)
-                + measuredReferenceService.dimensionThemeReferenceCount(name);
+                + measuredReferenceService.dimensionThemeReferenceCount(name)
+                + labelReferenceService.labelThemeReferenceCount(name);
     }
 }

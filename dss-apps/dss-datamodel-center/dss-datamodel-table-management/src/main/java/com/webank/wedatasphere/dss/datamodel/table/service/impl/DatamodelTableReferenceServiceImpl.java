@@ -27,4 +27,9 @@ public class DatamodelTableReferenceServiceImpl implements DatamodelTableReferen
     public int tableMeasuredReferenceService(String name) {
         return tableService.tableMeasureReferenceCount(name);
     }
+
+    @Override
+    public int tableLabelReferenceCount(String name) {
+        return tableService.tableLabelReferenceCount(name);
+    }
 }
