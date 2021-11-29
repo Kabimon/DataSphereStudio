@@ -1,7 +1,7 @@
 package com.webank.wedatasphere.dss.datamodel.table.vo;
 
 import lombok.Data;
-
+import java.util.Map;
 @Data
 public class LabelAddVO {
 
@@ -12,7 +12,7 @@ public class LabelAddVO {
     /**
      * 标签键值对 json
      */
-    private String params;
+    private Map<String,String> paramMap;
 
     private String comment;
 

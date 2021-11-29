@@ -2,6 +2,7 @@ package com.webank.wedatasphere.dss.datamodel.table.restful;
 
 import com.webank.wedatasphere.dss.datamodel.center.common.service.AuthenticationClientStrategy;
 import com.webank.wedatasphere.dss.datamodel.center.common.service.DataWarehouseReferenceService;
+import com.webank.wedatasphere.dss.datamodel.table.service.LabelService;
 import com.webank.wedatasphere.dss.datamodel.table.service.TableService;
 import com.webank.wedatasphere.dss.datamodel.table.vo.*;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
@@ -38,6 +39,10 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     private TableService tableService;
 
 
+    @Resource
+    private LabelService labelService;
+
+
     @Autowired
     private GovernanceDwRemoteClient governanceDwRemoteClient;
 
@@ -58,7 +63,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     public Response add(@Context HttpServletRequest req, @RequestBody TableAddVO vo) throws ErrorException {
         vo.setCreator(getStrategyUser(req));
         LOGGER.info("tablesAddVO : {}", vo);
-        return Message.messageToResponse(Message.ok().data("id",tableService.addTable(vo)));
+        return Message.messageToResponse(Message.ok().data("id", tableService.addTable(vo)));
     }
 
 
@@ -72,10 +77,10 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @PUT
     @Path("/tables/{id}")
-    public Response update(@Context HttpServletRequest req, @PathParam("id") Long id,@RequestBody TableUpdateVO vo) throws ErrorException {
+    public Response update(@Context HttpServletRequest req, @PathParam("id") Long id, @RequestBody TableUpdateVO vo) throws ErrorException {
         vo.setCreator(getStrategyUser(req));
         LOGGER.info("update id : {}, tableUpdateVO : {}", id, vo);
-        return Message.messageToResponse(Message.ok().data("count",tableService.updateTable(id,vo)));
+        return Message.messageToResponse(Message.ok().data("count", tableService.updateTable(id, vo)));
     }
 
     /**
@@ -89,7 +94,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @Path("/tables/{id}")
     public Response delete(@Context HttpServletRequest req, @PathParam("id") Long id) throws ErrorException {
         LOGGER.info("delete id : {}", id);
-        return Message.messageToResponse(Message.ok().data("count",tableService.deleteTable(id)));
+        return Message.messageToResponse(Message.ok().data("count", tableService.deleteTable(id)));
     }
 
 
@@ -109,7 +114,6 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     }
 
 
-
     /**
      * 查看
      *
@@ -121,7 +125,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @Path("/tables/{id}")
     public Response query(@Context HttpServletRequest req, @PathParam("id") Long id) throws ErrorException {
         LOGGER.info("query id : {}", id);
-        return Message.messageToResponse(Message.ok().data("detail",tableService.queryById(id)));
+        return Message.messageToResponse(Message.ok().data("detail", tableService.queryById(id)));
     }
 
 
@@ -137,7 +141,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     public Response queryName(@Context HttpServletRequest req, @RequestBody TableQueryOneVO vo) throws ErrorException {
         vo.setUser(getStrategyUser(req));
         LOGGER.info("query vo : {}", vo);
-        return Message.messageToResponse(Message.ok().data("detail",tableService.queryByName(vo)));
+        return Message.messageToResponse(Message.ok().data("detail", tableService.queryByName(vo)));
     }
 
 
@@ -169,7 +173,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     public Response addVersion(@Context HttpServletRequest req, @PathParam("id") Long id, @RequestBody TableVersionAddVO vo) throws Exception {
         vo.setCreator(getStrategyUser(req));
         LOGGER.info("tableVersionAddVO : {}", vo);
-        return Message.messageToResponse(Message.ok().data("count",tableService.addTableVersion(id,vo)));
+        return Message.messageToResponse(Message.ok().data("count", tableService.addTableVersion(id, vo)));
     }
 
 
@@ -186,7 +190,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     public Response versionRollBack(@Context HttpServletRequest req, @RequestBody TableVersionRollBackVO vo) throws Exception {
         vo.setUser(getStrategyUser(req));
         LOGGER.info("tableVersionRollBackVO : {}", vo);
-        return Message.messageToResponse(Message.ok().data("count",tableService.versionRollBack(vo)));
+        return Message.messageToResponse(Message.ok().data("count", tableService.versionRollBack(vo)));
     }
 
 
@@ -226,9 +230,9 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @GET
     @Path("/themes/reference/{name}")
-    public Response themesReference(@Context HttpServletRequest req,@PathParam("name") String name) {
-       LOGGER.info("themes reference name : {}",name);
-       return Message.messageToResponse(Message.ok().data("result",dataWarehouseReferenceService.themeReferenceCount(name)));
+    public Response themesReference(@Context HttpServletRequest req, @PathParam("name") String name) {
+        LOGGER.info("themes reference name : {}", name);
+        return Message.messageToResponse(Message.ok().data("result", dataWarehouseReferenceService.themeReferenceCount(name)));
     }
 
     /**
@@ -252,9 +256,9 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @GET
     @Path("/layers/reference/{name}")
-    public Response layersReference(@Context HttpServletRequest req,@PathParam("name") String name) {
-        LOGGER.info("layers reference name : {}",name);
-        return Message.messageToResponse(Message.ok().data("result",dataWarehouseReferenceService.layerReferenceCount(name)));
+    public Response layersReference(@Context HttpServletRequest req, @PathParam("name") String name) {
+        LOGGER.info("layers reference name : {}", name);
+        return Message.messageToResponse(Message.ok().data("result", dataWarehouseReferenceService.layerReferenceCount(name)));
     }
 
     /**
@@ -265,9 +269,9 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @GET
     @Path("/cycles/reference/{name}")
-    public Response cycleReference(@Context HttpServletRequest req,@PathParam("name") String name) {
-        LOGGER.info("cycles reference name : {}",name);
-        return Message.messageToResponse(Message.ok().data("result",dataWarehouseReferenceService.cycleReferenceCount(name)));
+    public Response cycleReference(@Context HttpServletRequest req, @PathParam("name") String name) {
+        LOGGER.info("cycles reference name : {}", name);
+        return Message.messageToResponse(Message.ok().data("result", dataWarehouseReferenceService.cycleReferenceCount(name)));
     }
 
     /**
@@ -278,9 +282,9 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @GET
     @Path("/modifiers/reference/{name}")
-    public Response modifiersReference(@Context HttpServletRequest req,@PathParam("name") String name) {
-        LOGGER.info("modifiers reference name : {}",name);
-        return Message.messageToResponse(Message.ok().data("result",dataWarehouseReferenceService.modifierReferenceCount(name)));
+    public Response modifiersReference(@Context HttpServletRequest req, @PathParam("name") String name) {
+        LOGGER.info("modifiers reference name : {}", name);
+        return Message.messageToResponse(Message.ok().data("result", dataWarehouseReferenceService.modifierReferenceCount(name)));
     }
 
     /**
@@ -291,9 +295,9 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @POST
     @Path("/tables/databases/list")
-    public Response tableDataBasesList(@Context HttpServletRequest req,TableDatabasesQueryVO vo) {
+    public Response tableDataBasesList(@Context HttpServletRequest req, TableDatabasesQueryVO vo) {
         vo.setUser(getStrategyUser(req));
-        LOGGER.info("table databases vo : {}",vo);
+        LOGGER.info("table databases vo : {}", vo);
         return Message.messageToResponse(tableService.listDataBases(vo));
     }
 
@@ -306,10 +310,10 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @POST
     @Path("/tables/collect/")
-    public Response tableCollect(@Context HttpServletRequest req,@RequestBody TableCollectVO vo) throws ErrorException {
+    public Response tableCollect(@Context HttpServletRequest req, @RequestBody TableCollectVO vo) throws ErrorException {
         vo.setUser(getStrategyUser(req));
         LOGGER.info("table collection vo : {}", vo);
-        return Message.messageToResponse(Message.ok().data("count",tableService.tableCollect(vo)));
+        return Message.messageToResponse(Message.ok().data("count", tableService.tableCollect(vo)));
     }
 
     /**
@@ -323,7 +327,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     public Response tableCancelCollect(@Context HttpServletRequest req, @RequestBody TableCollectCancelVO vo) throws ErrorException {
         vo.setUser(getStrategyUser(req));
         LOGGER.info("table collection cancel vo : {}", vo);
-        return Message.messageToResponse(Message.ok().data("count",tableService.tableCancel(vo)));
+        return Message.messageToResponse(Message.ok().data("count", tableService.tableCancel(vo)));
     }
 
 
@@ -352,7 +356,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @Path("/tables/data/preview/")
     public Response tableDataPreview(@Context HttpServletRequest req, @RequestBody TableDataPreviewVO vo) throws ErrorException {
         vo.setUser(getStrategyUser(req));
-        LOGGER.info("table data preview : {}",vo);
+        LOGGER.info("table data preview : {}", vo);
         return Message.messageToResponse(tableService.previewData(vo));
     }
 
@@ -369,7 +373,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     public Response tableCreate(@Context HttpServletRequest req, @RequestBody TableCreateVO vo) throws ErrorException {
         vo.setUser(getStrategyUser(req));
         LOGGER.info("table create vo : {}", vo);
-        return Message.messageToResponse(Message.ok().data("count",tableService.tableCreate(vo)));
+        return Message.messageToResponse(Message.ok().data("count", tableService.tableCreate(vo)));
     }
 
     /**
@@ -384,7 +388,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     public Response tableCreateSql(@Context HttpServletRequest req, @RequestBody TableCreateSqlVO vo) throws ErrorException {
         vo.setUser(getStrategyUser(req));
         LOGGER.info("table create sql vo : {}", vo);
-        return Message.messageToResponse(Message.ok().data("detail",tableService.tableCreateSql(vo)));
+        return Message.messageToResponse(Message.ok().data("detail", tableService.tableCreateSql(vo)));
     }
 
 
@@ -397,7 +401,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @POST
     @Path("/tables/dictionaries/list")
-    public Response tableDictionaryList(@Context HttpServletRequest req,@RequestBody TableDictionaryListVO vo){
+    public Response tableDictionaryList(@Context HttpServletRequest req, @RequestBody TableDictionaryListVO vo) {
         LOGGER.info("table dictionaries list vo : {}", vo);
         return Message.messageToResponse(tableService.dictionaryList(vo));
     }
@@ -405,19 +409,21 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
 
     /**
      * 新增字段
+     *
      * @param req
      * @param vo
      * @return
      */
     @POST
     @Path("/tables/columns/add")
-    public Response tableColumnsAdd(@Context HttpServletRequest req,@RequestBody TableColumnsAddVO vo) throws ErrorException {
+    public Response tableColumnsAdd(@Context HttpServletRequest req, @RequestBody TableColumnsAddVO vo) throws ErrorException {
         LOGGER.info("table column add vo : {}", vo);
-        return Message.messageToResponse(Message.ok().data("count",tableService.addTableColumn(vo)));
+        return Message.messageToResponse(Message.ok().data("count", tableService.addTableColumn(vo)));
     }
 
     /**
      * 字段绑定模型
+     *
      * @param req
      * @param vo
      * @return
@@ -425,50 +431,51 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @POST
     @Path("/tables/columns/bind/{columnId}")
     public Response tableColumnBind(@Context HttpServletRequest req, @PathParam("columnId") Long columnId, @RequestBody TableColumnBindVO vo) throws ErrorException {
-        LOGGER.info("table column bind model columnId : {}, vo : {}",columnId, vo);
-        return Message.messageToResponse(Message.ok().data("count",tableService.tableColumnBind(columnId,vo)));
+        LOGGER.info("table column bind model columnId : {}, vo : {}", columnId, vo);
+        return Message.messageToResponse(Message.ok().data("count", tableService.tableColumnBind(columnId, vo)));
     }
 
     /**
      * 分区统计信息
+     *
      * @param vo
      * @return
      */
     @POST
     @Path("/tables/partition/stats/")
-    public Response tblPartitionStats(@Context HttpServletRequest req, TblPartitionStatsVO vo){
+    public Response tblPartitionStats(@Context HttpServletRequest req, TblPartitionStatsVO vo) {
         vo.setUser(getStrategyUser(req));
-        LOGGER.info("table partition stats vo : {}",vo);
+        LOGGER.info("table partition stats vo : {}", vo);
         return Message.messageToResponse(tableService.listTablePartitionStats(vo));
     }
 
 
-
     /**
      * 获取当前用户
+     *
      * @param req
      * @return
      */
     @GET
     @Path("/current/user")
-    public Response currentUser(@Context HttpServletRequest req){
-        return Message.messageToResponse(Message.ok().data("user",getStrategyUser(req)));
+    public Response currentUser(@Context HttpServletRequest req) {
+        return Message.messageToResponse(Message.ok().data("user", getStrategyUser(req)));
     }
 
 
     /**
      * 检测表是否有数据
+     *
      * @param req
      * @return
      */
     @POST
     @Path("/tables/check/data")
-    public Response tableCheckData(@Context HttpServletRequest req,@RequestBody TableCheckDataVO vo) throws ErrorException {
+    public Response tableCheckData(@Context HttpServletRequest req, @RequestBody TableCheckDataVO vo) throws ErrorException {
         vo.setUser(getStrategyUser(req));
-        LOGGER.info("table partition stats vo : {}",vo);
-        return Message.messageToResponse(Message.ok().data("status",tableService.tableCheckData(vo)));
+        LOGGER.info("table partition stats vo : {}", vo);
+        return Message.messageToResponse(Message.ok().data("status", tableService.tableCheckData(vo)));
     }
-
 
 
     /**
@@ -483,7 +490,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @Path("/labels")
     public Response addLabels(@Context HttpServletRequest req, @RequestBody LabelAddVO vo) throws ErrorException {
         LOGGER.info("addLabels vo : {}", vo);
-        return Message.messageToResponse(Message.ok().data("id",1));
+        return Message.messageToResponse(Message.ok().data("id", labelService.add(vo)));
     }
 
 
@@ -497,9 +504,9 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @PUT
     @Path("/labels/{id}")
-    public Response updateLabels(@Context HttpServletRequest req, @PathParam("id") Long id,@RequestBody LabelAddVO vo) throws ErrorException {
-        LOGGER.info("updateLabels id : {}, vo : {}",id, vo);
-        return Message.messageToResponse(Message.ok().data("id",1));
+    public Response updateLabels(@Context HttpServletRequest req, @PathParam("id") Long id, @RequestBody LabelUpdateVO vo) throws ErrorException {
+        LOGGER.info("updateLabels id : {}, vo : {}", id, vo);
+        return Message.messageToResponse(Message.ok().data("count", labelService.update(id, vo)));
     }
 
     /**
@@ -513,7 +520,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @Path("/labels/{id}")
     public Response deleteLabels(@Context HttpServletRequest req, @PathParam("id") Long id) throws ErrorException {
         LOGGER.info("deleteLabels id : {}", id);
-        return Message.messageToResponse(Message.ok().data("count",1));
+        return Message.messageToResponse(Message.ok().data("count", labelService.delete(id)));
     }
 
     /**
@@ -527,9 +534,8 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @Path("/labels/{id}")
     public Response queryLabels(@Context HttpServletRequest req, @PathParam("id") Long id) throws ErrorException {
         LOGGER.info("queryLabels id : {}", id);
-        return Message.messageToResponse(Message.ok().data("detail",1));
+        return Message.messageToResponse(Message.ok().data("detail", labelService.query(id)));
     }
-
 
 
     /**
@@ -540,13 +546,14 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @POST
     @Path("/labels/list")
-    public Response listLabels(@Context HttpServletRequest req, @RequestBody LabelsQueryVO vo) {
-        LOGGER.info("list vo : {}", vo);
-        return null;
+    public Response listLabels(@Context HttpServletRequest req, @RequestBody LabelsQueryVO vo) throws ErrorException {
+        LOGGER.info("listLabels vo : {}", vo);
+        return Message.messageToResponse(labelService.list(vo));
     }
 
     /**
      * 启用/禁用
+     *
      * @param req
      * @param id
      * @param vo
@@ -554,9 +561,9 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
      */
     @PUT
     @Path("/labels/enable/{id}")
-    public Response enableLabel(@Context HttpServletRequest req, @PathParam("id") Long id, @RequestBody LabelEnableVO vo) {
-        LOGGER.info("enable id : {}, vo : {}", id, vo);
-        return Message.messageToResponse(Message.ok().data("count", 1));
+    public Response enableLabel(@Context HttpServletRequest req, @PathParam("id") Long id, @RequestBody LabelEnableVO vo) throws ErrorException {
+        LOGGER.info("enableLabel id : {}, vo : {}", id, vo);
+        return Message.messageToResponse(Message.ok().data("count", labelService.enable(id, vo)));
     }
 
 

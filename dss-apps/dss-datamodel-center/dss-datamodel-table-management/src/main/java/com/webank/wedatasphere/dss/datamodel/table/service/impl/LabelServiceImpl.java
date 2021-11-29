@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ErrorCode;
 import com.webank.wedatasphere.dss.datamodel.center.common.context.DataModelSecurityContextHolder;
 import com.webank.wedatasphere.dss.datamodel.center.common.event.CreateLabelEvent;
@@ -39,6 +40,8 @@ public class LabelServiceImpl extends ServiceImpl<DssDatamodelLabelMapper, DssDa
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LabelServiceImpl.class);
 
+    private final Gson gson = new Gson();
+
     @Resource
     private DatamodelReferencService datamodelReferencService;
 
@@ -65,6 +68,7 @@ public class LabelServiceImpl extends ServiceImpl<DssDatamodelLabelMapper, DssDa
 
 
         DssDatamodelLabel newOne = modelMapper.map(vo,DssDatamodelLabel.class);
+        newOne.setParams(gson.toJson(vo.getParamMap()));
         newOne.setCreateTime(new Date());
         newOne.setUpdateTime(new Date());
 
@@ -124,6 +128,7 @@ public class LabelServiceImpl extends ServiceImpl<DssDatamodelLabelMapper, DssDa
         }
 
         DssDatamodelLabel updateOne = modelMapper.map(vo,DssDatamodelLabel.class);
+        updateOne.setParams(gson.toJson(vo.getParamMap()));
         updateOne.setUpdateTime(new Date());
         getBaseMapper().update(updateOne, Wrappers.<DssDatamodelLabel>lambdaUpdate().eq(DssDatamodelLabel::getId,id));
 
