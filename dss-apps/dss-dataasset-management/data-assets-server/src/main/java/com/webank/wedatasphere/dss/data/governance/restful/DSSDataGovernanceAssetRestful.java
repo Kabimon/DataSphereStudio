@@ -166,6 +166,17 @@ public class DSSDataGovernanceAssetRestful {
     }
 
     /**
+     * 根据表名获取表分区信息
+     */
+    @GET
+    @Path("/hiveTbl/partition/name")
+    public Response getHiveTblPartitionByName(@QueryParam("dbName") String dbName,@QueryParam("tableName") String tableName) throws Exception {
+        logger.info("getHiveTblPartitionByName  dbName : {}, tableName : {}", dbName, tableName);
+        List<PartInfo> hiveTblPartition = assetService.getHiveTblPartitionByName(dbName,tableName);
+        return Message.messageToResponse(Message.ok().data("result", hiveTblPartition));
+    }
+
+    /**
      * 获取表的血缘信息
      */
     @GET

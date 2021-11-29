@@ -107,4 +107,12 @@ public interface AssetService {
      */
     Long hiveTblSize(String dbName, String tableName, String guid) throws Exception;
 
+
+    /**
+     * 根据名称查询分区
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    List<PartInfo> getHiveTblPartitionByName(String dbName, String tableName) throws Exception;
 }

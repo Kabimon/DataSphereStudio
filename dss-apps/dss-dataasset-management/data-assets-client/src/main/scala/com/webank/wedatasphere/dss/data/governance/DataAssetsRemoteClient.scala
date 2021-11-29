@@ -18,5 +18,5 @@ trait DataAssetsRemoteClient extends RemoteClient {
   def deleteModelType(action: DeleteModelTypeAction) : DeleteModelTypeResult
   def searchHiveTblSize(action: HiveTblSizeAction) : HiveTblSizeResult
   def searchHiveTblStats(action: HiveTblStatsAction) : HiveTblStatsResult
-
+  def getHiveTblPartInfoByNameResult(action: GetTblPartInfoByNameAction) : GetHiveTblPartInfoByNameResult
 }

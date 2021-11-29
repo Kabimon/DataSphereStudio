@@ -1,7 +1,7 @@
 package com.webank.wedatasphere.dss.data.governance
 
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient
-import com.webank.wedatasphere.dss.data.governance.request.{HiveTblSizeAction, HiveTblStatsAction}
+import com.webank.wedatasphere.dss.data.governance.request.{GetTblPartInfoByNameAction, HiveTblSizeAction, HiveTblStatsAction}
 import com.webank.wedatasphere.linkis.httpclient.dws.config.DWSClientConfigBuilder
 
 import java.util.concurrent.TimeUnit
@@ -68,16 +68,19 @@ object TestDataAssetsRemoteClient {
 //            .setModelType(ClassificationConstant.INDICATOR).build())
 //    println(unBindResult.getResult)
 
-    val hiveTableSizeResult = dataAssetsClient.searchHiveTblSize(HiveTblSizeAction.builder()
-      .setUser("hdfs")
-      .setTableName("test04")
-      .setDbName("default").build())
-     println(hiveTableSizeResult.getResult)
-    val hiveTableStatsResult = dataAssetsClient.searchHiveTblStats(HiveTblStatsAction.builder()
-      .setUser("hdfs")
-      .setTableName("test04")
-      .setDbName("default").build())
+//    val hiveTableSizeResult = dataAssetsClient.searchHiveTblSize(HiveTblSizeAction.builder()
+//      .setUser("hdfs")
+//      .setTableName("test04")
+//      .setDbName("default").build())
+//     println(hiveTableSizeResult.getResult)
+//    val hiveTableStatsResult = dataAssetsClient.searchHiveTblStats(HiveTblStatsAction.builder()
+//      .setUser("hdfs")
+//      .setTableName("test04")
+//      .setDbName("default").build())
+//
+//    println(hiveTableStatsResult.getResult)
 
-    println(hiveTableStatsResult.getResult)
+    val partInfo = dataAssetsClient.getHiveTblPartInfoByNameResult(GetTblPartInfoByNameAction.builder().setUser("hdfs").setDbName("linkis_db").setTableName("linkis_partitions").build())
+    println(partInfo.getInfo)
   }
 }
