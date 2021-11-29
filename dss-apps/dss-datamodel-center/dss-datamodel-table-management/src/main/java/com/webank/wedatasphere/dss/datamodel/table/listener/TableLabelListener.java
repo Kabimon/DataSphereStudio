@@ -82,7 +82,9 @@ public class TableLabelListener {
 
         Set<String> willBinds = bindSets.stream().filter(bind->!unBindSets.contains(bind)).collect(Collectors.toSet());
         Set<String> willUnBinds = unBindSets.stream().filter(unBind->!bindLabels.contains(unBind)).collect(Collectors.toSet());
+        LOGGER.info("bind labels : {}",willBinds);
         willBinds.forEach(bind->publishBind(event.getUser(),bind,tableName));
+        LOGGER.info("unBind labels : {}",willUnBinds);
         willUnBinds.forEach(unBind->publishUnBind(event.getUser(),unBind,tableName));
     }
 }

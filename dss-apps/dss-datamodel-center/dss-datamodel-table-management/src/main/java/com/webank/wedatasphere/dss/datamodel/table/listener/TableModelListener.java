@@ -6,6 +6,7 @@ import com.webank.wedatasphere.dss.datamodel.center.common.event.BindModelEvent;
 import com.webank.wedatasphere.dss.datamodel.center.common.event.UnBindModelEvent;
 import com.webank.wedatasphere.dss.datamodel.table.dto.ModelTypeDTO;
 import com.webank.wedatasphere.dss.datamodel.table.entity.DssDatamodelTable;
+import com.webank.wedatasphere.dss.datamodel.table.entity.DssDatamodelTableColumns;
 import com.webank.wedatasphere.dss.datamodel.table.event.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Component
@@ -74,8 +76,8 @@ public class TableModelListener {
     @Async("taskExecutor")
     @EventListener
     public void updateBindByColumns(UpdateBindModelByColumnsEvent event){
-        Set<ModelTypeDTO> orgModels = event.getUpdateColumns().stream().map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet());
-        Set<ModelTypeDTO> updateModels = event.getOrgColumns().stream().map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet());
+        Set<ModelTypeDTO> orgModels = event.getUpdateColumns().stream().filter(filterNull()).map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet());
+        Set<ModelTypeDTO> updateModels = event.getOrgColumns().stream().filter(filterNull()).map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet());
 
         //去重 获取绑定列表
         Set<ModelTypeDTO> bindModels = updateModels.stream().filter(bindOne->!orgModels.contains(bindOne)).collect(Collectors.toSet());
@@ -109,13 +111,18 @@ public class TableModelListener {
     @EventListener
     @Async("taskExecutor")
     public void bindByColumnsModel(BindModelByColumnsEvent event){
-        bindByColumnsModel(event.getUser(),event.getTableName(),event.getColumns().stream().map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet()));
+        bindByColumnsModel(event.getUser(),event.getTableName(),event.getColumns().stream().filter(filterNull()).map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet()));
+    }
+
+    //过滤所有空值
+    private Predicate<DssDatamodelTableColumns> filterNull() {
+        return c -> c.getModelType() != null && c.getModelName() != null && c.getModelNameEn() != null;
     }
 
     @EventListener
     @Async("taskExecutor")
     public void unBindByColumnsModel(UnBindModelByColumnsEvent event){
-        unBindByColumnsModel(event.getUser(),event.getTableName(),event.getColumns().stream().map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet()));
+        unBindByColumnsModel(event.getUser(),event.getTableName(),event.getColumns().stream().filter(filterNull()).map(c->new ModelTypeDTO(c.getModelType(),c.getModelNameEn(),c.getModelName())).collect(Collectors.toSet()));
     }
 
     private void bindByColumnsModel(String user, String tableName, Set<ModelTypeDTO> modelTypeDTOS){
