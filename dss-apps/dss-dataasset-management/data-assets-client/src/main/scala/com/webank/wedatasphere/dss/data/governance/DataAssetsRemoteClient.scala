@@ -24,21 +24,24 @@ trait DataAssetsRemoteClient extends RemoteClient {
 
   def unBindModelType(action: UnBindModelTypeAction): UnBindModelTypeResult
 
+  def createLabel(action: CreateLabelAction): CreateLabelResult
+
+  def updateLabel(action: UpdateLabelAction): UpdateLabelResult
+
+  def deleteLabel(action: DeleteLabelAction): DeleteLabelResult
+
+  def bindLabel(action: BindLabelAction): BindLabelResult
+
+  def unBindLabel(action: UnBindLabelAction): UnBindLabelResult
+
+  def searchLabel(action: SearchLabelAction): SearchLabelResult
+
   def deleteModelType(action: DeleteModelTypeAction): DeleteModelTypeResult
 
   def searchHiveTblSize(action: HiveTblSizeAction): HiveTblSizeResult
 
   def searchHiveTblStats(action: HiveTblStatsAction): HiveTblStatsResult
 
-  def createLabel(action: CreateLabelAction): CreateLabelResult
+  def getHiveTblPartInfoByNameResult(action: GetTblPartInfoByNameAction): GetHiveTblPartInfoByNameResult
 
-  def updateLabel(action: UpdateLabelAction) : UpdateLabelResult
-
-  def deleteLabel(action: DeleteLabelAction) : DeleteLabelResult
-
-  def bindLabel(action: BindLabelAction) : BindLabelResult
-
-  def unBindLabel(action: UnBindLabelAction) : UnBindLabelResult
-
-  def searchLabel(action: SearchLabelAction) : SearchLabelResult
 }

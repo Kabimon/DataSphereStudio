@@ -385,19 +385,23 @@ public class AssetServiceImpl implements AssetService {
         try {
             AtlasEntity atlasEntity = atlasService.getHiveTbl(guid);
             String db_name = String.valueOf(atlasEntity.getAttributes().get("qualifiedName")).split("@")[0];
-            String tableName = db_name.split("\\.")[1];
-            String dbName = db_name.split("\\.")[0];
-            List<PartInfo> partInfo = new ArrayList<>();
-            try {
-                partInfo = metaInfoMapper.getPartInfo(dbName, tableName);
-            } catch (DAOException e) {
-                e.printStackTrace();
-            }
-            return partInfo;
+            return getPartInfos(db_name);
 
         } catch (AtlasServiceException ex) {
             throw new DataGovernanceException(23000, ex.getMessage());
         }
+    }
+
+    private List<PartInfo> getPartInfos(String db_name) {
+        String tableName = db_name.split("\\.")[1];
+        String dbName = db_name.split("\\.")[0];
+        List<PartInfo> partInfo = new ArrayList<>();
+        try {
+            partInfo = metaInfoMapper.getPartInfo(dbName, tableName);
+        } catch (DAOException e) {
+            e.printStackTrace();
+        }
+        return partInfo;
     }
 
     @Override
@@ -788,14 +792,19 @@ public class AssetServiceImpl implements AssetService {
 
     @Override
     public List<SearchLabelDTO> listLabels(String query, Integer limit, Integer offset) throws Exception {
-        List<AtlasEntityHeader>  atlasEntityHeaders = atlasService.listLabels(query,limit,offset);
-        Optional<String> labelOptional =atlasService.getRootGlossaryGuid(GlossaryConstant.LABEL);
-        if (!labelOptional.isPresent()){
-            throw new DataGovernanceException(23000,"需要创建 "+GlossaryConstant.LABEL.getRoot()+" glossary ");
+        List<AtlasEntityHeader> atlasEntityHeaders = atlasService.listLabels(query, limit, offset);
+        Optional<String> labelOptional = atlasService.getRootGlossaryGuid(GlossaryConstant.LABEL);
+        if (!labelOptional.isPresent()) {
+            throw new DataGovernanceException(23000, "需要创建 " + GlossaryConstant.LABEL.getRoot() + " glossary ");
         }
         return atlasEntityHeaders.stream()
                 .filter(atlasEntityHeader ->
-                        StringUtils.endsWith(atlasEntityHeader.getAttribute("qualifiedName").toString(),GlossaryConstant.LABEL.endWith()))
+                        StringUtils.endsWith(atlasEntityHeader.getAttribute("qualifiedName").toString(), GlossaryConstant.LABEL.endWith()))
                 .map(SearchLabelDTO::from).collect(Collectors.toList());
+    }
+
+    public List<PartInfo> getHiveTblPartitionByName(String dbName,String tableName) throws Exception {
+        return metaInfoMapper.getPartInfo(dbName,tableName);
+
     }
 }

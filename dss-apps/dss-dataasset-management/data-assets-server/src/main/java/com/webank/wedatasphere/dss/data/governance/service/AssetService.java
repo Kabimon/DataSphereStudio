@@ -159,4 +159,12 @@ public interface AssetService {
      * @return
      */
     List<SearchLabelDTO> listLabels(String query, Integer limit, Integer offset) throws AtlasServiceException, Exception;
+    /*
+     * 根据名称查询分区
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    List<PartInfo> getHiveTblPartitionByName(String dbName, String tableName) throws Exception;
+
 }

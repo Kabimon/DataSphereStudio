@@ -1,7 +1,8 @@
 package com.webank.wedatasphere.dss.data.governance.impl
 
-import com.webank.wedatasphere.dss.data.governance.request.{BindLabelAction, BindModelTypeAction, CreateLabelAction, CreateModelTypeAction, DeleteLabelAction, DeleteModelTypeAction, GetHiveTblBasicAction, GetHiveTblCreateAction, GetHiveTblPartitionAction, HiveTblSizeAction, HiveTblStatsAction, SearchHiveDbAction, SearchHiveTblAction, SearchLabelAction, UnBindLabelAction, UnBindModelTypeAction, UpdateLabelAction, UpdateModelTypeAction}
-import com.webank.wedatasphere.dss.data.governance.response.{BindLabelResult, BindModelTypeResult, CreateLabelResult, CreateModelTypeResult, DeleteLabelResult, DeleteModelTypeResult, GetHiveTblBasicResult, GetHiveTblCreateResult, GetHiveTblPartitionResult, HiveTblSizeResult, HiveTblStatsResult, SearchHiveDbResult, SearchHiveTblResult, SearchLabelResult, UnBindLabelResult, UnBindModelTypeResult, UpdateLabelResult, UpdateModelTypeResult}
+
+import com.webank.wedatasphere.dss.data.governance.request._
+import com.webank.wedatasphere.dss.data.governance.response._
 import com.webank.wedatasphere.dss.data.governance.{AbstractRemoteClient, DataAssetsRemoteClient}
 import com.webank.wedatasphere.linkis.httpclient.dws.DWSHttpClient
 import com.webank.wedatasphere.linkis.httpclient.dws.config.DWSClientConfig
@@ -44,4 +45,7 @@ class LinkisDataAssetsRemoteClient(clientConfig: DWSClientConfig) extends Abstra
   override def unBindLabel(action: UnBindLabelAction): UnBindLabelResult = execute(action).asInstanceOf[UnBindLabelResult]
 
   override def searchLabel(action: SearchLabelAction): SearchLabelResult = execute(action).asInstanceOf[SearchLabelResult]
+
+  override def getHiveTblPartInfoByNameResult(action: GetTblPartInfoByNameAction): GetHiveTblPartInfoByNameResult = execute(action).asInstanceOf[GetHiveTblPartInfoByNameResult]
+
 }
