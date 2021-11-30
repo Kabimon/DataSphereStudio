@@ -92,4 +92,18 @@ public class TableVersionServiceImpl extends ServiceImpl<DssDatamodelTableVersio
                 Wrappers.<DssDatamodelTableVersion>lambdaQuery()
                         .like(DssDatamodelTableVersion::getColumns,"\""+content + "\""));
     }
+
+
+    @Override
+    public int tableContentMultipleReference(String context) {
+        return getBaseMapper().selectCount(
+                Wrappers.<DssDatamodelTableVersion>lambdaQuery()
+                        .like(DssDatamodelTableVersion::getTableParams,"\""+ context + "\"")
+                        .or()
+                        .like(DssDatamodelTableVersion::getTableParams,"\""+ context + ",")
+                        .or()
+                        .like(DssDatamodelTableVersion::getTableParams,","+ context + ",")
+                        .or()
+                        .like(DssDatamodelTableVersion::getTableParams,","+ context + "\""));
+    }
 }

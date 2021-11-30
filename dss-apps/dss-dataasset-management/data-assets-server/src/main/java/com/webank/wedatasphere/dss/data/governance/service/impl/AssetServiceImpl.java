@@ -7,30 +7,39 @@ import com.webank.wedatasphere.dss.data.governance.atlas.AtlasService;
 import com.webank.wedatasphere.dss.data.governance.dao.*;
 import com.webank.wedatasphere.dss.data.governance.dao.impl.MetaInfoMapperImpl;
 import com.webank.wedatasphere.dss.data.governance.dto.HiveTblStatsDTO;
+import com.webank.wedatasphere.dss.data.governance.dto.SearchLabelDTO;
 import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.exception.DAOException;
 import com.webank.wedatasphere.dss.data.governance.exception.DataGovernanceException;
+import com.webank.wedatasphere.dss.data.governance.restful.DSSDataGovernanceAssetRestful;
 import com.webank.wedatasphere.dss.data.governance.service.AssetService;
 import com.webank.wedatasphere.dss.data.governance.utils.DateUtil;
 import com.webank.wedatasphere.dss.data.governance.vo.*;
+import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.atlas.AtlasServiceException;
+import org.apache.atlas.model.glossary.AtlasGlossaryTerm;
+import org.apache.atlas.model.glossary.relations.AtlasTermAssignmentHeader;
 import org.apache.atlas.model.instance.AtlasEntity;
 import org.apache.atlas.model.instance.AtlasEntityHeader;
 import org.apache.atlas.model.instance.AtlasStruct;
 import org.apache.atlas.model.lineage.AtlasLineageInfo;
 import org.apache.atlas.model.typedef.AtlasClassificationDef;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
 @Service
 public class AssetServiceImpl implements AssetService {
+    private static final Logger logger = LoggerFactory.getLogger(AssetServiceImpl.class);
     private AtlasService atlasService;
     private MetaInfoMapper metaInfoMapper;
     private WorkspaceInfoMapper workspaceInfoMapper;
@@ -376,19 +385,23 @@ public class AssetServiceImpl implements AssetService {
         try {
             AtlasEntity atlasEntity = atlasService.getHiveTbl(guid);
             String db_name = String.valueOf(atlasEntity.getAttributes().get("qualifiedName")).split("@")[0];
-            String tableName = db_name.split("\\.")[1];
-            String dbName = db_name.split("\\.")[0];
-            List<PartInfo> partInfo = new ArrayList<>();
-            try {
-                partInfo = metaInfoMapper.getPartInfo(dbName, tableName);
-            } catch (DAOException e) {
-                e.printStackTrace();
-            }
-            return partInfo;
+            return getPartInfos(db_name);
 
         } catch (AtlasServiceException ex) {
             throw new DataGovernanceException(23000, ex.getMessage());
         }
+    }
+
+    private List<PartInfo> getPartInfos(String db_name) {
+        String tableName = db_name.split("\\.")[1];
+        String dbName = db_name.split("\\.")[0];
+        List<PartInfo> partInfo = new ArrayList<>();
+        try {
+            partInfo = metaInfoMapper.getPartInfo(dbName, tableName);
+        } catch (DAOException e) {
+            e.printStackTrace();
+        }
+        return partInfo;
     }
 
     @Override
@@ -563,7 +576,6 @@ public class AssetServiceImpl implements AssetService {
     }
 
 
-
     @Override
     public HiveTblStatsDTO hiveTblStats(String dbName, String tableName, String guid) throws Exception {
         //如果有guid则使用guid
@@ -618,7 +630,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Long hiveTblSize(String dbName, String tableName, String guid) throws Exception{
+    public Long hiveTblSize(String dbName, String tableName, String guid) throws Exception {
         //如果有guid则使用guid
         if (StringUtils.isNotBlank(guid)) {
             String qualifiedName = getQualifiedName(guid);
@@ -643,12 +655,156 @@ public class AssetServiceImpl implements AssetService {
             tablePartitionSizeInfos.forEach(tablePartitionSizeInfo -> {
                 partIds.add(tablePartitionSizeInfo.getParId());
                 if (StringUtils.equals("totalSize", tablePartitionSizeInfo.getParamKey())) {
-                    size.set(size.get()+Long.parseLong(tablePartitionSizeInfo.getParamValue()));
+                    size.set(size.get() + Long.parseLong(tablePartitionSizeInfo.getParamValue()));
                 }
 
             });
 
         }
         return size.get();
+    }
+
+
+    @Override
+    public CreateLabelInfo createLabel(CreateLabelVO vo) throws Exception {
+        try {
+            return CreateLabelInfo.from(atlasService.createLabel(vo.getName()));
+        } catch (AtlasServiceException exception) {
+            throw new DataGovernanceException(23000, exception.getMessage());
+        }
+
+    }
+
+
+    @Override
+    public void deleteLabel(DeleteLabelVO vo) throws Exception {
+        try {
+            atlasService.deleteLabel(vo.getName());
+        } catch (Exception exception) {
+            throw new DataGovernanceException(23000, exception.getMessage());
+        }
+    }
+
+
+    @Override
+    public UpdateLabelInfo updateLabel(UpdateLabelVO vo) throws Exception {
+
+        if (StringUtils.equals(vo.getName(),vo.getOrgName())){
+            throw new DataGovernanceException(23000, "修改标签名称前后相同");
+        }
+
+        Optional<String> termGuidOptional = getTermGuidOptional(vo.getOrgName());
+        if (!termGuidOptional.isPresent()){
+            throw new DataGovernanceException(23000, "标签"+vo.getOrgName()+ "不存在");
+        }
+
+        AtlasGlossaryTerm atlasGlossaryTerm = null;
+        //首先新建标签
+        try {
+            atlasGlossaryTerm = atlasService.createLabel(vo.getName());
+        } catch (Exception exception) {
+            throw new DataGovernanceException(23000, exception.getMessage());
+        }
+        //尝试删除原标签
+        try {
+            atlasService.deleteLabel(vo.getOrgName());
+        } catch (Exception exception) {
+            //休眠五秒,atlas新建分词有延迟
+            logger.error("wait for 5 seconds to roll back term " + vo.getName());
+            TimeUnit.SECONDS.sleep(5);
+            //回滚删除新建标签
+            try {
+                atlasService.deleteLabel(vo.getName());
+            } catch (Exception exception1) {
+                throw new DataGovernanceException(23000, exception1.getMessage());
+            }
+            throw new DataGovernanceException(23000, exception.getMessage());
+        }
+
+        return UpdateLabelInfo.from(atlasGlossaryTerm);
+    }
+
+
+    @Override
+    public void bindLabel(BindLabelVO vo) throws Exception {
+
+        if (StringUtils.isNotBlank(vo.getLabelGuid()) && StringUtils.isNotBlank(vo.getTableGuid())) {
+            try {
+                atlasService.assignTermToEntities(vo.getLabelGuid(), Lists.newArrayList(vo.getTableGuid()));
+            } catch (AtlasServiceException exception1) {
+                throw new DataGovernanceException(23000, exception1.getMessage());
+            }
+        }
+
+        Optional<String> termGuidOptional = getTermGuidOptional(vo.getLabel());
+        List<AtlasEntityHeader> entityHeaders = getAtlasEntityHeaders(vo.getTableName());
+
+        try {
+            atlasService.assignTermToEntities(termGuidOptional.get(), Lists.newArrayList(entityHeaders.get(0).getGuid()));
+        } catch (AtlasServiceException exception1) {
+            throw new DataGovernanceException(23000, exception1.getMessage());
+        }
+
+    }
+
+    private Optional<String> getTermGuidOptional(String label) throws AtlasServiceException, DataGovernanceException {
+        Optional<String> termGuidOptional = atlasService.getTermGuid(GlossaryConstant.LABEL, label);
+        if (!termGuidOptional.isPresent()) {
+            throw new DataGovernanceException(23000, label + "标签不存在");
+        }
+        return termGuidOptional;
+    }
+
+    @Override
+    public void unBindLabel(UnBindLabelVO vo) throws Exception {
+        if (StringUtils.isNotBlank(vo.getLabelGuid()) && StringUtils.isNotBlank(vo.getTableGuid()) && StringUtils.isNotBlank(vo.getRelationGuid())) {
+            try {
+                atlasService.disassociateTermFromEntities(vo.getLabelGuid(), Lists.newArrayList(RelatedObjectId.from(vo.getTableGuid(), vo.getRelationGuid())));
+            } catch (AtlasServiceException exception1) {
+                throw new DataGovernanceException(23000, exception1.getMessage());
+            }
+        }
+
+        Optional<String> termGuidOptional = getTermGuidOptional(vo.getLabel());
+        List<AtlasEntityHeader> entityHeaders = getAtlasEntityHeaders(vo.getTableName());
+
+        String termGuid = termGuidOptional.get();
+        AtlasEntityHeader atlasEntityHeader = entityHeaders.get(0);
+        String tableGuid = atlasEntityHeader.getGuid();
+        Optional<AtlasTermAssignmentHeader> termAssignmentHeaderOptional = atlasEntityHeader.getMeanings().stream().filter(atlasTermAssignmentHeader -> StringUtils.equals(termGuid, atlasTermAssignmentHeader.getTermGuid())).findFirst();
+        if (!termAssignmentHeaderOptional.isPresent()){
+            throw new DataGovernanceException(23000, vo.getTableName() + "表与标签" + vo.getLabel() +"未绑定");
+        }
+        try {
+            atlasService.disassociateTermFromEntities(termGuidOptional.get(), Lists.newArrayList(RelatedObjectId.from(tableGuid, termAssignmentHeaderOptional.get().getRelationGuid())));
+        } catch (AtlasServiceException exception1) {
+            throw new DataGovernanceException(23000, exception1.getMessage());
+        }
+    }
+
+    private List<AtlasEntityHeader> getAtlasEntityHeaders(String tableName) throws AtlasServiceException, DataGovernanceException {
+        List<AtlasEntityHeader> entityHeaders = atlasService.searchHiveTable0(null, tableName, true, 1, 0);
+        if (CollectionUtils.isEmpty(entityHeaders)) {
+            throw new DataGovernanceException(23000, tableName + "表不存在");
+        }
+        return entityHeaders;
+    }
+
+    @Override
+    public List<SearchLabelDTO> listLabels(String query, Integer limit, Integer offset) throws Exception {
+        List<AtlasEntityHeader> atlasEntityHeaders = atlasService.listLabels(query, limit, offset);
+        Optional<String> labelOptional = atlasService.getRootGlossaryGuid(GlossaryConstant.LABEL);
+        if (!labelOptional.isPresent()) {
+            throw new DataGovernanceException(23000, "需要创建 " + GlossaryConstant.LABEL.getRoot() + " glossary ");
+        }
+        return atlasEntityHeaders.stream()
+                .filter(atlasEntityHeader ->
+                        StringUtils.endsWith(atlasEntityHeader.getAttribute("qualifiedName").toString(), GlossaryConstant.LABEL.endWith()))
+                .map(SearchLabelDTO::from).collect(Collectors.toList());
+    }
+
+    public List<PartInfo> getHiveTblPartitionByName(String dbName,String tableName) throws Exception {
+        return metaInfoMapper.getPartInfo(dbName,tableName);
+
     }
 }

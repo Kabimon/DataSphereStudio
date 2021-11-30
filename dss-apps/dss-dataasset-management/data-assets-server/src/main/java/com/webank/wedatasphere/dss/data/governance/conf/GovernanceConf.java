@@ -33,6 +33,9 @@ public interface GovernanceConf {
     CommonVars<String>ATLAS_ROOT_LAYER = CommonVars.apply("atlas.root.layer");
     CommonVars<String>ATLAS_ROOT_THEME = CommonVars.apply("atlas.root.theme");
 
+    CommonVars<String>ATLAS_ROOT_LABEL = CommonVars.apply("atlas.root.label");
+    CommonVars<String>ATLAS_ROOT_COLLECTION = CommonVars.apply("atlas.root.collection");
+
 
     CommonVars<String> METASTORE_DATASOURCE_DRIVER = CommonVars.apply("metastore.datasource.driver", "com.mysql.jdbc.Driver");
     CommonVars<String> METASTORE_DATASOURCE_URL = CommonVars.apply("metastore.datasource.url");

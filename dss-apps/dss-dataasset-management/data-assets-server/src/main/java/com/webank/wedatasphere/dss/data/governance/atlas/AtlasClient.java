@@ -4,9 +4,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import com.webank.wedatasphere.dss.data.governance.entity.GlossaryConstant;
 import org.apache.atlas.AtlasClientV2;
 import org.apache.atlas.AtlasServiceException;
 import org.apache.atlas.model.discovery.SearchParameters;
+import org.apache.atlas.model.glossary.AtlasGlossaryTerm;
+import org.apache.atlas.model.glossary.relations.AtlasGlossaryHeader;
+import org.apache.atlas.model.instance.AtlasRelatedObjectId;
 import org.apache.atlas.model.lineage.AtlasLineageInfo;
 import org.apache.atlas.model.typedef.AtlasClassificationDef;
 import org.apache.atlas.model.typedef.AtlasTypesDef;
@@ -15,10 +19,9 @@ import org.apache.commons.configuration.Configuration;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class AtlasClient extends AtlasClientV2 {
@@ -138,8 +141,79 @@ public class AtlasClient extends AtlasClientV2 {
         return  callAPI(AtlasClientV2.API_V2.CREATE_TYPE_DEFS, String.class, gson.toJson(atlasTypesDef),params);
     }
 
+    // Glossary APIs
+    public String getAllGlossaries() throws AtlasServiceException {
+        MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
+
+        queryParams.add(LIMIT, "99999");
+        queryParams.add(OFFSET, "0");
+
+        return callAPI(API_V2.GET_ALL_GLOSSARIES, String.class, queryParams);
+    }
+
+    /**
+     * 新建分词
+     * @param name
+     * @param rootGuid
+     * @return
+     * @throws AtlasServiceException
+     */
+    public String createGlossaryTerm(String name,String rootGuid) throws AtlasServiceException {
+        AtlasGlossaryTerm glossaryTerm = new AtlasGlossaryTerm();
+        glossaryTerm.setName(name);
+        AtlasGlossaryHeader anchor = new AtlasGlossaryHeader();
+        anchor.setGlossaryGuid(rootGuid);
+        glossaryTerm.setAnchor(anchor);
+        return callAPI(API_V2.CREATE_GLOSSARY_TERM, String.class, gson.toJson(glossaryTerm));
+    }
+
+    /**
+     * 根据名称 查询分词详情
+     * @param glossaryConstant
+     * @param name
+     * @return
+     * @throws AtlasServiceException
+     */
+    public String attributeSearchByName(GlossaryConstant glossaryConstant, String name) throws AtlasServiceException {
+        return attributeSearch0(glossaryConstant.getAtlasType(),glossaryConstant.formatQuery(name), GlossaryConstant.ARR,1,0);
+    }
+
+    public String attributeSearch0(String typeName, String name, String attrName, Integer limit, Integer offset) throws AtlasServiceException {
+        MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
+
+        queryParams.add("attrName", attrName);
+        queryParams.add("attrValuePrefix",name);
+        queryParams.add("typeName", typeName);
+        queryParams.add(LIMIT, limit+"");
+        queryParams.add(OFFSET, offset+"");
+
+        return callAPI(API_V2.ATTRIBUTE_SEARCH, String.class, queryParams);
+    }
 
 
+    /**
+     * 实体绑定分词
+     * @param termGuid
+     * @param entityGuids
+     * @throws AtlasServiceException
+     */
+    public void assignTermToEntities0(String termGuid, List<String> entityGuids) throws AtlasServiceException {
+        List<AtlasRelatedObjectId> relatedObjectIds = entityGuids.stream().map(entityGuid->{AtlasRelatedObjectId atlasRelatedObjectId = new AtlasRelatedObjectId();
+        atlasRelatedObjectId.setGuid(entityGuid);
+        return atlasRelatedObjectId;
+        }).collect(Collectors.toList());
+        callAPI(formatPathParameters(API_V2.ASSIGN_TERM_TO_ENTITIES, termGuid), (Class<?>) null, gson.toJson(relatedObjectIds));
+    }
+
+    /**
+     * 解绑实体
+     * @param termGuid
+     * @param
+     * @throws AtlasServiceException
+     */
+    public void disassociateTermFromEntities0(String termGuid, List<AtlasRelatedObjectId> relatedObjectIds) throws AtlasServiceException {
+        callAPI(formatPathParameters(API_V2.DISASSOCIATE_TERM_FROM_ENTITIES, termGuid), (Class<?>) null, gson.toJson(relatedObjectIds));
+    }
 
     /**
      * 根据关键字检索实体

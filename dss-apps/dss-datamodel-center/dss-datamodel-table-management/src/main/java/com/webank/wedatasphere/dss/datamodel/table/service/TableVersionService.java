@@ -51,4 +51,11 @@ public interface TableVersionService extends IService<DssDatamodelTableVersion> 
      * @return
      */
     int tableColumnsReference(String content);
+
+
+    /**
+     * 表多重引用
+     * @return
+     */
+    int tableContentMultipleReference(String content);
 }

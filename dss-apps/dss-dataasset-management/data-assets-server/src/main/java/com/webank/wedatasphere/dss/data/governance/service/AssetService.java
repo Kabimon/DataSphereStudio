@@ -2,6 +2,7 @@ package com.webank.wedatasphere.dss.data.governance.service;
 
 
 import com.webank.wedatasphere.dss.data.governance.dto.HiveTblStatsDTO;
+import com.webank.wedatasphere.dss.data.governance.dto.SearchLabelDTO;
 import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.exception.DAOException;
 import com.webank.wedatasphere.dss.data.governance.exception.DataGovernanceException;
@@ -106,5 +107,64 @@ public interface AssetService {
      * @return
      */
     Long hiveTblSize(String dbName, String tableName, String guid) throws Exception;
+
+
+    /**
+     * 新建标签
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    CreateLabelInfo createLabel(CreateLabelVO vo) throws Exception;
+
+
+    /**
+     * 删除标签
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    void deleteLabel(DeleteLabelVO vo) throws Exception;
+
+
+    /**
+     * 删除标签
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    UpdateLabelInfo updateLabel(UpdateLabelVO vo) throws Exception;
+
+
+    /**
+     * 绑定标签
+     * @param vo
+     * @throws Exception
+     */
+    void bindLabel(BindLabelVO vo) throws Exception;
+
+
+    /**
+     * 解绑实体
+     * @param vo
+     * @throws Exception
+     */
+    void unBindLabel(UnBindLabelVO vo) throws Exception;
+
+    /**
+     * 标签搜索列表
+     * @param query
+     * @param limit
+     * @param offset
+     * @return
+     */
+    List<SearchLabelDTO> listLabels(String query, Integer limit, Integer offset) throws AtlasServiceException, Exception;
+    /*
+     * 根据名称查询分区
+     * @param name
+     * @return
+     * @throws Exception
+     */
+    List<PartInfo> getHiveTblPartitionByName(String dbName, String tableName) throws Exception;
 
 }
