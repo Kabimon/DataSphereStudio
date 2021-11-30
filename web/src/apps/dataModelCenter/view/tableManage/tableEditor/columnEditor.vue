@@ -300,25 +300,26 @@ export default {
      */
     checkEditValue() {
       let resArr = [];
-      console.log(this.editData.name)
+      console.log(this.editData.name);
       if (!Boolean(/^[a-zA-Z0-9_]{1,100}$/g.test(this.editData.name))) {
         resArr.push("字段名必须是英文字母下划线,且长度在1-100字符之间");
       }
       return resArr;
     },
     /**
-      * @description 规范性验证
-    */
+     * @description 规范性验证
+     */
     checkColumnData() {
-      for (let i = 0; i< this.columnData.length - 1; i++) {
+      for (let i = 0; i < this.columnData.length - 1; i++) {
         for (let j = i + 1; j < this.columnData.length; j++) {
           if (this.columnData[i].name === this.columnData[j].name) {
-            this.$Message.warning('校验不通过，字段名称不能重复！');
-            return false
+            this.$Message.warning("校验不通过，字段名称不能重复！");
+            return false;
           }
         }
       }
-      this.$Message.success('校验通过！');
+      this.$Message.success("校验通过！");
+      return true;
     },
     /**
      * @description 删除字段

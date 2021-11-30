@@ -610,6 +610,10 @@ export default {
       if (this.$refs["ColumnEditor"].isEditMode()) {
         return this.$Message.warning("请先保存字段");
       }
+      let bOk = this.$refs["ColumnEditor"].checkColumnData();
+      if (!bOk) {
+        return false;
+      }
       Promise.all([
         this.$refs["baseicInfoForm"].validate(),
         this.$refs["coreInfoForm"].validate(),
