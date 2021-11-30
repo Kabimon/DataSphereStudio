@@ -164,11 +164,13 @@ export default {
         .then(data => {
           if (data.result) {
             const { hiveStore, hiveDb, hiveTable } = data.result;
-            data.result["hiveStore"] = (hiveStore / 1024 / 1024).toFixed(2);
+            // data.result["hiveStore"] = (hiveStore / 1024 / 1024).toFixed(2);
+            let n = this.transformCompany(data.result["hiveStore"])
             const models = that.models.slice(0);
             models[0].content = hiveDb;
             models[1].content = hiveTable;
-            models[2].content = data.result["hiveStore"];
+            models[2].content = n.num;
+            models[2].unit = n.unit
             that.models = models;
           }
           console.log(data);
@@ -176,6 +178,20 @@ export default {
         .catch(err => {
           console.log("getDataAssetsSummary", err);
         });
+    },
+    // 转换存储单位
+    transformCompany(number) {
+      if (!number) {
+        return { num: 0, unit: "B", str: "0B" };
+      }
+      let unitArr = ["B", "KB", "MB", "GB", "TB"];
+      for (let i = unitArr.length - 1; i >= 0; i--) {
+        const unit = unitArr[i];
+        let res = number / Math.pow(1024, i);
+        if (res > 1) {
+          return { num: res.toFixed(2), unit, str: res.toFixed(2) + unit };
+        }
+      }
     },
     getTblTopStorage() {
       let that = this;

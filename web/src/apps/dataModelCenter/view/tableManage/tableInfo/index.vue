@@ -570,6 +570,7 @@ export default {
       this.columnInfoTableData = detail.columns;
       // 表统计信息
       this.tableCensusInfo = detail.stats;
+      console.log(this.tableCensusInfo);
     },
     // 获取分区信息
     handleGetTablesPartitionStats() {

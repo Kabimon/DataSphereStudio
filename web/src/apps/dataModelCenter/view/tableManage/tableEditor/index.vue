@@ -11,7 +11,7 @@
             <Tag color="primary">V{{ extraInfo.version || 0 }}</Tag>
           </div>
           <div>
-            <Button type="primary" style="margin-right: 15px">
+            <Button type="primary" @click="() => $refs['ColumnEditor'].checkColumnData()" style="margin-right: 15px">
               验证规范性
             </Button>
             <Button

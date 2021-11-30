@@ -48,16 +48,18 @@
           <span>标签</span>
           <Select
             v-model="serachOption.label"
-            multiple
+            filterable
             clearable
+            :remote-method="remoteSearchLabel"
+            :loading="labelSerachLoading"
             style="width: 167px"
           >
             <Option
-              v-for="(item, idx) in userList"
-              :value="item.value"
-              :key="idx"
+              v-for="item in labelList"
+              :value="item.name"
+              :key="item.guid"
             >
-              {{ item.label }}
+              {{ item.name }}
             </Option>
           </Select>
         </div>
@@ -79,7 +81,7 @@
 <script>
 //import api from "@/common/service/api";
 import tabCard from "../../module/common/tabCard/index.vue";
-import { getHiveTbls, getWorkspaceUsers } from "../../service/api";
+import { getHiveTbls, getWorkspaceUsers, getLabels } from "../../service/api";
 import { EventBus } from "../../module/common/eventBus/event-bus";
 import { storage } from "../../utils/storage";
 import { throttle } from "lodash";
@@ -90,14 +92,16 @@ export default {
   data() {
     return {
       serachOption: {
+        label: "",
         limit: 10,
         offset: 0,
       },
       ownerList: [],
-      userList: [],
+      labelList: [],
       cardTabs: [],
       queryForTbls: "",
       owerSerachLoading: false,
+      labelSerachLoading: false,
       isLoading: false,
     };
   },
@@ -114,8 +118,8 @@ export default {
         .catch((err) => {
           console.log("Search", err);
         });
-    }else{
-      this.onSearch()
+    } else {
+      this.onSearch();
     }
   },
   mounted() {
@@ -139,7 +143,8 @@ export default {
     onSearch() {
       const params = {
         query: this.queryForTbls,
-        owner: this.serachOption.owner,
+        owner: this.serachOption.owner || "",
+        label: this.serachOption.label || "",
         limit: 10,
         offset: 0,
       };
@@ -229,6 +234,20 @@ export default {
           });
       } else {
         that.ownerList = [];
+      }
+    },
+
+    // 搜索标签
+    remoteSearchLabel(query) {
+      let that = this;
+      if (query !== "") {
+        that.labelSerachLoading = true;
+        getLabels(query).then((data) => {
+          const { result } = data;
+          that.labelList = result;
+          console.log(that.labelList);
+          that.labelSerachLoading = false;
+        });
       }
     },
 
