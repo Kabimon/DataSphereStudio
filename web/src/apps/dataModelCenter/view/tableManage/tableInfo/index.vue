@@ -238,7 +238,7 @@
           </Row>
         </Card>
         <Card :bordered="false" title="分区统计信息" dis-hover>
-          <div style="margin-bottom: 15px">
+          <!-- <div style="margin-bottom: 15px">
             <Select style="width: 200px" placeholder="分区">
               <Option value="1" label="1" />
             </Select>
@@ -246,7 +246,7 @@
               <Option value="1" label="1" />
             </Select>
             <Button type="primary">搜索</Button>
-          </div>
+          </div> -->
           <Table
             :columns="partitionCensusInfoTableColumn"
             :data="partitionCensusInfoTableData"
@@ -351,12 +351,12 @@ const partitionCensusInfoTableColumn = [
   {
     title: "分区大小",
     align: "center",
-    key: "reordCnt",
+    key: "store",
   },
   {
     title: "文件数",
     align: "center",
-    key: "store",
+    key: "fileCount",
   },
   {
     title: "创建时间",
@@ -570,7 +570,6 @@ export default {
       this.columnInfoTableData = detail.columns;
       // 表统计信息
       this.tableCensusInfo = detail.stats;
-      console.log(this.tableCensusInfo);
     },
     // 获取分区信息
     handleGetTablesPartitionStats() {
