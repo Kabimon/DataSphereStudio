@@ -14,6 +14,7 @@ import java.util.List;
 public class DwModifierDTO {
     private Long id;
     private String modifierType;
+    private String modifierTypeEn;
     private Long layerId;
     private String layerArea;
     private Long themeDomainId;
