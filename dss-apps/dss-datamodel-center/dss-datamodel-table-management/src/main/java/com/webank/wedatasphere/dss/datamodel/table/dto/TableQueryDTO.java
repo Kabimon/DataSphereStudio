@@ -3,6 +3,7 @@ package com.webank.wedatasphere.dss.datamodel.table.dto;
 
 import com.google.common.collect.Lists;
 import com.webank.wedatasphere.dss.data.governance.entity.HiveTblStatsDTO;
+import com.webank.wedatasphere.dss.datamodel.center.common.constant.LabelConstant;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang.StringUtils;
@@ -119,9 +120,9 @@ public class TableQueryDTO {
         if (!CollectionUtils.isEmpty(hiveTblDTO.getBasic().getLabels())){
             StringBuilder sb = new StringBuilder();
             for (String label:hiveTblDTO.getBasic().getLabels()){
-                sb.append(label).append(";");
+                sb.append(label).append(LabelConstant.SEPARATOR);
             }
-           dto.setLabel(StringUtils.substringBeforeLast(sb.toString(),";"));
+           dto.setLabel(StringUtils.substringBeforeLast(sb.toString(),LabelConstant.SEPARATOR));
         }
         dto.setIsPartitionTable(hiveTblDTO.getBasic().getIsParTbl()?0:1);
 

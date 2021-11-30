@@ -1,5 +1,6 @@
 package com.webank.wedatasphere.dss.datamodel.table.listener;
 
+import com.webank.wedatasphere.dss.datamodel.center.common.constant.LabelConstant;
 import com.webank.wedatasphere.dss.datamodel.center.common.event.BindLabelEvent;
 import com.webank.wedatasphere.dss.datamodel.center.common.event.UnBindLabelEvent;
 import com.webank.wedatasphere.dss.datamodel.table.entity.DssDatamodelTable;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 public class TableLabelListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(TableLabelListener.class);
 
-    public static final String LABEL_SEPARATOR = ",";
+    public static final String LABEL_SEPARATOR = LabelConstant.SEPARATOR;
 
     @Resource
     private ApplicationEventPublisher publisher;

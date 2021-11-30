@@ -1,9 +1,6 @@
 package com.webank.wedatasphere.dss.data.governance.restful;
 
-import com.webank.wedatasphere.dss.data.governance.entity.ClassificationConstant;
-import com.webank.wedatasphere.dss.data.governance.entity.HiveTblSimpleInfo;
-import com.webank.wedatasphere.dss.data.governance.entity.PartInfo;
-import com.webank.wedatasphere.dss.data.governance.entity.TableInfo;
+import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.service.AssetService;
 import com.webank.wedatasphere.dss.data.governance.service.WorkspaceInfoService;
 import com.webank.wedatasphere.dss.data.governance.vo.*;
@@ -61,7 +58,7 @@ public class DSSDataGovernanceAssetRestful {
     @Path("/hiveTbl/search")
     public Response searchHiveTbl(@QueryParam("classification") String classification,
                                   @QueryParam("query") String query,
-
+                                  @QueryParam("label") String label,
                                   @QueryParam("type") String type,
                                   @QueryParam("owner") @DefaultValue("") String owner,
                                   @QueryParam("limit") @DefaultValue(DEFAULT_LIMIT) int limit,
@@ -75,8 +72,11 @@ public class DSSDataGovernanceAssetRestful {
                 classification = ClassificationConstant.getRoot(type).orElse(null);
             }
         }
+        if (!StringUtils.isBlank(label)){
+            label = GlossaryConstant.LABEL.formatQuery(label);
+        }
 
-        List<HiveTblSimpleInfo> hiveTblBasicList = assetService.searchHiveTable(classification, "*" + query + "*", limit, offset);
+        List<HiveTblSimpleInfo> hiveTblBasicList = assetService.searchHiveTable(classification, "*" + query + "*",label,limit, offset);
         if (StringUtils.isBlank(owner) || owner.equals("undefined")) {
             return Message.messageToResponse(Message.ok().data("result", hiveTblBasicList));
         } else {

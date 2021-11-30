@@ -182,7 +182,7 @@ public class AssetServiceImpl implements AssetService {
         //首先搜索指定表,查找guid
         List<AtlasEntityHeader> atlasEntityHeaders = null;
         try {
-            atlasEntityHeaders = atlasService.searchHiveTable0(null, tableName, true, 1, 0);
+            atlasEntityHeaders = atlasService.searchHiveTable0(null, tableName, null,true, 1, 0);
         } catch (AtlasServiceException ex) {
             throw new DataGovernanceException(23000, ex.getMessage());
         }
@@ -197,11 +197,11 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public List<HiveTblSimpleInfo> searchHiveTable(String classification, String query,
+    public List<HiveTblSimpleInfo> searchHiveTable(String classification, String query, String termName,
                                                    int limit, int offset) throws DataGovernanceException {
         List<AtlasEntityHeader> atlasEntityHeaders = null;
         try {
-            atlasEntityHeaders = atlasService.searchHiveTable0(classification, query, true, limit, offset);
+            atlasEntityHeaders = atlasService.searchHiveTable0(classification, query, termName,true, limit, offset);
         } catch (AtlasServiceException ex) {
             throw new DataGovernanceException(23000, ex.getMessage());
         }
@@ -336,7 +336,15 @@ public class AssetServiceImpl implements AssetService {
             basic.setOwner(String.valueOf(atlasEntity.getAttributes().get("owner")));
             basic.setCreateTime(new java.text.SimpleDateFormat("yyyy MM-dd HH:mm:ss").format(atlasEntity.getCreateTime()));
             basic.setStore(String.valueOf(storage));
-            Set<String> labels = atlasEntity.getLabels();
+            //设置标签
+            Set<String> labels = Sets.newHashSet();
+            List<Map<String,String>> meanings =(List<Map<String,String>>) atlasEntity.getRelationshipAttributes().get("meanings");
+            if (!CollectionUtils.isEmpty(meanings)) {
+               labels =  meanings.stream()
+                       .filter(label->isLabel(label.get("guid")))
+                       .map(label->(label.get("displayText")))
+                       .collect(Collectors.toSet());
+            }
             basic.setLabels(labels);
             basic.setIsParTbl(isPartTable);
             basic.setGuid(guid);
@@ -783,7 +791,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     private List<AtlasEntityHeader> getAtlasEntityHeaders(String tableName) throws AtlasServiceException, DataGovernanceException {
-        List<AtlasEntityHeader> entityHeaders = atlasService.searchHiveTable0(null, tableName, true, 1, 0);
+        List<AtlasEntityHeader> entityHeaders = atlasService.searchHiveTable0(null, tableName, null,true, 1, 0);
         if (CollectionUtils.isEmpty(entityHeaders)) {
             throw new DataGovernanceException(23000, tableName + "表不存在");
         }
@@ -806,5 +814,22 @@ public class AssetServiceImpl implements AssetService {
     public List<PartInfo> getHiveTblPartitionByName(String dbName,String tableName) throws Exception {
         return metaInfoMapper.getPartInfo(dbName,tableName);
 
+    }
+
+
+    private boolean isLabel(String termGuid) {
+
+        AtlasGlossaryTerm term;
+        try {
+            term = atlasService.getGlossaryTermDetail(termGuid);
+        }catch (AtlasServiceException e){
+            logger.error(e.getMessage(),e);
+            return false;
+        }
+
+        if (term == null){
+            return false;
+        }
+        return term.getQualifiedName().endsWith(GlossaryConstant.LABEL.endWith());
     }
 }

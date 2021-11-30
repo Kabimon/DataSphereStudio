@@ -19,7 +19,7 @@ import java.util.Set;
 public interface AssetService {
     public Map<String,Integer> getHiveSummary() throws DataGovernanceException;
 
-    public List<HiveTblSimpleInfo> searchHiveTable(String classification, String query,
+    public List<HiveTblSimpleInfo> searchHiveTable(String classification, String query,String termName,
                                                    int limit, int offset) throws DataGovernanceException;
 
     public List<HiveTblSimpleInfo> searchHiveDb(String classification, String query,

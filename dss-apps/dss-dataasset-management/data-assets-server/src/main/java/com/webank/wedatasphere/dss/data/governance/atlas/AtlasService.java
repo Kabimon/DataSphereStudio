@@ -104,10 +104,10 @@ public class AtlasService {
     /**
      * 根据关键字搜索hive table
      */
-    public List<AtlasEntityHeader> searchHiveTable0(String classification, String query,
+    public List<AtlasEntityHeader> searchHiveTable0(String classification, String query, String termName,
                                                     boolean excludeDeletedEntities, int limit, int offset) throws AtlasServiceException {
 
-        String jsonStr = atlasClient.basicSearchPostForString("hive_table", classification, query, excludeDeletedEntities, limit, offset);
+        String jsonStr = atlasClient.basicSearchPostForString("hive_table", classification, query, termName , excludeDeletedEntities, limit, offset);
         AtlasSearchResult atlasSearchResult = gson.fromJson(jsonStr, AtlasSearchResult.class);//atlasClient.facetedSearch(searchParameters);
 
         //实体绑定类型
@@ -345,9 +345,14 @@ public class AtlasService {
      */
     public List<AtlasEntityHeader> searchHiveDb(String classification, String query,
                                                 boolean excludeDeletedEntities, int limit, int offset) throws AtlasServiceException {
-        String jsonStr = atlasClient.basicSearchPostForString("hive_db", classification, query, excludeDeletedEntities, limit, offset);
+        String jsonStr = atlasClient.basicSearchPostForString("hive_db", classification, query,null, excludeDeletedEntities, limit, offset);
         AtlasSearchResult atlasSearchResult = gson.fromJson(jsonStr, AtlasSearchResult.class);
 
         return atlasSearchResult.getEntities();
+    }
+
+    public AtlasGlossaryTerm getGlossaryTermDetail(String termGuid) throws AtlasServiceException {
+        String detail =  atlasClient.getGlossaryTerm0(termGuid);
+        return gson.fromJson(detail,AtlasGlossaryTerm.class);
     }
 }

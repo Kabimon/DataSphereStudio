@@ -218,7 +218,7 @@ public class AtlasClient extends AtlasClientV2 {
     /**
      * 根据关键字检索实体
      */
-    public String basicSearchPostForString(final String typeName, final String classification, final String query,
+    public String basicSearchPostForString(final String typeName, final String classification, final String query,final String termName,
                                        final boolean excludeDeletedEntities, final int limit, final int offset) throws AtlasServiceException {
         SearchParameters searchParameters = new SearchParameters();
         Set<String> returnColumnsParams = Sets.newHashSet("aliases", "parameters", "lastAccessTime","comment");
@@ -226,6 +226,7 @@ public class AtlasClient extends AtlasClientV2 {
         searchParameters.setClassification(classification);
         searchParameters.setQuery(query);
         searchParameters.setLimit(limit);
+        searchParameters.setTermName(termName);
         searchParameters.setOffset(offset);
         searchParameters.setIncludeSubClassifications(true);
         searchParameters.setIncludeSubTypes(true);
@@ -243,6 +244,17 @@ public class AtlasClient extends AtlasClientV2 {
         queryParams.add("name", "comment");
 
         return callAPI(API_V3.UPDATE_ENTITY_ATTR,String.class,commentStr,queryParams,guid);
+    }
+
+    /**
+     * 获取分词详情
+     * @param termGuid
+     * @return
+     * @throws AtlasServiceException
+     */
+    public String getGlossaryTerm0(String termGuid) throws AtlasServiceException {
+
+        return callAPI(API_V2.GET_GLOSSARY_TERM, String.class, null, termGuid);
     }
 
     /**

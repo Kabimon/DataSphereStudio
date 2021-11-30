@@ -202,7 +202,7 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
             GetHiveTblBasicResult result = linkisDataAssetsRemoteClient.getHiveTblBasic(GetHiveTblBasicAction.builder().setUser(vo.getUser()).setGuid(vo.getGuid()).build());
             HiveTblDetailInfoDTO dto = assertsGson.fromJson(assertsGson.toJson(result.getResult()), HiveTblDetailInfoDTO.class);
             HiveTblStatsResult hiveTblStatsResult = linkisDataAssetsRemoteClient.searchHiveTblStats(HiveTblStatsAction.builder().setUser(vo.getUser()).setGuid(vo.getGuid()).build());
-            return TableQueryDTO.toTableStatsDTO(dto, hiveTblStatsResult.getInfo(), vo.getName());
+            return TableQueryDTO.toTableStatsDTO(dto, hiveTblStatsResult.getInfo(), StringUtils.substringBefore(dto.getBasic().getQualifiedName(),"@"));
         }
         return queryTable(table);
     }
