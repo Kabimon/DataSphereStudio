@@ -11,7 +11,11 @@
             <Tag color="primary">V{{ extraInfo.version || 0 }}</Tag>
           </div>
           <div>
-            <Button type="primary" @click="() => $refs['ColumnEditor'].checkColumnData()" style="margin-right: 15px">
+            <Button
+              type="primary"
+              @click="() => $refs['ColumnEditor'].checkColumnData()"
+              style="margin-right: 15px"
+            >
               验证规范性
             </Button>
             <Button
@@ -232,6 +236,7 @@ import {
   createTable,
   generatorNewVersion,
   checkTableData,
+  bindTable,
 } from "@dataModelCenter/service/tableManageApi";
 import { getCyclesList } from "@dataModelCenter/service/api";
 import ColumnEditor from "./columnEditor.vue";
@@ -540,7 +545,7 @@ export default {
       return createTable(id || this.config.id)
         .then(() => {
           this.loading = false;
-          this.$Message.success("建表成功");
+          this.handleBindTable(id);
         })
         .catch(() => {
           this.loading = false;
@@ -641,6 +646,14 @@ export default {
             return;
           }
         }
+      });
+    },
+    /**
+     * @description 主动绑定
+     */
+    handleBindTable(id) {
+      bindTable(id || this.config.id).then(() => {
+        this.$Message.success("建表成功");
       });
     },
   },

@@ -227,3 +227,12 @@ export const checkTableData = tableName =>
  */
 export const deleteTableById = id =>
   api.fetch(`${API_PATH.DATAMODEL_PATH}tables/${id}`, {}, "delete");
+
+
+/**
+ * 主动绑定
+ * @returns {Object.result}
+ *
+ */
+export const bindTable = (id) =>
+  api.fetch(`${API_PATH.DATAMODEL_PATH}tables/bind/${id}`, "put");
