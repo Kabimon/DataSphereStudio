@@ -174,7 +174,7 @@ import util from "@/common/util";
 import mixin from "@/common/service/mixin";
 import porjectComponent from "../newProject";
 import applist from "../appList";
-import appProcess from "../appProcess/";
+// import appProcess from "../appProcess/";
 import {
   GetWorkspaceData,
   GetWorkspaceApplications,
@@ -183,7 +183,7 @@ export default {
   components: {
     porjectComponent: porjectComponent.component,
     applist: applist.component,
-    appProcess: appProcess.component,
+    // appProcess: appProcess.component,
   },
   mixins: [mixin],
   data() {

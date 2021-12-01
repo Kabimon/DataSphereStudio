@@ -17,8 +17,8 @@
         <div
           v-if="
             scriptType !== 'hdfsScript' &&
-            scriptType !== 'historyScript' &&
-            !readonly
+              scriptType !== 'historyScript' &&
+              !readonly
           "
           class="workbench-body-navbar-group"
         >

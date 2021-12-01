@@ -10,7 +10,6 @@
         <Button>生成API</Button> -->
       </div>
     </div>
-
     <!-- bottom -->
     <div class="assets-info-b">
       <!-- left -->
@@ -43,8 +42,9 @@
               type="text"
               size="large"
               @click="() => (isCommentEdit = true)"
-            >{{ basicData.comment }}</Button
             >
+              {{ basicData.comment }}
+            </Button>
             <Input
               v-show="isCommentEdit"
               v-model="basicData.comment"
@@ -55,7 +55,7 @@
           </div>
           <div class="assets-info-b-l-content-item">
             <label for="labels">标签：</label>
-            <Button
+            <!-- <Button
               v-show="!isLabelEdit"
               type="dashed"
               size="large"
@@ -69,13 +69,14 @@
               size="small"
               placeholder=""
               @on-enter="editSingleLabel"
-            />
+            /> -->
             <span
               v-for="label in labelOptions"
               :key="label"
               class="assets-info-label"
-            >{{ label }}</span
             >
+              {{ label }}
+            </span>
           </div>
         </div>
       </div>
@@ -83,12 +84,10 @@
 
       <div class="assets-info-b-r">
         <Tabs type="card">
-          <TabPane label="字段信息"
-          ><field-info
-            :fieldInfo="fieldInfo"
-            :rangeFieldInfo="rangeFieldInfo"
-          ></field-info
-          ></TabPane>
+          <TabPane label="字段信息">
+            <field-info :fieldInfo="fieldInfo" :rangeFieldInfo="rangeFieldInfo">
+            </field-info>
+          </TabPane>
           <!-- <TabPane label="分区信息" v-show="isParTbl"
             ><range-info :rangeInfo="rangeInfo"></range-info
           ></TabPane> -->
@@ -102,9 +101,9 @@
               ></lineage>
             </div>
           </TabPane>
-          <TabPane label="分区信息" v-if="isParTbl"
-          ><range-info :rangeInfo="rangeInfo"></range-info
-          ></TabPane>
+          <TabPane label="分区信息" v-if="isParTbl">
+            <range-info :rangeInfo="rangeInfo"></range-info>
+          </TabPane>
         </Tabs>
       </div>
     </div>
@@ -120,7 +119,7 @@ import {
   getHiveTblBasic,
   getHiveTblPartition,
   postSetLabel,
-  postSetComment
+  postSetComment,
 } from "../../service/api";
 
 export default {
@@ -128,7 +127,7 @@ export default {
   components: {
     fieldInfo,
     rangeInfo,
-    lineage
+    lineage,
   },
   data() {
     return {
@@ -143,15 +142,15 @@ export default {
       singleLabel: "",
       labelOptions: [],
 
-      isCommentEdit: false
+      isCommentEdit: false,
     };
   },
   watch: {
     "$route.params.guid": {
       handler() {
         this.init();
-      }
-    }
+      },
+    },
   },
   mounted() {
     this.init();
@@ -166,7 +165,7 @@ export default {
     getTblBasic() {
       let guid = this.$route.params.guid;
       getHiveTblBasic(guid)
-        .then(data => {
+        .then((data) => {
           if (data.result) {
             const { basic, columns, partitionKeys } = data.result;
             this.basicData = basic;
@@ -182,7 +181,7 @@ export default {
             this.rangeFieldInfo = partitionKeys.slice(0);
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("getTblBasic", err);
         });
     },
@@ -190,12 +189,12 @@ export default {
     getTblPartition() {
       let guid = this.$route.params.guid;
       getHiveTblPartition(guid)
-        .then(data => {
+        .then((data) => {
           if (data.result) {
             this.rangeInfo = data.result;
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("getTblPartition", err);
         });
     },
@@ -203,12 +202,12 @@ export default {
     getLineageData() {
       let guid = this.$route.params.guid;
       getLineage(guid)
-        .then(res => {
+        .then((res) => {
           if (res.result) {
             this.lineageData = res.result;
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("getLineageData", err);
         });
     },
@@ -220,11 +219,11 @@ export default {
         let params = that.labelOptions.slice(0);
         let guid = this.$route.params.guid;
         postSetLabel(guid, params)
-          .then(data => {
+          .then((data) => {
             console.log(data);
             that.isLabelEdit = false;
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(err);
           });
       }
@@ -235,15 +234,15 @@ export default {
       let comment = that.basicData["comment"];
       let guid = this.$route.params.guid;
       postSetComment(guid, comment)
-        .then(data => {
+        .then((data) => {
           console.log(data);
           that.isCommentEdit = false;
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         });
-    }
-  }
+    },
+  },
 };
 </script>
 

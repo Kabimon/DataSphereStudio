@@ -974,8 +974,8 @@ export default {
           const name = this.work.filepath || this.work.filename;
           const label = autoJoin
             ? `${this.$root.$t("message.scripts.script")}${
-                this.work.filename
-              } ${msg}`
+              this.work.filename
+            } ${msg}`
             : msg;
           this.$Notice.close(name);
           this.$Notice[type]({
@@ -1603,15 +1603,15 @@ export default {
         : util.convertArrayToObject(params.variable);
       const configuration = isEmpty(params.configuration)
         ? {
-            special: {},
-            runtime: {},
-            startup: {},
-          }
+          special: {},
+          runtime: {},
+          startup: {},
+        }
         : {
-            special: params.configuration.special || {},
-            runtime: params.configuration.runtime || {},
-            startup: params.configuration.startup || {},
-          };
+          special: params.configuration.special || {},
+          runtime: params.configuration.runtime || {},
+          startup: params.configuration.startup || {},
+        };
       return {
         variable,
         configuration,
@@ -1627,10 +1627,10 @@ export default {
       const configuration = isEmpty(params.variable)
         ? {}
         : {
-            special: {},
-            runtime: {},
-            startup: {},
-          };
+          special: {},
+          runtime: {},
+          startup: {},
+        };
       return {
         variable,
         configuration,

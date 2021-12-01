@@ -351,12 +351,12 @@ const partitionCensusInfoTableColumn = [
   {
     title: "分区大小",
     align: "center",
-    key: "reordCnt",
+    key: "store",
   },
   {
     title: "文件数",
     align: "center",
-    key: "store",
+    key: "fileCount",
   },
   {
     title: "创建时间",

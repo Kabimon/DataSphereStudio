@@ -27,7 +27,7 @@
                   v-for="item in buttonText"
                   :key="item.dicKey"
                   :name="item.dicValue"
-                  >{{ item.dicName }}</Dropdown-item
+                >{{ item.dicName }}</Dropdown-item
                 >
               </Dropdown-menu>
             </Dropdown>

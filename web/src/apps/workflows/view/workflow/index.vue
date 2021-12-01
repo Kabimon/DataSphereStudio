@@ -249,8 +249,8 @@ export default {
     getSelectOrchestratorList() {
       this.selectOrchestratorList = this.orchestratorModeList.list
         ? this.orchestratorModeList.list.filter((item) =>
-            this.currentProjectData.orchestratorModeList.includes(item.dicKey)
-          )
+          this.currentProjectData.orchestratorModeList.includes(item.dicKey)
+        )
         : [];
     },
     // 获取编排模式的基本信息

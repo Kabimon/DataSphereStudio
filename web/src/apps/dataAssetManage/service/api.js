@@ -48,7 +48,7 @@ export const getSelectDdl = guid =>
  */
 export const getHiveTbls = params =>
   api.fetch(
-    `${API_PATH.DATA_GOVERNANCE}hiveTbl/search?query=${params.query}&owner=${params.owner}&limit=${params.limit}&offset=${params.offset}`,
+    `${API_PATH.DATA_GOVERNANCE}hiveTbl/search?query=${params.query}&owner=${params.owner}&label=${params.label}&limit=${params.limit}&offset=${params.offset}`,
     {},
     'get'
   )
@@ -106,6 +106,18 @@ export const postSetComment = (guid, comment) =>
 export const getWorkspaceUsers = (workspackId, search) =>
   api.fetch(
     `${API_PATH.DATA_GOVERNANCE}getWorkspaceUsers/${workspackId}/${search}`,
+    {},
+    'get'
+  )
+
+/**
+ * 标签查询
+ * @params {workspaceId}
+ * @returns Array
+ */
+export const getLabels = (search) =>
+  api.fetch(
+    `${API_PATH.DATA_GOVERNANCE}labels/search?query=${search}`,
     {},
     'get'
   )

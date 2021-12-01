@@ -332,6 +332,7 @@ export default {
         pageSize: 10,
         total: 10,
       },
+      allTotal: 10,
     };
   },
   computed: {
@@ -433,6 +434,20 @@ export default {
         this.loading = false;
         this.dataList = res.list;
         this.pageCfg.total = res.total;
+        // 物理表查询 后端获取不到total 前端处理
+        /**
+         * 返回total 大于等于 当前页显示条数时 动态计算总页数：（当前页码 + 1） * 当前页需要显示条数
+         * 创建变量存储一下当前总页数 如果小于的时候就等于此变量
+         */
+        if (this.searchParams.searchType === 2) {
+          if (res.total >= this.pageCfg.pageSize) {
+            this.pageCfg.total =
+              (this.pageCfg.page + 1) * this.pageCfg.pageSize;
+            this.allTotal = (this.pageCfg.page + 1) * this.pageCfg.pageSize;
+          } else {
+            this.pageCfg.total = this.allTotal;
+          }
+        }
       });
     },
     // 获取收藏列表
