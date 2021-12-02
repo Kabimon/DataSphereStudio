@@ -1,6 +1,6 @@
 <template>
   <Drawer
-    title="新建/编辑"
+    title="新建/编辑修饰词"
     :value="_visible"
     @input="$emit('_changeVisible', $event)"
     @on-close="cancelCallBack"
@@ -8,6 +8,7 @@
     :styles="styles"
     :inner="true"
     :transfer="false"
+    :mask-closable="false"
   >
     <Form
       ref="formRef"

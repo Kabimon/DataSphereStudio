@@ -216,6 +216,8 @@ export default {
   .assets-index-b {
     flex: 1;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 }
 </style>

@@ -10,7 +10,7 @@ export const getThemedomains = ({
   page,
   size,
   name,
-  enabled = undefined
+  enabled
 } = {}) =>
   api.fetch(
     `${API_PATH.WAREHOUSE_PATH}data-warehouse/themedomains`,

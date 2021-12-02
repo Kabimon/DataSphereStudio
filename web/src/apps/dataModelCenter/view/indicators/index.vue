@@ -20,7 +20,7 @@
           search
           v-model="searchParams.name"
           enter-button
-          placeholder="指标名称"
+          placeholder="输入指标名称搜索"
           style="width: 200px"
           @on-search="handleSearch"
         />

@@ -10,6 +10,7 @@ export const getLabelList = ({
   pageSize,
   isAvailable,
   name,
+  owner,
   warehouseThemeName
 }) =>
   api.fetch(
@@ -19,6 +20,7 @@ export const getLabelList = ({
       pageSize,
       isAvailable,
       name,
+      owner,
       warehouseThemeName
     },
     "post"
@@ -62,6 +64,6 @@ export const createLabel = body => {
 export const switcLabelStatus = (id, status) =>
   api.fetch(
     `${API_PATH.DATAMODEL_PATH}labels/enable/${id}`,
-    { isAvailable: status },
+    {isAvailable: status},
     "put"
   );

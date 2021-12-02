@@ -1,6 +1,6 @@
 <template>
   <Drawer
-    title="新建/编辑"
+    title="新建/编辑标签"
     :value="_visible"
     @input="$emit('_changeVisible', $event)"
     @on-close="cancelCallBack"
@@ -8,6 +8,7 @@
     :styles="styles"
     :inner="true"
     :transfer="false"
+    :mask-closable="false"
   >
     <Form
       ref="formRef"
@@ -15,7 +16,7 @@
       :model="formState"
       label-position="top"
     >
-      <FormItem label="修饰词类别" prop="name">
+      <FormItem label="标签名称" prop="name">
         <Input v-model="formState.name" placeholder="建议为中文名" />
       </FormItem>
       <FormItem label="英文名" prop="fieldIdentifier">

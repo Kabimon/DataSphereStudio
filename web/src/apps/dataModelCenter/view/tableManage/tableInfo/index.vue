@@ -174,7 +174,7 @@
           >
             生成建表语句
           </Button>
-          <Button type="primary">复制所有字段</Button>
+          <Button type="primary" @click="handleCopyColumns">复制所有字段</Button>
         </div>
         <Table :columns="columnInfoTableColumn" :data="columnInfoTableData">
           <template slot-scope="{ row }" slot="isPartitionField">
@@ -460,6 +460,64 @@ export default {
     // 导出预览数据
     handleExportPreViewData() {
       this.$refs["preViewTable"].exportCsv({ filename: "preview.csv" });
+    },
+    /**
+     * @description 复制所有字段
+     * @param e
+     */
+    handleCopyColumns(e){
+      handleClipboard(this.formatCopyStr([{
+        title: "字段名称",
+        key: "name"
+      }, {
+        title: "别名",
+        key: "alias"
+      }, {
+        title: "是否分区字段",
+        key: "type"
+      },
+      {
+        title: "是否主键",
+        key: "isPrimary"
+      },
+      {
+        title: "描述",
+        key: "comment"
+      },{
+        title: "校验规则",
+        key: "rule"
+      },{
+        title: "关联数仓",
+        key: "modelName"
+      }],this.columnInfoTableData), e);
+    },
+    formatCopyStr(columns, columnData) {
+      let str = ""
+      // 构造头行
+      for (let i = 0; i < columns.length; i++) {
+        let column = columns[i]
+        if (i === columns.length - 1) {
+          str += column.title
+        } else {
+          str += column.title + "    "
+        }
+      }
+      // 构造表格体
+      for (let i = 0; i < columnData.length; i++) {
+        let dataItem = columnData[i]
+        let columnLine = ''
+        for (let i = 0; i < columns.length; i++) {
+          let column = columns[i]
+          if (i === columns.length - 1) {
+            columnLine += (dataItem[column.key] || '空')
+          } else {
+            columnLine += (dataItem[column.key] || '空') + "    "
+          }
+        }
+        str += "\r\n" + columnLine
+      }
+      // 返回结果
+      return str
     },
     // 生成建表语句
     handleCreateSql() {

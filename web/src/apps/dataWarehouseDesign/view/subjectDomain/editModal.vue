@@ -8,6 +8,7 @@
     :styles="styles"
     :inner="true"
     :transfer="false"
+    :mask-closable="false"
   >
     <Form
       ref="formRef"

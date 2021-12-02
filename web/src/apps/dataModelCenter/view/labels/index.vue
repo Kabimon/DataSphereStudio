@@ -11,21 +11,17 @@
           <Option :value="1"> 启用</Option>
           <Option :value="0"> 禁用</Option>
         </Select>
-        <Select
-          v-model="searchParams.warehouseThemeName"
+        <Input
+          v-model="searchParams.owner"
+          placeholder="负责人"
           style="width: 100px"
-          placeholder="请选择主题"
-        >
-          <Option v-for="item in themesList" :value="item.name" :key="item.id">
-            {{ item.name }}
-          </Option>
-        </Select>
+        />
         <Input
           search
           v-model="searchParams.name"
           enter-button
-          placeholder="输入名称搜索"
-          style="width: 300px"
+          placeholder="输入标签名称搜索"
+          style="width: 200px"
           @on-search="handleSearch"
         />
       </div>
@@ -106,7 +102,6 @@ import {
   delLabel,
   switcLabelStatus,
 } from "@dataModelCenter/service/api/labels";
-import {getThemesList} from "@/apps/dataModelCenter/service/api/common";
 import formatDate from "@dataModelCenter/utils/formatDate";
 import EditModal from "./editModal.vue";
 
@@ -135,7 +130,7 @@ export default {
           await delLabel(id).catch(() => {
           });
           this.loading = false;
-          this.handleGetData(true);
+          await this.handleGetData(true);
         },
       });
     },
@@ -152,14 +147,14 @@ export default {
       this.loading = true;
       await switcLabelStatus(id, 1);
       this.loading = false;
-      this.handleGetData(true);
+      await this.handleGetData(true);
     },
     // 禁用
     async handleDisable(id) {
       this.loading = true;
       await switcLabelStatus(id, 0);
       this.loading = false;
-      this.handleGetData(true);
+      await this.handleGetData(true);
     },
     // 搜索
     handleSearch() {
@@ -172,25 +167,18 @@ export default {
       }
       this.loading = true;
       let {list, total} = await getLabelList({
-        page: this.pageCfg.page,
-        size: this.pageCfg.pageSize,
+        pageNum: this.pageCfg.page,
+        pageSize: this.pageCfg.pageSize,
         name: this.searchParams.name,
         isAvailable: this.searchParams.isAvailable,
-        warehouseThemeName: this.searchParams.warehouseThemeName,
+        owner: this.searchParams.owner,
       });
       this.loading = false;
       this.dataList = list;
       this.pageCfg.total = total;
     },
-    async handleGetSubjectDomainList() {
-      this.loading = true;
-      let {list} = await getThemesList();
-      this.loading = false;
-      this.themesList = list;
-    },
   },
   mounted() {
-    this.handleGetSubjectDomainList();
     this.handleGetData(true);
   },
   watch: {
@@ -203,11 +191,9 @@ export default {
       // 搜索参数
       searchParams: {
         name: "",
-        warehouseThemeName: "",
-        isAvailable: undefined,
+        owner: "",
+        isAvailable: void 0,
       },
-      // 主题列表
-      themesList: [],
       // 表格列
       columns: [
         {
@@ -226,6 +212,10 @@ export default {
           title: "状态",
           key: "isAvailable",
           slot: "isAvailable",
+        },
+        {
+          title: "负责人",
+          key: "owner"
         },
         {
           title: "引用次数",

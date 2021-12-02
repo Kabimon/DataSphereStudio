@@ -3,8 +3,14 @@ import api from "@/common/service/api";
 
 /**
  * @description 表搜索
- * @param {Object} 搜索条件
- * @returns {Promise}
+ * @param name {String} 表名
+ * @param warehouseLayerName {String} 分层
+ * @param warehouseThemeName {String} 主题
+ * @param pageSize {Number} 分页大小
+ * @param pageNum {Number} 当前页
+ * @param modelType {Number} 模型类型
+ * @param modelName {String} 模型名字
+ * @param tableType {Number} 逻辑表或物理表
  */
 export const searchTable = ({
   name,
@@ -33,13 +39,13 @@ export const searchTable = ({
 
 /**
  * @description 获取收藏表
- * @param {Object} 用户名
  * @returns {Promise}
+ * @param userName 用户名
  */
 export const getCollectList = userName => {
   return api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/collect/list`,
-    { user: userName },
+    {user: userName},
     "post"
   );
 };
@@ -58,7 +64,7 @@ export const addCollect = body => {
 export const delCancel = tableName => {
   return api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/collect/cancel`,
-    { tableName },
+    {tableName},
     "post"
   );
 };
@@ -70,7 +76,7 @@ export const delCancel = tableName => {
 export const getDataBasesList = (name = "") => {
   return api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/databases/list`,
-    { name },
+    {name},
     "post"
   );
 };
@@ -90,7 +96,7 @@ export const getTableInfoById = id => {
 export const getTableInfoByName = (name = "", guid = "") => {
   return api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/name`,
-    { name, guid },
+    {name, guid},
     "post"
   );
 };
@@ -102,7 +108,7 @@ export const getTableInfoByName = (name = "", guid = "") => {
 export const getTablesPartitionStats = (name = "", guid = "") => {
   return api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/partition/stats`,
-    { name, guid },
+    {name, guid},
     "post"
   );
 };
@@ -114,7 +120,7 @@ export const getTablesPartitionStats = (name = "", guid = "") => {
 export const getTablesCreateSql = (tableId = "", guid = "") => {
   return api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/create/sql`,
-    { tableId, guid },
+    {tableId, guid},
     "post"
   );
 };
@@ -126,7 +132,7 @@ export const getTablesCreateSql = (tableId = "", guid = "") => {
 export const getTablesPreview = tableName => {
   return api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/data/preview`,
-    { tableName },
+    {tableName},
     "post"
   );
 };
@@ -139,7 +145,7 @@ export const getTablesPreview = tableName => {
 export const getDictionariesList = type =>
   api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/dictionaries/list`,
-    { type },
+    {type},
     "post"
   );
 
@@ -165,7 +171,7 @@ export const updateTable = (id, body) =>
  *
  */
 export const createTable = tableId =>
-  api.fetch(`${API_PATH.DATAMODEL_PATH}tables/create`, { tableId }, "post");
+  api.fetch(`${API_PATH.DATAMODEL_PATH}tables/create`, {tableId}, "post");
 
 /**
  * 版本列表
@@ -173,7 +179,7 @@ export const createTable = tableId =>
  *
  */
 export const getVersionListByName = name =>
-  api.fetch(`${API_PATH.DATAMODEL_PATH}tables/versions/list`, { name }, "post");
+  api.fetch(`${API_PATH.DATAMODEL_PATH}tables/versions/list`, {name}, "post");
 
 /**
  * 版本回退
@@ -183,7 +189,7 @@ export const getVersionListByName = name =>
 export const tableVersionRollback = (name, version) =>
   api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/versions/rollback`,
-    { name, version },
+    {name, version},
     "post"
   );
 
@@ -203,7 +209,7 @@ export const generatorNewVersion = (id, data) =>
 export const checkTableData = tableName =>
   api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/check/data`,
-    { tableName },
+    {tableName},
     "post"
   );
 

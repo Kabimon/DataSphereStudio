@@ -394,7 +394,7 @@ export default {
         // 文件格式
         fileType: "ORC",
         // 地址
-        location: "/data/", //
+        location: "", //
         // 标签
         label: "",
         // 字段信息

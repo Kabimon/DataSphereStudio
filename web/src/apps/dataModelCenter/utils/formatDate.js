@@ -1,8 +1,8 @@
 import moment from "moment";
 /**
- *  转换时间戳到字符串
- *  @param (Number)
- *  @return (String)
+ * @description  转换时间戳到字符串
+ *  @param value {Number} 时间戳
+ *  @return {String}
  */
 export default function(value) {
   if (!value) return "";
