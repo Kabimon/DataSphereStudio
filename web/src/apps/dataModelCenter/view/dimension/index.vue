@@ -29,8 +29,7 @@
         新增维度
       </Button>
     </div>
-    <Table
-      :columns="columns"
+    <Table :columns="columns"
       :data="datalist"
       :loading="loading"
       style="margin-bottom: 16px"
@@ -106,7 +105,7 @@ import {
   getDimensions,
   switchDimensionsStatus,
   delDimensions,
-} from "@dataModelCenter/service/api";
+} from "@dataModelCenter/service/api/dimensions";
 import formatDate from "@dataModelCenter/utils/formatDate";
 import EditModal from "./editModal.vue";
 export default {

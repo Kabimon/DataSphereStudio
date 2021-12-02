@@ -26,7 +26,10 @@ export default {
     // value
     value: {},
     // 是否多选
-    multiple: {},
+    multiple: {
+      type: Boolean,
+      default: () => false
+    },
     // 请求方法
     fetch: {
       type: Function,
@@ -94,7 +97,6 @@ export default {
   methods: {
     // 搜索方法
     handleGetData(query = "") {
-      console.log(query === "");
       // 结束之前的任务
       if (this.sign) clearTimeout(this.sign);
       // 创建新任务

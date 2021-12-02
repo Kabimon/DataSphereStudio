@@ -300,7 +300,6 @@ export default {
      */
     checkEditValue() {
       let resArr = [];
-      console.log(this.editData.name);
       if (!Boolean(/^[a-zA-Z0-9_]{1,100}$/g.test(this.editData.name))) {
         resArr.push("字段名必须是英文字母下划线,且长度在1-100字符之间");
       }

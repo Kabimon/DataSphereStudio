@@ -2,8 +2,9 @@ import API_PATH from "@/common/config/apiPath.js";
 import api from "@/common/service/api";
 
 /**
- * 搜索表
- * @returns {Object.result}
+ * @description 表搜索
+ * @param {Object} 搜索条件
+ * @returns {Promise}
  */
 export const searchTable = ({
   name,
@@ -31,8 +32,9 @@ export const searchTable = ({
   );
 
 /**
- * 获取收藏列表
- * @returns {Object.result}
+ * @description 获取收藏表
+ * @param {Object} 用户名
+ * @returns {Promise}
  */
 export const getCollectList = userName => {
   return api.fetch(
@@ -42,15 +44,16 @@ export const getCollectList = userName => {
   );
 };
 /**
- * 添加收藏
- * @returns {Object.result}
+ * @description 添加收藏
+ * @param
+ * @returns {Promise}
  */
 export const addCollect = body => {
   return api.fetch(`${API_PATH.DATAMODEL_PATH}tables/collect`, body, "post");
 };
 /**
  * 取消收藏
- * @returns {Object.result}
+ * @returns {Promise}
  */
 export const delCancel = tableName => {
   return api.fetch(
@@ -62,7 +65,7 @@ export const delCancel = tableName => {
 
 /**
  * 数据库列表
- * @returns {Object.result}
+ * @returns {Promise}
  */
 export const getDataBasesList = (name = "") => {
   return api.fetch(
@@ -74,7 +77,7 @@ export const getDataBasesList = (name = "") => {
 
 /**
  * 根据id获取表详情
- * @returns {Object.result}
+ * @returns {Promise}
  */
 export const getTableInfoById = id => {
   return api.fetch(`${API_PATH.DATAMODEL_PATH}tables/${id}`, {}, "get");
@@ -82,7 +85,7 @@ export const getTableInfoById = id => {
 
 /**
  * 根据name和guid获取表详情
- * @returns {Object.result}
+ * @returns {Promise}
  */
 export const getTableInfoByName = (name = "", guid = "") => {
   return api.fetch(
@@ -94,7 +97,7 @@ export const getTableInfoByName = (name = "", guid = "") => {
 
 /**
  * 分区统计信息
- * @returns {Object.result}
+ * @returns {Promise}
  */
 export const getTablesPartitionStats = (name = "", guid = "") => {
   return api.fetch(
@@ -106,7 +109,7 @@ export const getTablesPartitionStats = (name = "", guid = "") => {
 
 /**
  * 生成建表语句
- * @returns {Object.result}
+ * @returns {Promise}
  */
 export const getTablesCreateSql = (tableId = "", guid = "") => {
   return api.fetch(
@@ -118,7 +121,7 @@ export const getTablesCreateSql = (tableId = "", guid = "") => {
 
 /**
  * 获取预览信息
- * @returns {Object.result}
+ * @returns {Promise}
  */
 export const getTablesPreview = tableName => {
   return api.fetch(
@@ -129,24 +132,8 @@ export const getTablesPreview = tableName => {
 };
 
 /**
- * 主题域列表
- * @returns {Object.result}
- *
- */
-export const getThemesList = () =>
-  api.fetch(`${API_PATH.DATAMODEL_PATH}tables/themes/list`, {}, "post");
-
-/**
- * 分层列表
- * @returns {Object.result}
- *
- */
-export const getLayersList = () =>
-  api.fetch(`${API_PATH.DATAMODEL_PATH}tables/layers/list`, {}, "post");
-
-/**
  * 字典列表
- * @returns {Object.result}
+ * @returns {Promise}
  *
  */
 export const getDictionariesList = type =>
@@ -158,7 +145,7 @@ export const getDictionariesList = type =>
 
 /**
  * 新增表
- * @returns {Object.result}
+ * @returns {Promise}
  *
  */
 export const addTable = body =>
@@ -166,7 +153,7 @@ export const addTable = body =>
 
 /**
  * 更新表
- * @returns {Object.result}
+ *  @returns {Promise}
  *
  */
 export const updateTable = (id, body) =>
@@ -174,7 +161,7 @@ export const updateTable = (id, body) =>
 
 /**
  * 执行表创建
- * @returns {Object.result}
+ *  @returns {Promise}
  *
  */
 export const createTable = tableId =>
@@ -182,7 +169,7 @@ export const createTable = tableId =>
 
 /**
  * 版本列表
- * @returns {Object.result}
+ *  @returns {Promise}
  *
  */
 export const getVersionListByName = name =>
@@ -190,7 +177,7 @@ export const getVersionListByName = name =>
 
 /**
  * 版本回退
- * @returns {Object.result}
+ *  @returns {Promise}
  *
  */
 export const tableVersionRollback = (name, version) =>
@@ -202,7 +189,7 @@ export const tableVersionRollback = (name, version) =>
 
 /**
  * 新增版本
- * @returns {Object.result}
+ *  @returns {Promise}
  *
  */
 export const generatorNewVersion = (id, data) =>
@@ -210,7 +197,7 @@ export const generatorNewVersion = (id, data) =>
 
 /**
  * 检查表是否有数据
- * @returns {Object.result}
+ * @returns {Promise}
  *
  */
 export const checkTableData = tableName =>
@@ -228,11 +215,10 @@ export const checkTableData = tableName =>
 export const deleteTableById = id =>
   api.fetch(`${API_PATH.DATAMODEL_PATH}tables/${id}`, {}, "delete");
 
-
 /**
  * 主动绑定
- * @returns {Object.result}
+ *  @returns {Promise}
  *
  */
-export const bindTable = (id) =>
+export const bindTable = id =>
   api.fetch(`${API_PATH.DATAMODEL_PATH}tables/bind/${id}`, "put");

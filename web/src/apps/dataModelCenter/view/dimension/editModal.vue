@@ -85,12 +85,12 @@
 </template>
 
 <script>
+import { getThemesList } from "@/apps/dataModelCenter/service/api/common";
 import {
   createDimensions,
   getDimensionsById,
   editDimensions,
-  getThemesList,
-} from "@dataModelCenter/service/api";
+} from "@/apps/dataModelCenter/service/api/dimensions";
 import mixin from "@/common/service/mixin";
 
 export default {

@@ -31,13 +31,13 @@
     "paths": {
       "@/*": ["src/*"],
       "@component/*": ["src/component/*"],
-      "@apiServices": ["src/apps/apiServices"],
-      "@dataAssetManage": ["src/apps/dataAssetManage"],
-      "@dataModelCenter": ["src/apps/dataModelCenter"],
-      "@dataWarehouseDesign": ["src/apps/dataWarehouseDesign"],
-      "@scriptis": ["src/apps/scriptis"],
-      "@workflows": ["src/apps/workflows"],
-      "@workspace": ["src/apps/workspace"],
+      "@apiServices/*": ["src/apps/apiServices/*"],
+      "@dataAssetManage/*": ["src/apps/dataAssetManage/*"],
+      "@dataModelCenter/*": ["src/apps/dataModelCenter/*"],
+      "@dataWarehouseDesign/*": ["src/apps/dataWarehouseDesign/*"],
+      "@scriptis/*": ["src/apps/scriptis/*"],
+      "@workflows/*": ["src/apps/workflows/*"],
+      "@workspace/*": ["src/apps/workspace/*"],
     },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like `./node_modules/@types`. */

@@ -26,7 +26,6 @@ VueRouter.prototype.push = function push(location) {
 const router = new VueRouter({ routes });
 // 路由跳转之前
 router.beforeEach((to, from, next) => {
-  console.log(to)
   if (to.meta) {
     // 给路由添加参数，控制显示对应header
     if (to.meta.header) {

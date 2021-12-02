@@ -92,6 +92,16 @@ const routes = [
           publicPage: true,
           icon: "ios-paper"
         }
+      },
+      {
+        name: "labels",
+        path: "/dataModelCenter/labels",
+        component: () => import("./view/labels/index.vue"),
+        meta: {
+          title: "标签",
+          publicPage: true,
+          icon: "ios-paper"
+        }
       }
     ]
   }

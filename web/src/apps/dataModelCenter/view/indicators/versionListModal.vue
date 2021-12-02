@@ -33,7 +33,7 @@
 import {
   getIndicatorsVersionList,
   rollbackIndicatorsVersion,
-} from "@dataModelCenter/service/api";
+} from "@dataModelCenter/service/api/indicators";
 import formatDate from "@dataModelCenter/utils/formatDate";
 
 export default {

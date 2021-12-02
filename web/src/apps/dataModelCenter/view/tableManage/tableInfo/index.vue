@@ -34,11 +34,11 @@
             </DropdownMenu>
           </Dropdown> -->
         </div>
-        <p style="margin-bottom: 16px">{{ generalData.comment }}</p>
+        <p style="margin-bottom: 16px">描述： {{ generalData.comment || "无" }}</p>
         <p>
-          <Tag color="blue">HIVE</Tag>
-          <Tag color="blue">离线表</Tag>
-          <Tag color="blue">物理表</Tag>
+          <Tag v-for="label in baseicData.label" :key="label" color="blue">
+            {{ label }}
+          </Tag>
         </p>
       </Card>
     </div>
@@ -292,7 +292,7 @@ import {
   getCollectList,
   addCollect,
   delCancel,
-} from "@dataModelCenter/service/tableManageApi";
+} from "@/apps/dataModelCenter/service/api/tableManage";
 import formatDate from "@dataModelCenter/utils/formatDate";
 import {
   fomatSqlForShow,
@@ -541,7 +541,7 @@ export default {
         // 主题域
         warehouseThemeName: detail.warehouseThemeName,
         // 标签
-        label: detail.label ? detail.label.split(";") : [],
+        label: detail.label ? detail.label.split(",") : [],
         // 创建时间
         createTime: detail.createTime,
         // 最后修改时间

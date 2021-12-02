@@ -302,14 +302,14 @@
 
 <script>
 import {
-  getMeasures,
-  getDimensions,
-  getIndicators,
   getThemesList,
   getCyclesList,
   getModifiersList,
   getLayersList,
-} from "@dataModelCenter/service/api";
+} from "@/apps/dataModelCenter/service/api/common";
+import { getMeasures } from "@/apps/dataModelCenter/service/api/measures";
+import { getDimensions } from "@/apps/dataModelCenter/service/api/dimensions";
+import { getIndicators } from "@/apps/dataModelCenter/service/api/indicators";
 import SelectPage from "@dataModelCenter/components/selectPage";
 import { extend } from "@/common/util/object";
 

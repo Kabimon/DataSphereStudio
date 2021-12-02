@@ -53,26 +53,19 @@
             <span slot="close">否</span>
           </i-switch>
         </FormItem>
-        <FormItem label="主题域" prop="warehouseThemeName">
-          <SelectPage
-            v-model="formState._warehouseTheme"
-            placeholder="请选择主题域和主题"
-            :fetch="handleGetThemesList"
-          />
-        </FormItem>
         <FormItem label="描述" prop="comment">
           <Input type="textarea" v-model="formState.comment" placeholder="描述">
           </Input>
         </FormItem>
         <h2 class="form-block-title">作用范围</h2>
-        <FormItem label="主题域" prop="themeArea">
+        <FormItem label="主题域" prop="_themeArea">
           <SelectPage
             v-model="formState._themeArea"
             placeholder="主题域"
             :fetch="handleGetThemesList"
           />
         </FormItem>
-        <FormItem label="分层" prop="layerArea">
+        <FormItem label="分层" prop="_layerArea">
           <SelectPage
             v-model="formState._layerArea"
             placeholder="分层"
@@ -357,18 +350,20 @@
 
 <script>
 import {
-  getMeasures,
-  getDimensions,
-  getIndicators,
   getThemesList,
   getCyclesList,
   getModifiersList,
   getLayersList,
+} from "@/apps/dataModelCenter/service/api/common";
+import { getMeasures } from "@/apps/dataModelCenter/service/api/measures";
+import { getDimensions } from "@/apps/dataModelCenter/service/api/dimensions";
+import {
+  getIndicators,
   createIndicators,
   editIndicators,
   getIndicatorsById,
   buildIndicatorsVersion,
-} from "@dataModelCenter/service/api";
+} from "@/apps/dataModelCenter/service/api/indicators";
 import SelectPage from "@dataModelCenter/components/selectPage";
 import mixin from "@/common/service/mixin";
 import { extend } from "@/common/util/object";
@@ -415,10 +410,6 @@ export default {
         name: "",
         fieldIdentifier: "",
         comment: "",
-        // 主题 名字|英文名
-        _warehouseTheme: "",
-        // warehouseThemeName
-        // warehouseThemeNameEn
         owner: this.getUserName(),
         principalName: "ALL",
         isCoreIndicator: 0,
@@ -595,6 +586,8 @@ export default {
           label: "ALL",
         },
       ],
+      // 引用次数
+      refCount: 0
     };
   },
   methods: {

@@ -179,10 +179,12 @@ import {
   searchTable,
   getCollectList,
   getDataBasesList,
+  deleteTableById,
+} from "@/apps/dataModelCenter/service/api/tableManage";
+import {
   getThemesList,
   getLayersList,
-  deleteTableById,
-} from "@dataModelCenter/service/tableManageApi";
+} from "@/apps/dataModelCenter/service/api/common";
 import formatDate from "@dataModelCenter/utils/formatDate";
 import VersionListModal from "./versionListModal.vue";
 import mixin from "@/common/service/mixin";

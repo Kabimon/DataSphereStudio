@@ -106,7 +106,7 @@ import {
   getMeasures,
   switchMeasuresStatus,
   delMeasures,
-} from "@dataModelCenter/service/api";
+} from "@/apps/dataModelCenter/service/api/measures";
 import formatDate from "@dataModelCenter/utils/formatDate";
 import EditModal from "./editModal.vue";
 export default {

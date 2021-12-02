@@ -51,12 +51,10 @@
 </template>
 
 <script>
-import { getThemesList } from "@dataModelCenter/service/tableManageApi";
-import {
-  getMeasures,
-  getIndicators,
-  getDimensions,
-} from "@dataModelCenter/service/api";
+import { getThemesList } from "@dataModelCenter/service/api/common";
+import { getMeasures } from "@dataModelCenter/service/api/measures";
+import { getIndicators } from "@dataModelCenter/service/api/indicators";
+import { getDimensions } from "@dataModelCenter/service/api/dimensions";
 export default {
   model: {
     prop: "_visible",

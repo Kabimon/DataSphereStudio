@@ -186,11 +186,14 @@
 
 <script>
 import {
-  getLayersList,
-  getThemesList,
   getDataBasesList,
   getDictionariesList,
-} from "@dataModelCenter/service/tableManageApi";
+} from "@/apps/dataModelCenter/service/api/tableManage";
+import {
+  getLayersList,
+  getThemesList,
+} from "@/apps/dataModelCenter/service/api/common";
+
 export default {
   data() {
     return {

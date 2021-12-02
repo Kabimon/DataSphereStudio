@@ -1,6 +1,6 @@
 <template>
   <Drawer
-    title="新建/编辑度量"
+    title="新建/编辑"
     :value="_visible"
     @input="$emit('_changeVisible', $event)"
     @on-close="cancelCallBack"
@@ -10,47 +10,20 @@
     :transfer="false"
   >
     <Form
-      :model="formState"
       ref="formRef"
       :rules="ruleValidate"
+      :model="formState"
       label-position="top"
     >
-      <FormItem label="名称" prop="name">
-        <Input v-model="formState.name" placeholder="建议为中文名"></Input>
+      <FormItem label="修饰词类别" prop="name">
+        <Input v-model="formState.name" placeholder="建议为中文名" />
       </FormItem>
-      <FormItem label="字段标识" prop="fieldIdentifier">
-        <Input
-          v-model="formState.fieldIdentifier"
-          placeholder="必须为英文字段名"
-        >
-        </Input>
-      </FormItem>
-      <FormItem label="计算公式" prop="formula">
-        <Input
-          type="textarea"
-          v-model="formState.formula"
-          placeholder="请输入计算公式。如：substring(字段名)"
-        >
-        </Input>
-      </FormItem>
-      <FormItem label="主题域" prop="warehouseThemeName">
-        <Select
-          v-model="formState._warehouseTheme"
-          placeholder="请选择主题域和主题"
-        >
-          <Option
-            v-for="item in themesList"
-            :value="`${item.name}|${item.enName}`"
-            :key="item.id"
-          >
-            {{ item.name }}
-          </Option>
-        </Select>
+      <FormItem label="英文名" prop="fieldIdentifier">
+        <Input v-model="formState.fieldIdentifier" placeholder="英文名"></Input>
       </FormItem>
       <FormItem label="负责人" prop="owner">
         <Input v-model="formState.owner" placeholder="默认为创建用户"></Input>
       </FormItem>
-
       <FormItem label="可用角色" prop="principalName">
         <Select
           multiple
@@ -68,9 +41,46 @@
         </Select>
       </FormItem>
       <FormItem label="描述" prop="comment">
-        <Input type="textarea" v-model="formState.comment" placeholder="描述">
-        </Input>
+        <Input type="textarea" v-model="formState.comment" placeholder="描述" />
       </FormItem>
+      <FormItem label="主题域" prop="_warehouseTheme">
+        <Select
+          v-model="formState._warehouseTheme"
+          placeholder="请选择主题域和主题"
+        >
+          <Option
+            v-for="item in themesList"
+            :value="`${item.name}|${item.enName}`"
+            :key="item.id"
+          >
+            {{ item.name }}
+          </Option>
+        </Select>
+      </FormItem>
+      <h3 style="margin-bottom: 12px"><b>标签词列表</b></h3>
+      <FormItem prop="paramMap">
+        <Table
+          style="margin-bottom: 12px"
+          :columns="tokenListColumns"
+          :data="formState.paramMap"
+        >
+          <template slot-scope="{ index }" slot="name">
+            <Input
+              type="text"
+              placeholder="名字"
+              v-model="formState.paramMap[index].name"
+            />
+          </template>
+          <template slot-scope="{ index }" slot="action">
+            <Button type="error" @click="handleDeleteOneToken(index)">
+              删除
+            </Button>
+          </template>
+        </Table>
+      </FormItem>
+      <div style="display: flex; justify-content: flex-end">
+        <Button type="primary" @click="handleAddToken()">新增</Button>
+      </div>
     </Form>
     <Spin v-if="loading" fix></Spin>
     <div class="drawer-footer">
@@ -89,10 +99,10 @@
 
 <script>
 import {
-  createMeasures,
-  editMeasures,
-  getMeasuresById,
-} from "@/apps/dataModelCenter/service/api/measures";
+  updateLabel,
+  createLabel,
+  getLabelById,
+} from "@dataModelCenter/service/api/labels";
 import { getThemesList } from "@/apps/dataModelCenter/service/api/common";
 import mixin from "@/common/service/mixin";
 export default {
@@ -105,7 +115,6 @@ export default {
     // 是否可见
     _visible: {
       type: Boolean,
-      required: true,
     },
     // 模式
     mode: {
@@ -125,23 +134,35 @@ export default {
   },
   data() {
     return {
-      // 表单数据
-      formState: {
-        name: "",
-        fieldIdentifier: "",
-        owner: this.getUserName(),
-        comment: "",
-        formula: "",
-        _warehouseTheme: "",
-        principalName: "ALL",
-        isAvailable: 1,
+      // 底部样式
+      styles: {
+        height: "calc(100% - 55px)",
+        overflow: "auto",
+        paddingBottom: "53px",
+        position: "static",
       },
+      // 词列表列
+      tokenListColumns: [
+        {
+          title: "标签词名称",
+          key: "name",
+          slot: "name",
+        },
+        {
+          title: "操作",
+          slot: "action",
+        },
+      ],
+      // 是否加载中
+      loading: false,
+      // 主题列表
+      themesList: [],
       // 验证规则
       ruleValidate: {
         name: [
           {
             required: true,
-            message: "名称必填",
+            message: "标签名必填",
             trigger: "submit",
           },
           {
@@ -153,7 +174,7 @@ export default {
         fieldIdentifier: [
           {
             required: true,
-            message: "标识符必填",
+            message: "英文名必填",
             trigger: "submit",
           },
           {
@@ -163,26 +184,30 @@ export default {
           },
         ],
       },
-      // 是否加载中
-      loading: false,
-      // 主题列表
-      themesList: [],
+      // 表单数据
+      formState: {
+        name: "",
+        fieldIdentifier: "",
+        comment: "",
+        _warehouseTheme: "",
+        paramMap: [],
+        owner: this.getUserName(),
+        principalName: "",
+        isAvailable: 1,
+      },
+      // 引用次数
+      refCount: 0,
       // 角色列表
       authorityList: [
         {
           value: "ALL",
           label: "ALL",
         },
+        {
+          value: "角色1",
+          label: "角色1",
+        },
       ],
-      // 引用次数
-      refCount: 0,
-      // 底部样式
-      styles: {
-        height: "calc(100% - 55px)",
-        overflow: "auto",
-        paddingBottom: "53px",
-        position: "static",
-      },
     };
   },
   methods: {
@@ -191,23 +216,30 @@ export default {
      */
     async handleGetById(id) {
       this.loading = true;
-      let { detail } = await getMeasuresById(id);
+      let { detail } = await getLabelById(id);
       this.loading = false;
       this.formState.name = detail.name;
+      this.formState.fieldIdentifier = detail.fieldIdentifier;
+      this.formState.comment = detail.comment;
+      this.formState.principalName = detail.principalName;
       this.formState.isAvailable = detail.isAvailable;
       this.formState.owner = detail.owner;
-      this.formState.principalName = detail.principalName;
-      this.formState.comment = detail.comment;
-      this.formState.fieldIdentifier = detail.fieldIdentifier;
+      this.formState.paramMap = Object.keys(JSON.parse(detail.params)).map(
+        (item) => ({
+          name: item,
+        })
+      );
       this.formState._warehouseTheme = `${detail.warehouseThemeName}|${detail.warehouseThemeNameEn}`;
-      this.formState.formula = detail.formula;
       this.refCount = detail.refCount;
     },
+    /**
+     * @description 关掉弹窗动作
+     */
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
     },
     /**
-     * @description 处理取消按钮
+     * @description  取消操作
      */
     handleCancel() {
       this.$refs["formRef"].resetFields();
@@ -223,25 +255,30 @@ export default {
         _warehouseTheme: undefined,
         warehouseThemeName,
         warehouseThemeNameEn,
+        paramMap: (() => {
+          let map = {};
+          for (let i = 0; i < this.formState.paramMap.length; i++) {
+            const element = this.formState.paramMap[i];
+            map[element.name] = element.name;
+          }
+          return map;
+        })(),
       });
     },
     /**
-     * @description 表单完成
+     * @description 表单提交
      */
     async handleOk() {
       this.$refs["formRef"].validate(async (valid) => {
         if (valid) {
-          this.loading = true;
           try {
+            this.loading = true;
             if (this.mode === "create") {
-              await createMeasures(this.handleGetFormatData());
+              await createLabel(this.handleGetFormatData());
               this.loading = false;
             }
             if (this.mode === "edit") {
-              await editMeasures(
-                this.id,
-                Object.assign({}, this.formState, this.handleGetFormatData())
-              );
+              await updateLabel(this.id, this.handleGetFormatData());
               this.loading = false;
             }
             this.$refs["formRef"].resetFields();
@@ -255,7 +292,21 @@ export default {
       });
     },
     /**
-     * 获取主题
+     * @description 删除某个token
+     */
+    handleDeleteOneToken(index) {
+      this.formState.paramMap.splice(index, 1);
+    },
+    /**
+     * @description 添加一个token
+     */
+    handleAddToken() {
+      this.formState.paramMap.push({
+        name: "",
+      });
+    },
+    /**
+     * @description 获取主题列表
      */
     async handleGetSubjectDomainList() {
       this.loading = true;

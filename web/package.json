@@ -29,13 +29,14 @@
     ]
   },
   "dependencies": {
+    "@antv/g6": "^4.5.0",
     "axios": "0.19.2",
     "butterfly-dag": "^4.1.8",
     "clipboard": "^2.0.8",
     "core-js": "2.6.11",
     "dexie": "2.0.4",
     "dt-sql-parser": "1.2.1",
-    "iview": "3.5.4",
+    "iview": "^3.5.4",
     "lodash": "4.17.20",
     "md5": "2.3.0",
     "moment": "2.29.1",

@@ -139,8 +139,22 @@
                 </Option>
               </Select>
             </FormItem>
+
             <FormItem label="标签" prop="label">
-              <Input v-model="formState.label" placeholder="自动填充"> </Input>
+              <Select
+                multiple
+                placeholder="请选择标签"
+                :value="(formState.label || '').split(',')"
+                @input="formState.label = $event.join()"
+              >
+                <Option
+                  v-for="item in labelList"
+                  :value="item.name"
+                  :key="item.id"
+                >
+                  {{ item.name }}
+                </Option>
+              </Select>
             </FormItem>
             <FormItem label="描述" prop="comment">
               <Input
@@ -225,21 +239,21 @@
 
 <script>
 import {
-  getTableInfoById,
-  getTableInfoByName,
-  getLayersList,
-  getThemesList,
-  getDataBasesList,
-  getDictionariesList,
   addTable,
-  updateTable,
+  bindTable,
+  checkTableData,
   createTable,
   generatorNewVersion,
-  checkTableData,
-  bindTable,
-} from "@dataModelCenter/service/tableManageApi";
-import { getCyclesList } from "@dataModelCenter/service/api";
+  getDataBasesList,
+  getDictionariesList,
+  getTableInfoById,
+  getTableInfoByName,
+  updateTable,
+} from "@dataModelCenter/service/api/tableManage";
+import {getCyclesList, getLayersList, getThemesList,} from "@dataModelCenter/service/api/common";
 import ColumnEditor from "./columnEditor.vue";
+import {getLabelList} from "@/apps/dataModelCenter/service/api/labels";
+
 export default {
   components: { ColumnEditor },
   data() {
@@ -401,6 +415,8 @@ export default {
       dataBasesList: [],
       // 生命周期列表
       lifecycleList: [],
+      // 标签列表
+      labelList: [],
       // 压缩格式列表
       compressList: [],
       // 文件格式列表
@@ -468,7 +484,7 @@ export default {
         name: detail.name,
         version: detail.version,
       };
-      let newFormState = {
+      this.formState = {
         // 所属库
         dataBase: detail.dataBase || detail.name.split(".")[0] || "",
         // 表名
@@ -517,7 +533,6 @@ export default {
           };
         }),
       };
-      this.formState = newFormState;
     },
     /**
      * @description 新增版本
@@ -539,17 +554,16 @@ export default {
     /**
      * @description 执行表创建
      */
-    handleTableCreate(id) {
+    async handleTableCreate(id) {
       this.loading = true;
-      console.log(id || this.config.id);
-      return createTable(id || this.config.id)
-        .then(() => {
-          this.loading = false;
-          this.handleBindTable(id);
-        })
-        .catch(() => {
-          this.loading = false;
-        });
+      try {
+        await createTable(id || this.config.id);
+        await bindTable(id || this.config.id);
+        this.loading = false;
+        this.$Message.success("建表成功");
+      } catch (error) {
+        this.loading = false;
+      }
     },
     /**
      * @description 获取前置选填数据
@@ -562,12 +576,15 @@ export default {
         getDataBasesList(),
         getDictionariesList(),
         getCyclesList(),
-      ]).then(([res1, res2, res3, res4, res5]) => {
+        getLabelList({}),
+      ]).then(([res1, res2, res3, res4, res5, res6]) => {
         this.loading = false;
         this.layersList = res1.list;
         this.themesList = res2.list;
         this.dataBasesList = res3.list;
         this.lifecycleList = res5.list;
+        this.labelList = res6.list;
+        console.log(this.labelList);
         this.compressList = res4.list.filter(
           (item) => item.type === "COMPRESS"
         );
@@ -610,8 +627,7 @@ export default {
       if (this.$refs["ColumnEditor"].isEditMode()) {
         return this.$Message.warning("请先保存字段");
       }
-      let bOk = this.$refs["ColumnEditor"].checkColumnData();
-      if (!bOk) {
+      if (!this.$refs["ColumnEditor"].checkColumnData()) {
         return false;
       }
       Promise.all([
@@ -631,7 +647,7 @@ export default {
                     path: "/dataModelCenter/tableManage/tableSearch",
                   });
                 },
-                onCancel: async () => {
+                onCancel: () => {
                   this.$router.push({
                     path: "/dataModelCenter/tableManage/tableSearch",
                   });
@@ -647,17 +663,8 @@ export default {
                 path: "/dataModelCenter/tableManage/tableSearch",
               });
             });
-            return;
           }
         }
-      });
-    },
-    /**
-     * @description 主动绑定
-     */
-    handleBindTable(id) {
-      bindTable(id || this.config.id).then(() => {
-        this.$Message.success("建表成功");
       });
     },
   },
