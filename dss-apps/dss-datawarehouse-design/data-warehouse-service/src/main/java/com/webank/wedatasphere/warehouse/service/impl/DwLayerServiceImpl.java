@@ -184,7 +184,7 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceAdap
 
 
     @Override
-    public Message getAllLayers(HttpServletRequest request, Boolean isAvailable) throws DwException {
+    public Message getAllLayers(HttpServletRequest request, Boolean isAvailable, String db) throws DwException {
         QueryWrapper<DwLayer> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", Boolean.TRUE);
         if (!Objects.isNull(isAvailable)) {
@@ -194,7 +194,27 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceAdap
         String username = SecurityFilter.getLoginUsername(request);
 
         List<DwLayerListItemDTO> dtos = new ArrayList<>();
+        boolean contain;
         for (DwLayer record : records) {
+            contain = true;
+            if (Strings.isNotBlank(db)) {
+                contain = false;
+                String dbs = record.getDbs();
+                if (Strings.isNotBlank(dbs)) {
+                    String[] splitDbs = dbs.split(",");
+                    for (String splitDb : splitDbs) {
+                        if (Objects.equals(splitDb, db)) {
+                            contain = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!contain) {
+                continue;
+            }
+
             DwLayerListItemDTO dto = new DwLayerListItemDTO();
             BeanUtils.copyProperties(record, dto);
             // get reference count

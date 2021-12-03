@@ -21,6 +21,7 @@ object ListDwLayerAction {
 
   class Builder private[ListDwLayerAction]() {
     private var user: String = _
+    private var db: String = _
     private var isAvailable: Boolean = true
 
     def setUser(user: String): Builder = {
@@ -33,10 +34,18 @@ object ListDwLayerAction {
       this
     }
 
+    def setDb(db: String): Builder = {
+      this.db = db
+      this
+    }
+
     def build(): ListDwLayerAction = {
       val action = new ListDwLayerAction
       if (null != user) {
         action.setUser(user)
+      }
+      if (null != db) {
+        action.setParameter("db", db);
       }
       action.setParameter("isAvailable", isAvailable)
       action

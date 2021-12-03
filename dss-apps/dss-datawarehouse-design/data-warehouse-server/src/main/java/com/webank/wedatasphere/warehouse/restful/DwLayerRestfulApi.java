@@ -38,8 +38,8 @@ public class DwLayerRestfulApi {
 
     @GET
     @Path("/layers/all")
-    public Response getAllLayers(@Context HttpServletRequest request, @QueryParam(value = "isAvailable") Boolean isAvailable) throws DwException {
-        Message message = this.dwLayerService.getAllLayers(request, isAvailable);
+    public Response getAllLayers(@Context HttpServletRequest request, @QueryParam(value = "isAvailable") Boolean isAvailable, @QueryParam(value = "db") String db) throws DwException {
+        Message message = this.dwLayerService.getAllLayers(request, isAvailable, db);
         return Message.messageToResponse(message);
     }
 
