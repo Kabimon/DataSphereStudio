@@ -225,14 +225,18 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
                 tableMaterializedHistoryService.isMaterialized(table.getName(), table.getVersion()) ? 1 : 0);
         tableQueryDTO.setHeadline(headlineDTO);
 
+        String user = DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser();
         Integer collectionCount = tableCollectService.getBaseMapper().selectCount(Wrappers.<DssDatamodelTableCollcetion>lambdaQuery().eq(DssDatamodelTableCollcetion::getName, table.getName()));
         String dbName = StringUtils.substringBefore(table.getName(), ".");
         String tblName = StringUtils.substringAfter(table.getName(), ".");
-        HiveTblStatsResult hiveTblStatsResult = linkisDataAssetsRemoteClient.searchHiveTblStats(HiveTblStatsAction.builder().setUser(DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser())
+        HiveTblStatsResult hiveTblStatsResult = linkisDataAssetsRemoteClient.searchHiveTblStats(HiveTblStatsAction.builder().setUser(user)
                 .setTableName(tblName)
                 .setDbName(dbName)
                 .build());
         tableQueryDTO.setStats(TableStatsDTO.from(hiveTblStatsResult.getInfo(), collectionCount));
+
+        tableQueryDTO.setLastAccessTime(tableMaterializedHistoryService.getHiveTblSimpleInfoByName(table.getName(),user).map(HiveTblSimpleInfoDTO::getLastAccessTime).orElse(null));
+
         return tableQueryDTO;
     }
 

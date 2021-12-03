@@ -3,9 +3,12 @@ package com.webank.wedatasphere.dss.datamodel.table.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.webank.wedatasphere.dss.datamodel.center.common.dto.CreateTableDTO;
+import com.webank.wedatasphere.dss.datamodel.table.dto.HiveTblSimpleInfoDTO;
 import com.webank.wedatasphere.dss.datamodel.table.entity.DssDatamodelTable;
 import com.webank.wedatasphere.dss.datamodel.table.entity.DssDatamodelTableMaterializedHistory;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
+
+import java.util.Optional;
 
 public interface TableMaterializedHistoryService extends IService<DssDatamodelTableMaterializedHistory> {
 
@@ -82,4 +85,13 @@ public interface TableMaterializedHistoryService extends IService<DssDatamodelTa
      * @throws ErrorException
      */
     boolean isMaterialized(String tableName, String version) throws ErrorException;
+
+
+    /**
+     * 根据表名查询查询资产
+     * @param tableName
+     * @return
+     * @throws ErrorException
+     */
+    Optional<HiveTblSimpleInfoDTO> getHiveTblSimpleInfoByName(String tableName, String user)throws ErrorException;
 }

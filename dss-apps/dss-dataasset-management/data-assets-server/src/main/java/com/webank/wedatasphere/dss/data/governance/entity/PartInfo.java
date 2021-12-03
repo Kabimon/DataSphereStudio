@@ -10,5 +10,5 @@ public class PartInfo {
     private  int store;
     private  String createTime;
     private  String lastAccessTime;
-
+    private int fileCount;
 }

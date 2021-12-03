@@ -42,6 +42,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TableMaterializedHistoryServiceImpl extends ServiceImpl<DssDatamodelTableMaterializedHistoryMapper, DssDatamodelTableMaterializedHistory> implements TableMaterializedHistoryService{
@@ -234,7 +235,22 @@ public class TableMaterializedHistoryServiceImpl extends ServiceImpl<DssDatamode
                 .eq(DssDatamodelTableMaterializedHistory::getTablename, tableName)
                 .eq(DssDatamodelTableMaterializedHistory::getVersion, version)
                 .eq(DssDatamodelTableMaterializedHistory::getStatus, 0)) > 0 &&tableExists(tableName, DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser());
+    }
 
-
+    @Override
+    public Optional<HiveTblSimpleInfoDTO> getHiveTblSimpleInfoByName(String tableName, String user) throws ErrorException {
+        
+        SearchHiveTblResult result = linkisDataAssetsRemoteClient.searchHiveTbl(SearchHiveTblAction.builder().setUser(user).setQuery(tableName).setOffset(0).setLimit(1).build());
+        List<HiveTblSimpleInfoDTO> dtos = assertsGson.fromJson(assertsGson.toJson(result.getResult()), new TypeToken<List<HiveTblSimpleInfoDTO>>() {
+        }.getType());
+        if (CollectionUtils.isEmpty(dtos)){
+            return Optional.empty();
+        }
+        for(HiveTblSimpleInfoDTO dto : dtos){
+            if (StringUtils.equals(StringUtils.substringBeforeLast(dto.getQualifiedName(),"@"),tableName)){
+                return Optional.of(dto);
+            }
+        }
+        return Optional.empty();
     }
 }
