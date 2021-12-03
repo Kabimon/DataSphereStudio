@@ -57,10 +57,10 @@
         >
           <Option
             v-for="item in dataBasesList"
-            :value="item.value"
-            :key="item.value"
+            :value="item"
+            :key="item"
           >
-            {{ item.label }}
+            {{ item }}
           </Option>
         </Select>
       </FormItem>
@@ -91,7 +91,7 @@
 import {
   createLayersCustom,
   getLayersById,
-  editLayersCustom,
+  editLayersCustom, getDbs,
 } from "@dataWarehouseDesign/service/api";
 import mixin from "@/common/service/mixin";
 
@@ -122,6 +122,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
+      if (val) this.handleGetDbs()
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -210,10 +211,23 @@ export default {
     };
   },
   methods: {
+    /**
+     * @description 获取可用库
+     */
+    handleGetDbs() {
+      this.loading = true
+      getDbs().then((res) => {
+        this.loading = false
+        let {list} = res;
+        this.dataBasesList = list
+      }).catch(() => {
+        this.loading = false
+      })
+    },
     // 根据id获取数据
     async handleGetById(id) {
       this.loading = true;
-      let { item } = await getLayersById(id);
+      let {item} = await getLayersById(id);
       this.loading = false;
       this.formState.name = item.name;
       this.formState.owner = item.owner;
@@ -234,7 +248,7 @@ export default {
       this.$emit("_changeVisible", false);
     },
     // 获取表单提交数据
-    handlegetFormatData() {
+    handleGetFormatData() {
       return Object.assign({}, this.formState, {});
     },
     // 处理表单完成
@@ -244,11 +258,11 @@ export default {
           try {
             this.loading = true;
             if (this.mode === "create") {
-              await createLayersCustom(this.handlegetFormatData());
+              await createLayersCustom(this.handleGetFormatData());
               this.loading = false;
             }
             if (this.mode === "edit") {
-              await editLayersCustom(this.id, this.handlegetFormatData());
+              await editLayersCustom(this.id, this.handleGetFormatData());
               this.loading = false;
             }
             this.$refs["formRef"].resetFields();

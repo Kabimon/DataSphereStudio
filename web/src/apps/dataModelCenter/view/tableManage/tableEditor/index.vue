@@ -5,7 +5,7 @@
       <Col span="18">
         <div style="display: flex; justify-content: space-between">
           <div>
-            <Icon type="ios-home" :size="26" />
+            <Icon type="ios-home" :size="26"/>
             <span style="font-size: 16px"> 表信息 / {{ extraInfo.name }}</span>
             &nbsp;
             <Tag color="primary">V{{ extraInfo.version || 0 }}</Tag>
@@ -58,7 +58,7 @@
 
     <Row :gutter="15">
       <Col span="18">
-        <ColumnEditor ref="ColumnEditor" v-model="formState.columns" />
+        <ColumnEditor ref="ColumnEditor" v-model="formState.columns"/>
       </Col>
       <Col span="6">
         <Card title="基本信息" dis-hover style="margin-bottom: 15px">
@@ -255,7 +255,7 @@ import ColumnEditor from "./columnEditor.vue";
 import {getLabelList} from "@/apps/dataModelCenter/service/api/labels";
 
 export default {
-  components: { ColumnEditor },
+  components: {ColumnEditor},
   data() {
     return {
       ruleValidateBaseicInfo: {
@@ -479,7 +479,7 @@ export default {
         data = await getTableInfoByName(this.config.name, this.config.guid);
       }
       this.loading = false;
-      let { detail } = data;
+      let {detail} = data;
       this.extraInfo = {
         name: detail.name,
         version: detail.version,
@@ -576,7 +576,9 @@ export default {
         getDataBasesList(),
         getDictionariesList(),
         getCyclesList(),
-        getLabelList({}),
+        getLabelList({
+          isAvailable: 1
+        }),
       ]).then(([res1, res2, res3, res4, res5, res6]) => {
         this.loading = false;
         this.layersList = res1.list;
@@ -584,7 +586,6 @@ export default {
         this.dataBasesList = res3.list;
         this.lifecycleList = res5.list;
         this.labelList = res6.list;
-        console.log(this.labelList);
         this.compressList = res4.list.filter(
           (item) => item.type === "COMPRESS"
         );
@@ -671,6 +672,6 @@ export default {
 };
 </script>
 
-<style  lang="scss" scoped>
+<style lang="scss" scoped>
 @import "../../../assets/styles/common.scss";
 </style>

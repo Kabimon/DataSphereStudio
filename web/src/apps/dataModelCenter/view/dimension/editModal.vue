@@ -48,7 +48,6 @@
       <FormItem label="负责人" prop="owner">
         <Input v-model="formState.owner" placeholder="默认为创建用户"></Input>
       </FormItem>
-
       <FormItem label="可用角色" prop="principalName">
         <Select
           multiple
@@ -86,7 +85,7 @@
 </template>
 
 <script>
-import { getThemesList } from "@/apps/dataModelCenter/service/api/common";
+import {getThemesList} from "@/apps/dataModelCenter/service/api/common";
 import {
   createDimensions,
   getDimensionsById,
@@ -191,7 +190,7 @@ export default {
     // 编辑的时候获取现有数据
     async handleGetById(id) {
       this.loading = true;
-      let { detail } = await getDimensionsById(id);
+      let {detail} = await getDimensionsById(id);
       this.loading = false;
       this.formState.name = detail.name;
       this.formState.isAvailable = detail.isAvailable;
@@ -253,7 +252,7 @@ export default {
     },
     async handleGetSubjectDomainList() {
       this.loading = true;
-      let { list } = await getThemesList();
+      let {list} = await getThemesList();
       this.loading = false;
       this.themesList = list;
     },

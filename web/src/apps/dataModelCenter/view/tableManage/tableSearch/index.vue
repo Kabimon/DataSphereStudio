@@ -2,7 +2,7 @@
   <div class="page-content">
     <div style="margin-bottom: 16px">
       <div class="flex-row-center top-title">
-        <Icon type="md-grid" color="#2d8cf0" :size="50" class="top-icon" />
+        <Icon type="md-grid" color="#2d8cf0" :size="50" class="top-icon"/>
         <span class="top-text"> 数据表管理 </span>
       </div>
       <div class="flex-row-center">
@@ -11,7 +11,7 @@
           v-model="searchParams.searchToken"
           size="large"
           search
-          @on-search="handleSearchTables"
+          @on-search="handleSearchAction"
           enter-button="搜索"
           placeholder="输入关键字进行搜索"
         >
@@ -35,19 +35,19 @@
     <Row :gutter="15">
       <Col :span="5">
         <Button
-          style="margin-bottom: 12px"
+          style="margin-bottom: 15px"
           type="primary"
           long
-          @click="handleToCreate"
+          @click="handleToCreateAction"
         >
           创建表
         </Button>
-        <Card dis-hover style="margin-bottom: 12px">
+        <Card dis-hover style="margin-bottom: 15px">
           <div>
-            <a @click="handleGetCollectionData">我的收藏</a>
+            <a @click="handleGetCollectionAction">我的收藏</a>
           </div>
         </Card>
-        <Card dis-hover style="margin-bottom: 12px">
+        <Card dis-hover style="margin-bottom: 15px">
           <p slot="title">数仓筛搜索</p>
           <div class="flex-row-center" style="margin-bottom: 12px">
             <div style="width: 75px">主题域：</div>
@@ -76,15 +76,14 @@
         </Card>
         <Card dis-hover>
           <p slot="title">按库搜索</p>
-          <Input v-model="searchDataBaseValue" placeholder="请输入数据库名称">
-          </Input>
-          <CellGroup @on-click="handleSearchTablesByDataBase">
+          <Input v-model="searchDataBaseValue" placeholder="请输入数据库名称"/>
+          <CellGroup @on-click="handleSearchTablesByDataBaseAction">
             <Cell
               v-for="dataBase in filterDataBaseList"
               :key="dataBase.guid"
               :name="dataBase.name"
             >
-              <Icon slot="icon" type="md-menu" :size="22" />
+              <Icon slot="icon" type="md-menu" :size="22"/>
               {{ dataBase.name }}
             </Cell>
           </CellGroup>
@@ -93,7 +92,10 @@
       <Col :span="19">
         <div class="page-content searc-data-box">
           <div style="margin-bottom: 16px">
-            <span class="title">搜索结果</span>
+            <span class="title">
+              {{ getDataMode === 0 ? "搜索结果" : "" }}
+              {{ getDataMode === 1 ? "收藏列表" : "" }}
+            </span>
           </div>
           <div>
             <Table
@@ -155,7 +157,6 @@
           </div>
           <div class="page-line">
             <Page
-              v-show="pageCfg.visible"
               :total="pageCfg.total"
               :current.sync="pageCfg.page"
               :page-size="pageCfg.pageSize"
@@ -180,20 +181,23 @@ import {
   getCollectList,
   getDataBasesList,
   deleteTableById,
-} from "@/apps/dataModelCenter/service/api/tableManage";
+} from "@dataModelCenter/service/api/tableManage";
 import {
   getThemesList,
   getLayersList,
-} from "@/apps/dataModelCenter/service/api/common";
+} from "@dataModelCenter/service/api/common";
 import formatDate from "@dataModelCenter/utils/formatDate";
 import VersionListModal from "./versionListModal.vue";
 import mixin from "@/common/service/mixin";
+
 export default {
-  filters: { formatDate },
-  components: { VersionListModal },
+  filters: {formatDate},
+  components: {VersionListModal},
   mixins: [mixin],
   data() {
     return {
+      // 获取数据的方式 0 搜索 1 收藏数据
+      getDataMode: 0,
       // 版本列表弹窗
       versionListCfg: {
         visible: false,
@@ -328,8 +332,6 @@ export default {
       loading: false,
       // 分页
       pageCfg: {
-        // 是否显示分页
-        visible: true,
         page: 1,
         pageSize: 10,
         total: 10,
@@ -338,7 +340,10 @@ export default {
     };
   },
   computed: {
-    // 过滤库
+    /**
+     * @description 过滤库
+     * @returns {[]|*[]}
+     */
     filterDataBaseList() {
       if (this.searchDataBaseValue === "") {
         return this.dataBaseList;
@@ -352,43 +357,83 @@ export default {
   watch: {
     // 监听分页变化获取数据
     "pageCfg.page"() {
-      this.handleSearchTables(true);
+      if (this.getDataMode === 0) {
+        this.handleSearchTables(true);
+      }
+      if (this.getDataMode === 1) {
+        this.handleGetCollectionData(true)
+      }
+
     },
   },
   mounted() {
+    // 获取主题
     this.handleGetThemesData();
+    // 获取分层
     this.handleGetLayersData();
+    // 获取数据库列表
     this.handleGetDataBaseData();
+    // 执行默认搜搜
     this.handleSearchTables(true);
   },
   methods: {
-    // 版本列表弹窗完成回调
+    /**
+     * @description 版本弹窗完成回调，重新获取数据
+     */
     handleModalFinish() {
       this.handleSearchTables(true);
     },
-    // 打开版本列表
+    /**
+     * @description 打开版本列表
+     * @param name
+     */
     handleOpenVersionListModal(name) {
       this.versionListCfg = {
         visible: true,
         name: name,
       };
     },
-    // 删除
+    /**
+     * @description 搜索按钮动作
+     */
+    handleSearchAction() {
+      // 设置模式为搜索
+      this.getDataMode = 0;
+      // 获取数据
+      this.handleSearchTables(false)
+    },
+    /**
+     * @description 查看收藏动作
+     */
+    handleGetCollectionAction() {
+      // 设置获取数据方式为收藏
+      this.getDataMode = 1
+      // 获取数据
+      this.handleGetCollectionData(false)
+    },
+    /**
+     * @description 删除
+     * @param id
+     */
     handleDelete(id) {
       this.$Modal.confirm({
         title: "警告",
         content: "确定删除此项吗？",
         onOk: async () => {
           this.loading = true;
-          await deleteTableById(id).catch(() => {});
+          await deleteTableById(id).catch(() => {
+          });
           this.loading = false;
           this.handleSearchTables(true);
         },
       });
     },
-    // 处理搜索
+    /**
+     * @description 获取搜索数据
+     * @param changePage
+     * @returns {number}
+     */
     handleSearchTables(changePage = false) {
-      this.pageCfg.visible = true;
       if (changePage === false && this.pageCfg.page !== 1) {
         return (this.pageCfg.page = 1);
       }
@@ -452,53 +497,83 @@ export default {
         }
       });
     },
-    // 获取收藏列表
-    async handleGetCollectionData() {
+
+    /**
+     * @description 获取收藏列表
+     * @returns {any}
+     */
+    async handleGetCollectionData(changePage = false) {
+      if (changePage === false && this.pageCfg.page !== 1) {
+        return (this.pageCfg.page = 1);
+      }
       this.loading = true;
-      let { list } = await getCollectList(this.getUserName());
+      let {list, total} = await getCollectList();
       this.loading = false;
       this.dataList = list;
-      this.pageCfg.visible = false;
+      this.pageCfg.total = total
     },
-    // 获取所有数据库
+    /**
+     * @description 获取所有数据库
+     * @returns {Promise<void>}
+     */
     async handleGetDataBaseData() {
       this.loading = true;
-      let { list } = await getDataBasesList();
+      let {list} = await getDataBasesList();
       this.loading = false;
       this.dataBaseList = list;
     },
-    // 获取主题
+    /**
+     * @description 获取主题
+     * @returns {Promise<void>}
+     */
     async handleGetThemesData() {
       this.loading = true;
-      let { list } = await getThemesList();
+      let {list} = await getThemesList();
       this.loading = false;
       this.themeList = list;
     },
-    // 获取分层
+    /**
+     * @description 获取分层
+     * @returns {Promise<void>}
+     */
     async handleGetLayersData() {
       this.loading = true;
-      let { list } = await getLayersList();
+      let {list} = await getLayersList();
       this.loading = false;
       this.layerList = list;
     },
-    // 根据数据库名搜索表
-    handleSearchTablesByDataBase(name) {
+    /**
+     * @description 根据数据库名搜索表
+     * @param name {String} dbName
+     */
+    handleSearchTablesByDataBaseAction(name) {
+      this.getDataMode = 0
       this.searchParams.searchToken = `${name}.`;
       this.handleSearchTables();
     },
-    // 打开某个版本信息
+    /**
+     * @description 打开某个版本信息
+     * @param data {Object} 表数据
+     */
     handleShowVersion(data) {
       window.sessionStorage.setItem("_tableVersionInfo", JSON.stringify(data));
       this.$router.push("/datamodelcenter/tableManage/tableVersionInfo");
     },
-    // 创建表
-    handleToCreate() {
+    /**
+     * @description 去往创建表
+     */
+    handleToCreateAction() {
       this.$router.push({
         path: `/datamodelcenter/tableManage/tableEditor`,
-        query: { mode: "create" },
+        query: {mode: "create"},
       });
     },
-    // 去往编辑
+    /**
+     * @description 去往编辑
+     * @param id
+     * @param name
+     * @param guid
+     */
     handleEdit(id, name, guid) {
       this.$router.push({
         path: `/datamodelcenter/tableManage/tableEditor`,
@@ -510,11 +585,16 @@ export default {
         },
       });
     },
-    // 去往表详情
+    /**
+     * @description 去往表详情
+     * @param id
+     * @param name
+     * @param guid
+     */
     handleToTableInfo(id, name, guid) {
       this.$router.push({
         path: `/datamodelcenter/tableManage/tableInfo`,
-        query: { id, name, guid },
+        query: {id, name, guid},
       });
     },
   },
@@ -523,27 +603,34 @@ export default {
 
 <style lang="scss" scoped>
 @import "../../../assets/styles/common.scss";
+
 .flex-row-center {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .top-title {
   margin-bottom: 16px;
+
   .top-icon {
     margin-right: 16px;
   }
+
   .top-text {
     font-size: 28px;
   }
 }
+
 .searc-data-box {
   border: 1px solid #e8eaec;
+
   .title {
     font-size: 18px;
     border-bottom: 3px solid #3c7aff;
   }
 }
+
 .page-line {
   display: flex;
   justify-content: flex-end;

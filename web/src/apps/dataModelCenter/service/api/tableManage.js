@@ -40,12 +40,12 @@ export const searchTable = ({
 /**
  * @description 获取收藏表
  * @returns {Promise}
- * @param userName 用户名
+ * @param name {String}
  */
-export const getCollectList = userName => {
+export const getCollectList = ({name} = {}) => {
   return api.fetch(
     `${API_PATH.DATAMODEL_PATH}tables/collect/list`,
-    {user: userName},
+    {name},
     "post"
   );
 };

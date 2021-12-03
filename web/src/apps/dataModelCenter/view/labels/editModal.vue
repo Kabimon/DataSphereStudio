@@ -17,7 +17,7 @@
       label-position="top"
     >
       <FormItem label="标签名称" prop="name">
-        <Input v-model="formState.name" placeholder="建议为中文名" />
+        <Input v-model="formState.name" placeholder="建议为中文名"/>
       </FormItem>
       <FormItem label="英文名" prop="fieldIdentifier">
         <Input v-model="formState.fieldIdentifier" placeholder="英文名"></Input>
@@ -42,7 +42,7 @@
         </Select>
       </FormItem>
       <FormItem label="描述" prop="comment">
-        <Input type="textarea" v-model="formState.comment" placeholder="描述" />
+        <Input type="textarea" v-model="formState.comment" placeholder="描述"/>
       </FormItem>
       <FormItem label="主题域" prop="_warehouseTheme">
         <Select
@@ -65,13 +65,21 @@
           :columns="tokenListColumns"
           :data="formState.paramMap"
         >
-          <template slot-scope="{ index }" slot="name">
+          <template slot-scope="{ index }" slot="key">
             <Input
               type="text"
-              placeholder="名字"
-              v-model="formState.paramMap[index].name"
+              placeholder="key"
+              v-model="formState.paramMap[index].key"
             />
           </template>
+          <template slot-scope="{ index }" slot="value">
+            <Input
+              type="text"
+              placeholder="value"
+              v-model="formState.paramMap[index].value"
+            />
+          </template>
+
           <template slot-scope="{ index }" slot="action">
             <Button type="error" @click="handleDeleteOneToken(index)">
               删除
@@ -104,8 +112,9 @@ import {
   createLabel,
   getLabelById,
 } from "@dataModelCenter/service/api/labels";
-import { getThemesList } from "@/apps/dataModelCenter/service/api/common";
+import {getThemesList} from "@/apps/dataModelCenter/service/api/common";
 import mixin from "@/common/service/mixin";
+
 export default {
   model: {
     prop: "_visible",
@@ -145,9 +154,14 @@ export default {
       // 词列表列
       tokenListColumns: [
         {
-          title: "标签词名称",
-          key: "name",
-          slot: "name",
+          title: "KEY",
+          key: "key",
+          slot: "key",
+        },
+        {
+          title: "VALUE",
+          key: "value",
+          slot: "value",
         },
         {
           title: "操作",
@@ -217,7 +231,7 @@ export default {
      */
     async handleGetById(id) {
       this.loading = true;
-      let { detail } = await getLabelById(id);
+      let {detail} = await getLabelById(id);
       this.loading = false;
       this.formState.name = detail.name;
       this.formState.fieldIdentifier = detail.fieldIdentifier;
@@ -225,9 +239,9 @@ export default {
       this.formState.principalName = detail.principalName;
       this.formState.isAvailable = detail.isAvailable;
       this.formState.owner = detail.owner;
-      this.formState.paramMap = Object.keys(JSON.parse(detail.params)).map(
-        (item) => ({
-          name: item,
+      this.formState.paramMap = Object.entries(JSON.parse(detail.params)).map(
+        ([key, value]) => ({
+          key, value
         })
       );
       this.formState._warehouseTheme = `${detail.warehouseThemeName}|${detail.warehouseThemeNameEn}`;
@@ -260,7 +274,7 @@ export default {
           let map = {};
           for (let i = 0; i < this.formState.paramMap.length; i++) {
             const element = this.formState.paramMap[i];
-            map[element.name] = element.name;
+            map[element.key] = element.value;
           }
           return map;
         })(),
@@ -303,7 +317,8 @@ export default {
      */
     handleAddToken() {
       this.formState.paramMap.push({
-        name: "",
+        key: "",
+        value: ""
       });
     },
     /**
@@ -311,7 +326,7 @@ export default {
      */
     async handleGetSubjectDomainList() {
       this.loading = true;
-      let { list } = await getThemesList();
+      let {list} = await getThemesList();
       this.loading = false;
       this.themesList = list;
     },

@@ -153,13 +153,14 @@ import {
   getLayersCustom,
   deleteLayers,
   enableLayers,
-  disableLayers,
+  disableLayers
 } from "@dataWarehouseDesign/service/api";
 import EditModal from "./editModal.vue";
 import formatDate from "@dataWarehouseDesign/utils/formatDate";
+
 export default {
-  components: { EditModal },
-  filters: { formatDate },
+  components: {EditModal},
+  filters: {formatDate},
   methods: {
     // 弹窗回调
     handleModalFinish(type) {
@@ -181,7 +182,8 @@ export default {
         content: "确定删除此项吗？",
         onOk: async () => {
           this.customloading = true;
-          await deleteLayers(id).catch(() => {});
+          await deleteLayers(id).catch(() => {
+          });
           this.customloading = false;
           this.handleGetLayersCustom(true);
         },
@@ -215,7 +217,7 @@ export default {
     // 获取预设分层
     async handleGetLayersPreset() {
       this.preSetloading = true;
-      let { list } = await getLayersPreset();
+      let {list} = await getLayersPreset();
       this.preSetloading = false;
       this.presetDataList = list;
     },
@@ -230,7 +232,7 @@ export default {
         this.pageCfg.pageSize
       );
       this.customloading = false;
-      let { items, total } = data.page;
+      let {items, total} = data.page;
       this.pageCfg.total = total;
       this.customDataList = items;
     },
@@ -328,11 +330,13 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+
   .title {
     border-left: 6px solid #1890ff;
     padding-left: 6px;
   }
 }
+
 .page-line {
   display: flex;
   justify-content: flex-end;

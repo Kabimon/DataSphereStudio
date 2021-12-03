@@ -134,7 +134,10 @@ export default {
         },
       });
     },
-    // 编辑操作
+    /**
+     * @description 编辑操作
+     * @param id
+     */
     handleEdit(id) {
       this.modalCfg = {
         visible: true,
@@ -142,21 +145,31 @@ export default {
         id: id,
       };
     },
-    // 启用
+    /**
+     * @description 启用
+     * @param id
+     * @returns {Promise<void>}
+     */
     async handleEnable(id) {
       this.loading = true;
       await switcLabelStatus(id, 1);
       this.loading = false;
       await this.handleGetData(true);
     },
-    // 禁用
+    /**
+     * @description 禁用
+     * @param id
+     * @returns {Promise<void>}
+     */
     async handleDisable(id) {
       this.loading = true;
       await switcLabelStatus(id, 0);
       this.loading = false;
       await this.handleGetData(true);
     },
-    // 搜索
+    /**
+     * @description 搜索
+     */
     handleSearch() {
       this.handleGetData();
     },

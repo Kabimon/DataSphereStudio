@@ -4,7 +4,7 @@
     <div>
       <Card dis-hover>
         <div slot="title">
-          <Icon type="ios-home" :size="24" />
+          <Icon type="ios-home" :size="24"/>
           <span> 表管理 </span>
           /
           <span>{{ generalData.name }}</span>
@@ -76,7 +76,7 @@
                 <Col span="17">{{ baseicData.dataBase }}</Col>
               </Row>
             </Col>
-            <Col span="12" offset="12"> </Col>
+            <Col span="12" offset="12"></Col>
             <Col span="12">
               <Row>
                 <Col span="7">所属分层：</Col>
@@ -99,7 +99,7 @@
                 </Col>
               </Row>
             </Col>
-            <Col span="12" offset="12"> </Col>
+            <Col span="12" offset="12"></Col>
             <Col span="12">
               <Row>
                 <Col span="7">创建时间：</Col>
@@ -174,9 +174,9 @@
           >
             生成建表语句
           </Button>
-          <Button type="primary" @click="handleCopyColumns">复制所有字段</Button>
+          <Button type="primary" @click="handleCopyColumnsInfo">复制所有字段</Button>
         </div>
-        <Table :columns="columnInfoTableColumn" :data="columnInfoTableData">
+        <Table v-if="columnInfoTableData" :columns="columnInfoTableColumn" :data="columnInfoTableData">
           <template slot-scope="{ row }" slot="isPartitionField">
             {{ row.isPartitionField ? "是" : "否" }}
           </template>
@@ -238,19 +238,35 @@
           </Row>
         </Card>
         <Card :bordered="false" title="分区统计信息" dis-hover>
-          <!-- <div style="margin-bottom: 15px">
-            <Select style="width: 200px" placeholder="分区">
-              <Option value="1" label="1" />
+          <div style="margin-bottom: 15px">
+            <Select style="width: 200px" placeholder="分区" v-model="partitionCensusInfoTableFilter.name" clearable>
+              <Option
+                v-for="item in partitionCensusInfoTableData"
+                :key="item.partName"
+                :value="item.partName"
+                :label="item.partName"
+              />
             </Select>
-            <Select style="width: 200px" placeholder="大小">
-              <Option value="1" label="1" />
+            <Select style="width: 200px" placeholder="大小" v-model="partitionCensusInfoTableFilter.size" clearable>
+              <Option
+                v-for="item in partitionCensusInfoTableFilterSizeOption"
+                :key="item.value"
+                :value="item.value"
+                :label="item.label"
+              />
             </Select>
-            <Button type="primary">搜索</Button>
-          </div> -->
+          </div>
           <Table
+            v-if="partitionCensusInfoTableData"
             :columns="partitionCensusInfoTableColumn"
-            :data="partitionCensusInfoTableData"
+            :data="partitionCensusInfoTableDataFilter"
           >
+            <template slot-scope="{ row }" slot="createTime">
+              {{ row.createTime | formatDate }}
+            </template>
+            <template slot-scope="{ row }" slot="lastAccessTime">
+              {{ row.lastAccessTime | formatDate }}
+            </template>
           </Table>
         </Card>
       </TabPane>
@@ -260,7 +276,9 @@
             下载数据
           </Button>
         </div>
+        `
         <Table
+          v-if="preViewDataTableData"
           ref="preViewTable"
           :columns="preViewDataColumn"
           :data="preViewDataTableData"
@@ -268,14 +286,14 @@
         </Table>
       </TabPane>
     </Tabs>
-    <!-- 生成select 和 DDL 弹窗 -->
-    <Modal v-model="selectSqlCfg.visible" title="生成建表语句" width="576">
+    <!-- 生成 select 和 DDL 弹窗 -->
+    <Modal v-model="ddlSqlCfg.visible" title="生成建表语句" width="576">
       <div class="field-info-rich-text">
         <div v-html="viewSelectSql"></div>
       </div>
       <template v-slot:footer>
         <div>
-          <Button type="primary" @click="handleCopy"> 复制 </Button>
+          <Button type="primary" @click="handleCopyDDL"> 复制</Button>
         </div>
       </template>
     </Modal>
@@ -284,20 +302,17 @@
 
 <script>
 import {
-  getTableInfoById,
-  getTableInfoByName,
-  getTablesPartitionStats,
-  getTablesCreateSql,
-  getTablesPreview,
-  getCollectList,
   addCollect,
   delCancel,
+  getCollectList,
+  getTableInfoById,
+  getTableInfoByName,
+  getTablesCreateSql,
+  getTablesPartitionStats,
+  getTablesPreview,
 } from "@/apps/dataModelCenter/service/api/tableManage";
 import formatDate from "@dataModelCenter/utils/formatDate";
-import {
-  fomatSqlForShow,
-  fomatSqlForCopy,
-} from "@dataModelCenter/utils/fomatSQL";
+import {fomatSqlForCopy, fomatSqlForShow,} from "@dataModelCenter/utils/fomatSQL";
 import handleClipboard from "@dataModelCenter/utils/clipboard";
 import mixin from "@/common/service/mixin";
 
@@ -362,15 +377,17 @@ const partitionCensusInfoTableColumn = [
     title: "创建时间",
     align: "center",
     key: "createTime",
+    slot: "createTime"
   },
   {
     title: "最后访问时间",
     align: "center",
     key: "lastAccessTime",
+    slot: "lastAccessTime"
   },
 ];
 export default {
-  filters: { formatDate },
+  filters: {formatDate},
   mixins: [mixin],
   data() {
     return {
@@ -385,68 +402,113 @@ export default {
         comment: "",
         label: "",
       },
+
       // 基础信息
       baseicData: {},
       // 表统计信息
       tableCensusInfo: {},
       // 字段信息
       columnInfoTableColumn,
-      columnInfoTableData: undefined,
+      columnInfoTableData: null,
       // 数据预览信息
       preViewDataColumn: [],
-      preViewDataTableData: undefined,
+      preViewDataTableData: null,
       // 分区统计信息
       partitionCensusInfoTableColumn,
-      partitionCensusInfoTableData: undefined,
-      // 收藏列表
-      collectList: [],
+      partitionCensusInfoTableData: null,
+      // 分区信息过滤条件
+      partitionCensusInfoTableFilter: {
+        name: "",
+        size: undefined
+      },
+      partitionCensusInfoTableFilterSizeOption: [
+        {
+          label: "不为空",
+          value: 1,
+        },
+        {
+          label: "大于1G",
+          value: 100,
+        },
+        {
+          label: "大于10G",
+          value: 1000,
+        },
+        {
+          label: "大于100g",
+          value: 10000,
+        },
+        {
+          label: "大于1T",
+          value: 100000,
+        }
+      ],
       // 生成的sql
-      selectSqlCfg: {
+      ddlSqlCfg: {
         visible: false,
         sql: "",
       },
+      // 表信息
       config: {
         id: this.$route.query.id,
         name: this.$route.query.name,
         guid: this.$route.query.guid,
       },
+      // 是否被收藏
+      isCollect: false
     };
   },
   watch: {
+    // 监听tabs变化
     currentTab(value) {
       if (value === "preViewTab") {
-        if (this.preViewDataTableData === undefined) {
+        if (this.preViewDataTableData === null) {
           return this.handleGetTablesPreview();
         }
       }
       if (value === "partitionTable") {
-        if (this.partitionCensusInfoTableData === undefined) {
+        if (this.partitionCensusInfoTableData === null) {
           return this.handleGetTablesPartitionStats();
         }
       }
     },
   },
   computed: {
-    // 是否被收藏
-    isCollect() {
-      let name = this.config.name;
-      return Boolean(this.collectList.find((item) => item.name === name));
-    },
-    // viewSelectSql
     viewSelectSql() {
-      return fomatSqlForShow(this.selectSqlCfg.sql);
+      return fomatSqlForShow(this.ddlSqlCfg.sql);
     },
+    // 过滤分区信息
+    partitionCensusInfoTableDataFilter() {
+      // 拿到条件
+      let {name, size} = this.partitionCensusInfoTableFilter;
+      if (!name && !size) return this.partitionCensusInfoTableData
+      // 根据雕件过滤
+      return this.partitionCensusInfoTableData.filter((item) => {
+        let ifName = item.partName === name;
+        let ifSize = item.size >= size;
+        if (name && size) {
+          if (ifName && ifSize) return true
+        } else if (name) {
+          if (ifName) return true
+        } else if (size) {
+          if (ifSize) return true
+        }
+        return false
+      })
+    }
   },
   mounted() {
     // 获取数据
     this.handleGetData();
-    // 获取收藏数据
-    this.handleGetCollectionData();
+    // 检查收藏状态
+    this.handleGetCollectionStatus()
   },
   methods: {
-    // 编辑
+    /**
+     * @description 去往编辑页面
+     */
     handleToEditor() {
-      let { id, name, guid } = this.config;
+      let {id, name, guid} = this.config;
       this.$router.push({
         path: `/datamodelcenter/tableManage/tableEditor`,
         query: {
@@ -457,86 +519,106 @@ export default {
         },
       });
     },
-    // 导出预览数据
+    /**
+     * @description 导出预览数据
+     */
     handleExportPreViewData() {
-      this.$refs["preViewTable"].exportCsv({ filename: "preview.csv" });
+      this.$refs["preViewTable"].exportCsv({filename: "preview.csv"});
     },
     /**
-     * @description 复制所有字段
+     * @description 复制所有字段信息
      * @param e
      */
-    handleCopyColumns(e){
-      handleClipboard(this.formatCopyStr([{
-        title: "字段名称",
-        key: "name"
-      }, {
-        title: "别名",
-        key: "alias"
-      }, {
-        title: "是否分区字段",
-        key: "type"
-      },
-      {
-        title: "是否主键",
-        key: "isPrimary"
-      },
-      {
-        title: "描述",
-        key: "comment"
-      },{
-        title: "校验规则",
-        key: "rule"
-      },{
-        title: "关联数仓",
-        key: "modelName"
-      }],this.columnInfoTableData), e);
-    },
-    formatCopyStr(columns, columnData) {
-      let str = ""
-      // 构造头行
-      for (let i = 0; i < columns.length; i++) {
-        let column = columns[i]
-        if (i === columns.length - 1) {
-          str += column.title
-        } else {
-          str += column.title + "    "
-        }
-      }
-      // 构造表格体
-      for (let i = 0; i < columnData.length; i++) {
-        let dataItem = columnData[i]
-        let columnLine = ''
+    handleCopyColumnsInfo(e) {
+      /**
+       * @description 格式化数据为 字符串
+       * @param columns
+       * @param columnData
+       * @returns {string}
+       */
+      function formatCopyStr(columns, columnData) {
+        let str = ""
+        // 构造头行
         for (let i = 0; i < columns.length; i++) {
           let column = columns[i]
           if (i === columns.length - 1) {
-            columnLine += (dataItem[column.key] || '空')
+            str += column.title
           } else {
-            columnLine += (dataItem[column.key] || '空') + "    "
+            str += column.title + "    "
           }
         }
-        str += "\r\n" + columnLine
+        // 构造表格体
+        for (let i = 0; i < columnData.length; i++) {
+          let dataItem = columnData[i]
+          let columnLine = ''
+          for (let i = 0; i < columns.length; i++) {
+            let column = columns[i]
+            if (i === columns.length - 1) {
+              columnLine += (dataItem[column.key] || '空')
+            } else {
+              columnLine += (dataItem[column.key] || '空') + "    "
+            }
+          }
+          str += "\r\n" + columnLine
+        }
+        // 返回结果
+        return str
       }
-      // 返回结果
-      return str
+
+      if (this.columnInfoTableData) {
+        let columns = [
+          {
+            title: "字段名称",
+            key: "name"
+          },
+          {
+            title: "别名",
+            key: "alias"
+          },
+          {
+            title: "是否分区字段",
+            key: "type"
+          },
+          {
+            title: "是否主键",
+            key: "isPrimary"
+          },
+          {
+            title: "描述",
+            key: "comment"
+          },
+          {
+            title: "校验规则",
+            key: "rule"
+          },
+          {
+            title: "关联数仓",
+            key: "modelName"
+          }
+        ]
+        handleClipboard(formatCopyStr(columns, this.columnInfoTableData), e);
+      }
     },
     // 生成建表语句
     handleCreateSql() {
-      let { id, guid } = this.config;
-      // 打开弹框
+      let {id, guid} = this.config;
       getTablesCreateSql(id, guid).then((res) => {
-        this.selectSqlCfg = {
+        this.ddlSqlCfg = {
           visible: true,
           sql: res.detail,
         };
       });
     },
-    // 切换收藏
-    handleSwitchCollect() {
-      let { name } = this.config;
+    /**
+     * @description 切换收藏
+     * @returns {Promise<void>}
+     */
+    async handleSwitchCollect() {
+      let {name} = this.config;
+      this.loading = true
       if (this.isCollect) {
-        delCancel(name).then(() => {
-          this.handleGetCollectionData();
-        });
+        await delCancel(name)
+        this.$Message.success("取消收藏成功")
       } else {
         let collectData = {
           tableId: this.config.id,
@@ -558,23 +640,34 @@ export default {
           label: this.baseicData.label.join(";"),
           guid: this.config.guid,
         };
-        addCollect(collectData).then(() => {
-          this.handleGetCollectionData();
-        });
+        await addCollect(collectData)
+        this.$Message.success("添加收藏成功")
       }
+      await this.handleGetCollectionStatus()
+      this.loading = false
+    },
+    /**
+     * @description 获取收藏状态
+     * @returns {Promise<void>}
+     */
+    async handleGetCollectionStatus() {
+      let {total} = await getCollectList({name: this.config.name});
+      this.isCollect = !!total;
     },
     // 获取数据
     async handleGetData() {
-      let { id, guid, name } = this.config;
+      let {id, guid, name} = this.config;
       this.loading = true;
       let data;
+      // 优先使用id获取
       if (id) {
         data = await getTableInfoById(id);
       } else {
         data = await getTableInfoByName(name, guid);
       }
       this.loading = false;
-      let { detail } = data;
+      let {detail} = data;
+      // 如果有id更新id
       if (detail.id) {
         this.config.id = detail.id;
       }
@@ -629,18 +722,22 @@ export default {
       // 表统计信息
       this.tableCensusInfo = detail.stats;
     },
-    // 获取分区信息
+    /**
+     * @description 获取分区信息
+     */
     handleGetTablesPartitionStats() {
-      let { guid, name } = this.config;
+      let {guid, name} = this.config;
       this.loading = true;
       getTablesPartitionStats(name, guid).then((res) => {
         this.loading = false;
         this.partitionCensusInfoTableData = res.list;
       });
     },
-    // 获取预览数据
+    /**
+     * @description 获取预览数据
+     */
     handleGetTablesPreview() {
-      let { name } = this.config;
+      let {name} = this.config;
       this.loading = true;
       getTablesPreview(name).then((res) => {
         this.loading = false;
@@ -655,35 +752,30 @@ export default {
           let itemData = {};
           for (let j = 0; j < data.length; j++) {
             const key = res.detail.metadata[j].columnName;
-            const value = data[j];
-            itemData[key] = value;
+            itemData[key] = data[j];
           }
           return itemData;
         });
       });
     },
-    // 处理获取收藏列表
-    async handleGetCollectionData() {
-      this.loading = true;
-      let { list } = await getCollectList(this.getUserName());
-      this.loading = false;
-      this.collectList = list;
-    },
-    // 复制
-    handleCopy(e) {
-      handleClipboard(fomatSqlForCopy(this.selectSqlCfg.sql), e);
+    /**
+     * @description 复制建表语句
+     * @param e
+     */
+    handleCopyDDL(e) {
+      handleClipboard(fomatSqlForCopy(this.ddlSqlCfg.sql), e);
     },
     // 转换存储单位
     transformCompany(number) {
       if (!number) {
-        return { num: 0, unit: "B", str: "0B" };
+        return {num: 0, unit: "B", str: "0B"};
       }
       let unitArr = ["B", "KB", "MB", "GB", "TB"];
       for (let i = unitArr.length - 1; i >= 0; i--) {
         const unit = unitArr[i];
         let res = number / Math.pow(1024, i);
         if (res > 1) {
-          return { num: res.toFixed(2), unit, str: res.toFixed(2) + unit };
+          return {num: res.toFixed(2), unit, str: res.toFixed(2) + unit};
         }
       }
     },
@@ -693,6 +785,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "../../../assets/styles/common.scss";
+
 .census-item {
   .value {
     font-weight: 700;
@@ -700,16 +793,19 @@ export default {
     color: #2d8cf0;
     text-align: center;
     font-size: 34px;
+
     .unit {
       font-size: 16px;
       color: rgb(116, 116, 116);
     }
   }
+
   .label {
     font-size: 16px;
     text-align: center;
   }
 }
+
 .field-info-rich-text {
   margin: 8px 24px;
   padding: 5px 12px;
@@ -721,8 +817,8 @@ export default {
   line-height: 22px;
   overflow-y: auto;
   max-height: 200px;
+
   div {
-    font-family: Helvetica Neue, Consolas;
     /deep/ span {
       font-weight: bold;
       margin-right: 6px;
