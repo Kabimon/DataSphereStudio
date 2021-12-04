@@ -5,7 +5,6 @@ import com.webank.wedatasphere.dss.datamodel.indicator.service.IndicatorService;
 import com.webank.wedatasphere.dss.datamodel.indicator.vo.*;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
 import com.webank.wedatasphere.linkis.server.Message;
-import com.webank.wedatasphere.linkis.server.security.SecurityFilter;
 import com.webank.wedatasphere.warehouse.client.GovernanceDwRemoteClient;
 import com.webank.wedatasphere.warehouse.client.action.ListDwLayerAction;
 import com.webank.wedatasphere.warehouse.client.action.ListDwModifierAction;
@@ -181,8 +180,8 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
      * @return
      */
     @POST
-    @Path("/indicators/themes/list")
-    public Response indicatorThemesList(@Context HttpServletRequest req){
+    @Path("/themes/list")
+    public Response themesList(@Context HttpServletRequest req){
         ListDwThemeDomainAction action = ListDwThemeDomainAction.builder().setUser(getStrategyUser(req)).setIsAvailable(true).build();
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listThemeDomains(action).getAll()));
     }
@@ -193,9 +192,10 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
      * @return
      */
     @POST
-    @Path("/indicators/layers/list")
-    public Response indicatorLayerList(@Context HttpServletRequest req){
-        ListDwLayerAction action = ListDwLayerAction.builder().setIsAvailable(true).setUser(getStrategyUser(req)).build();
+    @Path("/layers/list")
+    public Response layerList(@Context HttpServletRequest req,@RequestBody LayerVO vo){
+        LOGGER.info("layerList vo : {}",vo);
+        ListDwLayerAction action = ListDwLayerAction.builder().setIsAvailable(true).setDb(vo.getDbName()).setUser(getStrategyUser(req)).build();
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listLayers(action).getAll()));
     }
 
@@ -205,9 +205,9 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
      * @return
      */
     @POST
-    @Path("/indicators/cycles/list")
-    public Response indicatorCycleList(@Context HttpServletRequest req,@RequestBody IndicatorCycleVO vo){
-        LOGGER.info("indicatorCycleList vo : {}",vo);
+    @Path("/cycles/list")
+    public Response cycleList(@Context HttpServletRequest req,@RequestBody CycleVO vo){
+        LOGGER.info("cycleList vo : {}",vo);
         ListDwStatisticalPeriodAction action =ListDwStatisticalPeriodAction.builder().setUser(getStrategyUser(req)).setLayer(vo.getLayer()).setIsAvailable(true).setTheme(vo.getTheme()).build();
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listStatisticalPeriods(action).getAll()));
     }
@@ -218,9 +218,9 @@ public class IndicatorRestfulApi implements AuthenticationClientStrategy {
      * @return
      */
     @POST
-    @Path("/indicators/modifiers/list")
-    public Response indicatorModifierList(@Context HttpServletRequest req,@RequestBody IndicatorModifierVO vo){
-        LOGGER.info("indicatorModifierList vo : {}",vo);
+    @Path("/modifiers/list")
+    public Response modifierList(@Context HttpServletRequest req,@RequestBody ModifierVO vo){
+        LOGGER.info("modifierList vo : {}",vo);
         ListDwModifierAction action = ListDwModifierAction.builder().setUser(getStrategyUser(req)).setLayer(vo.getLayer()).setIsAvailable(true).setTheme(vo.getTheme()).build();
         return Message.messageToResponse(Message.ok().data("list",governanceDwRemoteClient.listModifiers(action).getAll()));
     }
