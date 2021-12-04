@@ -22,6 +22,7 @@ const FileManagerPlugin = require("filemanager-webpack-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const VirtualModulesPlugin = require("webpack-virtual-modules");
 const apps = require("./src/config.json");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 // 获取packages中的版本号
 const getVersion = () => {
@@ -89,20 +90,23 @@ const virtualModules = new VirtualModulesPlugin({
     requireComponent: [${requireComponent.join(",")}],
     requireComponentVue: [${requireComponentVue.join(",")}],
     microModule: ${JSON.stringify(process.env.npm_config_micro_module) ||
-      false},
+  false},
     headers:{${headers.join(",")}}
   };`
 });
 
 const plugins = [
   virtualModules,
+  new BundleAnalyzerPlugin(),
   new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-cn|ja/)
 ];
 
 // 针对木桶子模块加载一些插件
 // scriptis 有使用编辑器组件, 需要Monaco Editor
 if (modules.indexOf("scriptis") > -1) {
-  plugins.push(new MonacoWebpackPlugin());
+  plugins.push(new MonacoWebpackPlugin({
+    languages: []
+  }));
 }
 
 /**
@@ -143,8 +147,8 @@ module.exports = {
         {
           onEnd: {
             copy: [
-              { source: "./config.sh", destination: `./dist` },
-              { source: "./install.sh", destination: `./dist` }
+              {source: "./config.sh", destination: `./dist`},
+              {source: "./install.sh", destination: `./dist`}
             ],
             // 先删除根目录下的zip包
             delete: [
