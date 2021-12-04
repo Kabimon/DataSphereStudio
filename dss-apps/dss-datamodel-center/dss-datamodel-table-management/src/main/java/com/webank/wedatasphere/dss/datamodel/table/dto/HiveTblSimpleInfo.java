@@ -12,4 +12,5 @@ public class HiveTblSimpleInfo {
     private String qualifiedName;
     private Date createTime;
     private String owner;
+    private Date lastAccessTime;
 }

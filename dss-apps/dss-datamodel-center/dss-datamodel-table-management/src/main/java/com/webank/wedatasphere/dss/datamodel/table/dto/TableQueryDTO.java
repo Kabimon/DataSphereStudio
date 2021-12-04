@@ -31,6 +31,8 @@ public class TableQueryDTO {
 
     private Date updateTime;
 
+    private Date lastAccessTime;
+
     /**
      * 数仓层级
      */
@@ -115,6 +117,7 @@ public class TableQueryDTO {
         TableQueryDTO dto = new TableQueryDTO();
         dto.setName(name);
         dto.setCreateTime(hiveTblDTO.getBasic().getCreateTime());
+        dto.setLastAccessTime(hiveTblDTO.getBasic().getLastAccessTime());
         dto.setCreator(hiveTblDTO.getBasic().getOwner());
         dto.setComment(hiveTblDTO.getBasic().getComment());
         if (!CollectionUtils.isEmpty(hiveTblDTO.getBasic().getLabels())){

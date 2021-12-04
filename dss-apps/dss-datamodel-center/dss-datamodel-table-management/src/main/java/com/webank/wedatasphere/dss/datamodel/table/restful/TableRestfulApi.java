@@ -208,18 +208,18 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     }
 
 
-    /**
-     * 相关主题可选列表
-     *
-     * @param req
-     * @return
-     */
-    @POST
-    @Path("/tables/themes/list")
-    public Response tableThemesList(@Context HttpServletRequest req) {
-        ListDwThemeDomainAction action = ListDwThemeDomainAction.builder().setUser(getStrategyUser(req)).setIsAvailable(true).build();
-        return Message.messageToResponse(Message.ok().data("list", governanceDwRemoteClient.listThemeDomains(action).getAll()));
-    }
+//    /**
+//     * 相关主题可选列表
+//     *
+//     * @param req
+//     * @return
+//     */
+//    @POST
+//    @Path("/tables/themes/list")
+//    public Response tableThemesList(@Context HttpServletRequest req) {
+//        ListDwThemeDomainAction action = ListDwThemeDomainAction.builder().setUser(getStrategyUser(req)).setIsAvailable(true).build();
+//        return Message.messageToResponse(Message.ok().data("list", governanceDwRemoteClient.listThemeDomains(action).getAll()));
+//    }
 
 
     /**
@@ -235,18 +235,18 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
         return Message.messageToResponse(Message.ok().data("result", dataWarehouseReferenceService.themeReferenceCount(name)));
     }
 
-    /**
-     * 相关分层
-     *
-     * @param req
-     * @return
-     */
-    @POST
-    @Path("/tables/layers/list")
-    public Response tableLayerList(@Context HttpServletRequest req) {
-        ListDwLayerAction action = ListDwLayerAction.builder().setIsAvailable(true).setUser(getStrategyUser(req)).build();
-        return Message.messageToResponse(Message.ok().data("list", governanceDwRemoteClient.listLayers(action).getAll()));
-    }
+//    /**
+//     * 相关分层
+//     *
+//     * @param req
+//     * @return
+//     */
+//    @POST
+//    @Path("/tables/layers/list")
+//    public Response tableLayerList(@Context HttpServletRequest req) {
+//        ListDwLayerAction action = ListDwLayerAction.builder().setIsAvailable(true).setUser(getStrategyUser(req)).build();
+//        return Message.messageToResponse(Message.ok().data("list", governanceDwRemoteClient.listLayers(action).getAll()));
+//    }
 
     /**
      * 分层引用情况

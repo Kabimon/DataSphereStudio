@@ -119,7 +119,7 @@ public class MetaInfoMapperImpl implements MetaInfoMapper {
         ResultSet rs=null;
         List<PartInfo> PartInfos = new ArrayList<>();
         try(Connection con =dataSource.getConnection()) {
-            String sql="select b.PART_NAME,b.CREATE_TIME,MAX(CASE c.PARAM_KEY WHEN 'transient_lastDdlTime' THEN c.PARAM_VALUE ELSE null END) transient_lastDdlTime ,MAX(CASE c.PARAM_KEY WHEN 'numRows' THEN c.PARAM_VALUE ELSE null END) numRows,MAX(CASE c.PARAM_KEY WHEN 'totalSize' THEN c.PARAM_VALUE ELSE null END) totalSize   from TBLS a,PARTITIONS b,PARTITION_PARAMS c,DBS d where  a.TBL_NAME="+"'"+tableName+"'"+"AND d.NAME="+"'"+dbName+"'" +"AND a.TBL_ID=b.TBL_ID AND a.DB_ID=d.DB_ID AND b.PART_ID=c.PART_ID  GROUP BY c.PART_ID";
+            String sql="select b.PART_NAME,b.CREATE_TIME,MAX(CASE c.PARAM_KEY WHEN 'transient_lastDdlTime' THEN c.PARAM_VALUE ELSE null END) transient_lastDdlTime ,MAX(CASE c.PARAM_KEY WHEN 'numRows' THEN c.PARAM_VALUE ELSE null END) numRows,MAX(CASE c.PARAM_KEY WHEN 'totalSize' THEN c.PARAM_VALUE ELSE null END) totalSize, MAX(CASE c.PARAM_KEY WHEN 'numFiles' THEN c.PARAM_VALUE ELSE null END) numFiles  from TBLS a,PARTITIONS b,PARTITION_PARAMS c,DBS d where  a.TBL_NAME="+"'"+tableName+"'"+"AND d.NAME="+"'"+dbName+"'" +"AND a.TBL_ID=b.TBL_ID AND a.DB_ID=d.DB_ID AND b.PART_ID=c.PART_ID  GROUP BY c.PART_ID";
             ps=con.prepareStatement(sql);
             rs=ps.executeQuery();
             while (rs.next()){
@@ -129,6 +129,7 @@ public class MetaInfoMapperImpl implements MetaInfoMapper {
                 part.setLastAccessTime(DateUtil.unixToTimeStr(Long.valueOf(rs.getInt(3))*1000));
                 part.setReordCnt(rs.getInt(4));
                 part.setStore(rs.getInt(5));
+                part.setFileCount(rs.getInt(6));
                 PartInfos.add(part);
             }
 
