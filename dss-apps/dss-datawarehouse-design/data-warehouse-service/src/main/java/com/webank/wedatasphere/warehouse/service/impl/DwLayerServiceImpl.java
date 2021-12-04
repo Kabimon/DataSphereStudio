@@ -198,14 +198,30 @@ public class DwLayerServiceImpl implements DwLayerService, DwDomainReferenceAdap
         for (DwLayer record : records) {
             contain = true;
             if (Strings.isNotBlank(db)) {
-                contain = false;
-                String dbs = record.getDbs();
-                if (Strings.isNotBlank(dbs)) {
-                    String[] splitDbs = dbs.split(",");
-                    for (String splitDb : splitDbs) {
-                        if (Objects.equals(splitDb, db)) {
-                            contain = true;
-                            break;
+                if ("all".equalsIgnoreCase(db)) {
+                    // 查询的时候传入的参数 db = all
+                    contain = true;
+                } else {
+                    // 预置分层所有库都可以用
+                    if (record.getPreset()) {
+                        contain = true;
+                    } else {
+                        contain = false;
+                        String dbs = record.getDbs();
+                        if (Strings.isNotBlank(dbs)) {
+                            String[] splitDbs = dbs.split(",");
+                            for (String splitDb : splitDbs) {
+                                // 如果分层可用库选择了所有，则直接添加到查询记录中
+                                if ("all".equalsIgnoreCase(splitDb)) {
+                                    contain = true;
+                                    break;
+                                }
+                                // 否则就遍历判断当前查询库是否在当前分层中存在
+                                if (Objects.equals(splitDb, db)) {
+                                    contain = true;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
