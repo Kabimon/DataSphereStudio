@@ -68,14 +68,14 @@
           <template slot-scope="{ index }" slot="key">
             <Input
               type="text"
-              placeholder="key"
+              placeholder="键"
               v-model="formState.paramMap[index].key"
             />
           </template>
           <template slot-scope="{ index }" slot="value">
             <Input
               type="text"
-              placeholder="value"
+              placeholder="值"
               v-model="formState.paramMap[index].value"
             />
           </template>
@@ -154,12 +154,12 @@ export default {
       // 词列表列
       tokenListColumns: [
         {
-          title: "KEY",
+          title: "键",
           key: "key",
           slot: "key",
         },
         {
-          title: "VALUE",
+          title: "值",
           key: "value",
           slot: "value",
         },

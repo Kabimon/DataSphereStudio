@@ -3,32 +3,31 @@ import api from "@/common/service/api";
 
 /**
  * 主题域列表
- * @returns {Object.result}
+ * @returns {Promise}
  *
  */
-export const getThemesList = () =>
-  api.fetch(`${API_PATH.DATAMODEL_PATH}themes/list`, {}, "post");
+export const getThemesList = () => api.fetch(`${API_PATH.DATAMODEL_PATH}themes/list`, {}, "post");
 
 /**
  * 分层列表
- * @returns {Object.result}
+ * @param dbName {String} 可用库名称
+ * @returns {Promise}
  *
  */
-export const getLayersList = () =>
-  api.fetch(`${API_PATH.DATAMODEL_PATH}layers/list`, {}, "post");
+export const getLayersList = (dbName) => api.fetch(`${API_PATH.DATAMODEL_PATH}layers/list`, {
+  dbName
+}, "post");
 
 /**
  * 修饰词列表
- * @returns {Object.result}
+ * @returns {Promise}
  *
  */
-export const getModifiersList = () =>
-  api.fetch(`${API_PATH.DATAMODEL_PATH}modifiers/list`, {}, "post");
+export const getModifiersList = () => api.fetch(`${API_PATH.DATAMODEL_PATH}modifiers/list`, {}, "post");
 
 /**
  * 周期列表
- * @returns {Object.result}
+ * @returns {Promise}
  *
  */
-export const getCyclesList = () =>
-  api.fetch(`${API_PATH.DATAMODEL_PATH}cycles/list`, {}, "post");
+export const getCyclesList = () => api.fetch(`${API_PATH.DATAMODEL_PATH}cycles/list`, {}, "post");

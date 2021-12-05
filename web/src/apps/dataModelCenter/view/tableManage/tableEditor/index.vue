@@ -451,7 +451,28 @@ export default {
       this.handleGetData();
     }
   },
+  watch: {
+    // 监听库变化 实时获取分层
+    "formState.dataBase": {
+      immediate: true,
+      handler(value) {
+        if (value) {
+          this.handlegetLayers(value)
+        }
+      }
+    }
+  },
   methods: {
+    /**
+     * 获取分层
+     * @param dbName {String} 可用库
+     */
+    async handlegetLayers(dbName) {
+      this.loading = true
+      let {list} = await getLayersList(dbName);
+      this.loading = false
+      this.layersList = list
+    },
     /**
      * @description 检查当前表是否存在数据，有数据的情况下某些操作是不允许的
      */
@@ -571,7 +592,6 @@ export default {
     handleGetFrontData() {
       this.loading = true;
       Promise.all([
-        getLayersList(),
         getThemesList(),
         getDataBasesList(),
         getDictionariesList(),
@@ -579,20 +599,19 @@ export default {
         getLabelList({
           isAvailable: 1
         }),
-      ]).then(([res1, res2, res3, res4, res5, res6]) => {
+      ]).then(([res1, res2, res3, res4, res5]) => {
         this.loading = false;
-        this.layersList = res1.list;
-        this.themesList = res2.list;
-        this.dataBasesList = res3.list;
-        this.lifecycleList = res5.list;
-        this.labelList = res6.list;
-        this.compressList = res4.list.filter(
+        this.themesList = res1.list;
+        this.dataBasesList = res2.list;
+        this.lifecycleList = res4.list;
+        this.labelList = res5.list;
+        this.compressList = res3.list.filter(
           (item) => item.type === "COMPRESS"
         );
-        this.fileTypeList = res4.list.filter(
+        this.fileTypeList = res3.list.filter(
           (item) => item.type === "FILE_STORAGE"
         );
-        this.storageTypeList = res4.list.filter(
+        this.storageTypeList = res3.list.filter(
           (item) => item.type === "STORAGE_ENGINE"
         );
       });

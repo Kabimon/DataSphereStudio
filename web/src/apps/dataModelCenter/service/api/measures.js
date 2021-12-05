@@ -16,7 +16,7 @@ export const getMeasures = ({
 }) =>
   api.fetch(
     `${API_PATH.DATAMODEL_PATH}measures/list`,
-    { pageNum, pageSize, isAvailable, owner, name, warehouseThemeName },
+    {pageNum, pageSize, isAvailable, owner, name, warehouseThemeName},
     "post"
   );
 
@@ -52,7 +52,7 @@ export const getMeasuresById = id =>
 export const switchMeasuresStatus = (id, status) =>
   api.fetch(
     `${API_PATH.DATAMODEL_PATH}measures/${id}`,
-    { isAvailable: status },
+    {isAvailable: status},
     "put"
   );
 
