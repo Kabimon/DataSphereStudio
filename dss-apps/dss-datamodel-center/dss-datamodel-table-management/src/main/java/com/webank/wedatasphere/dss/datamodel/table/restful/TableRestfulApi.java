@@ -5,11 +5,12 @@ import com.webank.wedatasphere.dss.datamodel.center.common.service.DataWarehouse
 import com.webank.wedatasphere.dss.datamodel.table.service.LabelService;
 import com.webank.wedatasphere.dss.datamodel.table.service.TableService;
 import com.webank.wedatasphere.dss.datamodel.table.vo.*;
+import com.webank.wedatasphere.dss.framework.workspace.client.impl.LinkisWorkSpaceRemoteClient;
+import com.webank.wedatasphere.dss.framework.workspace.client.request.GetWorkspaceUsersAction;
+import com.webank.wedatasphere.dss.framework.workspace.client.response.GetWorkspaceUsersResult;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
 import com.webank.wedatasphere.linkis.server.Message;
 import com.webank.wedatasphere.warehouse.client.GovernanceDwRemoteClient;
-import com.webank.wedatasphere.warehouse.client.action.ListDwLayerAction;
-import com.webank.wedatasphere.warehouse.client.action.ListDwThemeDomainAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,9 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
 
     @Resource
     private DataWarehouseReferenceService dataWarehouseReferenceService;
+
+    @Resource
+    private LinkisWorkSpaceRemoteClient linkisWorkSpaceRemoteClient;
 
     /**
      * 新增
@@ -566,5 +570,36 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
         return Message.messageToResponse(Message.ok().data("count", labelService.enable(id, vo)));
     }
 
+
+    /**
+     * 查询用户
+     *
+     * @param req
+     * @param workspaceId
+     * @return
+     */
+    @GET
+    @Path("/users/{workspaceId}")
+    public Response users(@Context HttpServletRequest req, @PathParam("workspaceId") String workspaceId) throws ErrorException {
+        LOGGER.info("users workspaceId : {}", workspaceId);
+        GetWorkspaceUsersResult result = linkisWorkSpaceRemoteClient.getWorkspaceUsers(GetWorkspaceUsersAction.builder().setUser(getStrategyUser(req)).setWorkspaceId(workspaceId).build());
+        return Message.messageToResponse(Message.ok().data("users", result.getWorkspaceUserList()));
+    }
+
+
+    /**
+     * 查询角色
+     *
+     * @param req
+     * @param workspaceId
+     * @return
+     */
+    @GET
+    @Path("/roles/{workspaceId}")
+    public Response roles(@Context HttpServletRequest req, @PathParam("workspaceId") String workspaceId) throws ErrorException {
+        LOGGER.info("roles workspaceId : {}", workspaceId);
+        GetWorkspaceUsersResult result = linkisWorkSpaceRemoteClient.getWorkspaceUsers(GetWorkspaceUsersAction.builder().setUser(getStrategyUser(req)).setWorkspaceId(workspaceId).build());
+        return Message.messageToResponse(Message.ok().data("users", result.getWorkspaceRoleList()));
+    }
 
 }

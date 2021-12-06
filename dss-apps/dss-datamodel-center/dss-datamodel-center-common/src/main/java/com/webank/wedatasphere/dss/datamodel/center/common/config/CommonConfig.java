@@ -3,9 +3,8 @@ package com.webank.wedatasphere.dss.datamodel.center.common.config;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient;
 import com.webank.wedatasphere.dss.datamodel.center.common.filter.AuthFilter;
+import com.webank.wedatasphere.dss.framework.workspace.client.impl.LinkisWorkSpaceRemoteClient;
 import com.webank.wedatasphere.linkis.httpclient.authentication.AuthenticationStrategy;
-import com.webank.wedatasphere.linkis.httpclient.dws.authentication.StaticAuthenticationStrategy;
-import com.webank.wedatasphere.linkis.httpclient.dws.authentication.TokenAuthenticationStrategy;
 import com.webank.wedatasphere.linkis.httpclient.dws.config.DWSClientConfig;
 import com.webank.wedatasphere.linkis.httpclient.dws.config.DWSClientConfigBuilder;
 import com.webank.wedatasphere.linkis.ujes.client.UJESClient;
@@ -69,6 +68,28 @@ public class CommonConfig {
                 .build();
         return new LinkisDataAssetsRemoteClient(clientConfig);
     }
+
+    @Bean
+    public LinkisWorkSpaceRemoteClient linkisWorkSpaceRemoteClient() throws Exception {
+        AuthenticationStrategy authenticationStrategy = (AuthenticationStrategy) Class.forName(DataWorkspaceRemoteConfig.AUTHENTICATION_STRATEGY.getValue()).newInstance();
+        DWSClientConfig clientConfig = ((DWSClientConfigBuilder) DWSClientConfigBuilder.newBuilder()
+                .addServerUrl(DataWorkspaceRemoteConfig.SERVER_URL.getValue())
+                .connectionTimeout(DataWorkspaceRemoteConfig.CONNECTION_TIMEOUT.getValue())
+                .discoveryEnabled(DataWorkspaceRemoteConfig.DISCOVERY_ENABLED.getValue())
+                .discoveryFrequency(DataWorkspaceRemoteConfig.DISCOVERY_FREQUENCY_PERIOD.getValue(), TimeUnit.MINUTES)
+                .loadbalancerEnabled(DataWorkspaceRemoteConfig.LOAD_BALANCER_ENABLED.getValue())
+                .maxConnectionSize(DataWorkspaceRemoteConfig.MAX_CONNECTION_SIZE.getValue())
+                .retryEnabled(DataWorkspaceRemoteConfig.RETRY_ENABLED.getValue())
+                .readTimeout(DataWorkspaceRemoteConfig.READ_TIMEOUT.getValue())
+                .setAuthenticationStrategy(authenticationStrategy)
+                .setAuthTokenKey(DataWorkspaceRemoteConfig.AUTHTOKEN_KEY.getValue())
+                .setAuthTokenValue(DataWorkspaceRemoteConfig.AUTHTOKEN_VALUE.getValue())
+        ).setDWSVersion(DataWorkspaceRemoteConfig.DWS_VERSION.getValue())
+                .build();
+        return new LinkisWorkSpaceRemoteClient(clientConfig);
+    }
+
+
 
     @Bean
     public UJESClient ujesClient()throws Exception {
