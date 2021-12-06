@@ -1,0 +1,38 @@
+package com.webank.wedatasphere.dss.framework.workspace.client
+
+import com.webank.wedatasphere.dss.framework.workspace.client.impl.LinkisWorkSpaceRemoteClient
+import com.webank.wedatasphere.dss.framework.workspace.client.request.{GetWorkspaceRolesAction, GetWorkspaceUsersAction}
+import com.webank.wedatasphere.linkis.httpclient.dws.authentication.StaticAuthenticationStrategy
+import com.webank.wedatasphere.linkis.httpclient.dws.config.DWSClientConfigBuilder
+
+import java.util.concurrent.TimeUnit
+
+object WorkSpaceRemoteClientTest {
+  def main(args: Array[String]): Unit = {
+    val clientConfig = DWSClientConfigBuilder.newBuilder()
+      .addServerUrl("http://124.70.31.149:29001")
+      .connectionTimeout(30000)
+      .discoveryEnabled(false)
+      .discoveryFrequency(1,TimeUnit.MINUTES)
+      .loadbalancerEnabled(true)
+      .maxConnectionSize(5)
+      .retryEnabled(false)
+      .readTimeout(30000)
+      .setAuthenticationStrategy(new StaticAuthenticationStrategy())
+      .setAuthTokenKey("hdfs")
+      .setAuthTokenValue("hdfs")
+      .setDWSVersion("v1")
+      .build()
+
+    val workSpaceRemoteClient = new LinkisWorkSpaceRemoteClient(clientConfig)
+
+    val workspaceRoles = workSpaceRemoteClient.getWorkspaceRoles(GetWorkspaceRolesAction.builder().setUser("hdfs").setWorkspaceId("224").build())
+    println(workspaceRoles.getWorkspaceRoleList)
+
+
+    workSpaceRemoteClient.getWorkspaceUsers(GetWorkspaceUsersAction.builder().setUser("hdfs").setWorkspaceId("224").build())
+
+  }
+
+
+}
