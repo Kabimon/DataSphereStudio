@@ -1,9 +1,12 @@
 package com.webank.wedatasphere.dss.framework.workspace.client.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+@Data
 public class DSSWorkspaceUser implements Serializable {
     private int id;
     private String name;

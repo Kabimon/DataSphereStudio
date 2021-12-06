@@ -8,7 +8,7 @@ import com.webank.wedatasphere.linkis.httpclient.dws.response.DWSResult
 import java.util
 import scala.beans.BeanProperty
 
-@DWSHttpMessageResult("/api/rest_j/v\\d+/dss/framework/workspace/getWorkspaceUsers/(\\S+)")
+@DWSHttpMessageResult("/api/rest_j/v\\d+/dss/framework/workspace/getWorkspaceUsers")
 class GetWorkspaceUsersResult extends DWSResult{
   @BeanProperty var roles:util.List[java.util.Map[String, Any]] = _
   @BeanProperty var workspaceUsers:util.List[java.util.Map[String, Any]] = _
@@ -24,7 +24,7 @@ class GetWorkspaceUsersResult extends DWSResult{
 
   def getWorkspaceUserList:util.List[DSSWorkspaceUser]={
     import scala.collection.JavaConverters._
-    roles.asScala.map(x=>{
+    workspaceUsers.asScala.map(x=>{
       val str = DWSHttpClient.jacksonJson.writeValueAsString(x)
       DWSHttpClient.jacksonJson.readValue(str, classOf[DSSWorkspaceUser])
     }).asJava

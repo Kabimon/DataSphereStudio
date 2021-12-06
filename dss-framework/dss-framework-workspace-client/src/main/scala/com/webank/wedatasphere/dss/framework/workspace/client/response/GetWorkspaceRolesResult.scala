@@ -8,7 +8,7 @@ import com.webank.wedatasphere.linkis.httpclient.dws.response.DWSResult
 import java.util
 import scala.beans.BeanProperty
 
-@DWSHttpMessageResult("/api/rest_j/v\\d+/dss/framework/workspace/getWorkspaceRoles/(\\S+)")
+@DWSHttpMessageResult("/api/rest_j/v\\d+/dss/framework/workspace/getWorkspaceRoles")
 class GetWorkspaceRolesResult extends DWSResult{
   @BeanProperty var workspaceRoles:util.List[java.util.Map[String, Any]] = _
 
