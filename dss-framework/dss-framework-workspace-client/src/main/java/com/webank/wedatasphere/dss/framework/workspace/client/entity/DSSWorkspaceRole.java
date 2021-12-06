@@ -1,10 +1,8 @@
 package com.webank.wedatasphere.dss.framework.workspace.client.entity;
 
-import lombok.Data;
 
 import java.io.Serializable;
 
-@Data
 public class DSSWorkspaceRole implements Serializable {
     private static final long serialVersionUID=1L;
 
@@ -39,7 +37,7 @@ public class DSSWorkspaceRole implements Serializable {
 
     @Override
     public String toString() {
-        return "DSSWorkspaceRoleVO{" +
+        return "DSSWorkspaceRole{" +
                 "roleId=" + roleId +
                 ", roleName='" + roleName + '\'' +
                 ", roleFrontName='" + roleFrontName + '\'' +

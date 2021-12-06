@@ -31,7 +31,9 @@ object WorkSpaceRemoteClientTest {
 
 
     val workspaceUsersResult = workSpaceRemoteClient.getWorkspaceUsers(GetWorkspaceUsersAction.builder().setUser("hdfs").setWorkspaceId("224").build())
+    println(workspaceUsersResult.total)
     println(workspaceUsersResult.getWorkspaceUserList)
+    println(workspaceUsersResult.getWorkspaceRoleList)
   }
 
 
