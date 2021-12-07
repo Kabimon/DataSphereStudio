@@ -27,7 +27,18 @@
           </Input>
         </FormItem>
         <FormItem label="负责人" prop="owner">
-          <Input v-model="formState.owner" placeholder="负责人"></Input>
+          <Select
+            v-model="formState.owner"
+            placeholder="默认为创建用户"
+          >
+            <Option
+              v-for="item in usersList"
+              :value="item.name"
+              :key="item.name"
+            >
+              {{ item.name }}
+            </Option>
+          </Select>
         </FormItem>
         <FormItem label="可用角色" prop="principalName">
           <Select
@@ -37,11 +48,11 @@
             placeholder="可用角色"
           >
             <Option
-              v-for="item in authorityList"
-              :value="item.value"
-              :key="item.value"
+              v-for="item in rolesList"
+              :value="item.roleFrontName"
+              :key="item.roleId"
             >
-              {{ item.label }}
+              {{ item.roleFrontName }}
             </Option>
           </Select>
         </FormItem>
@@ -60,18 +71,32 @@
         </FormItem>
         <h2 class="form-block-title">作用范围</h2>
         <FormItem label="主题域" prop="_themeArea">
-          <SelectPage
+          <Select
             v-model="formState._themeArea"
             placeholder="主题域"
-            :fetch="handleGetThemesList"
-          />
+          >
+            <Option
+              v-for="item in themesList"
+              :value="`${item.name}|${item.enName}`"
+              :key="item.id"
+            >
+              {{ item.name }}
+            </Option>
+          </Select>
         </FormItem>
         <FormItem label="分层" prop="_layerArea">
-          <SelectPage
+          <Select
             v-model="formState._layerArea"
             placeholder="分层"
-            :fetch="handleGetLayersList"
-          />
+          >
+            <Option
+              v-for="item in layersList"
+              :value="`${item.name}|${item.enName}`"
+              :key="item.id"
+            >
+              {{ item.name }}
+            </Option>
+          </Select>
         </FormItem>
         <h2 class="form-block-title">指标内容</h2>
         <FormItem label="指标类型" prop="content.indicatorType">
@@ -306,22 +331,36 @@
           </Input>
         </FormItem>
         <FormItem label="业务负责人" prop="content.businessOwner">
-          <Input
+          <Select
             v-model="formState.content.businessOwner"
             placeholder="业务负责人"
           >
-          </Input>
+            <Option
+              v-for="item in usersList"
+              :value="item.name"
+              :key="item.name"
+            >
+              {{ item.name }}
+            </Option>
+          </Select>
         </FormItem>
         <FormItem label="技术口径" prop="content.calculation">
           <Input v-model="formState.content.calculation" placeholder="技术口径">
           </Input>
         </FormItem>
         <FormItem label="技术负责人" prop="content.calculationOwner">
-          <Input
+          <Select
             v-model="formState.content.calculationOwner"
             placeholder="技术负责人"
           >
-          </Input>
+            <Option
+              v-for="item in usersList"
+              :value="item.name"
+              :key="item.name"
+            >
+              {{ item.name }}
+            </Option>
+          </Select>
         </FormItem>
       </div>
     </Form>
@@ -355,9 +394,11 @@ import {
   getCyclesList,
   getModifiersList,
   getLayersList,
+  getUsersList,
+  getRolesList,
 } from "@/apps/dataModelCenter/service/api/common";
-import { getMeasures } from "@/apps/dataModelCenter/service/api/measures";
-import { getDimensions } from "@/apps/dataModelCenter/service/api/dimensions";
+import {getMeasures} from "@/apps/dataModelCenter/service/api/measures";
+import {getDimensions} from "@/apps/dataModelCenter/service/api/dimensions";
 import {
   getIndicators,
   createIndicators,
@@ -367,17 +408,17 @@ import {
 } from "@/apps/dataModelCenter/service/api/indicators";
 import SelectPage from "@dataModelCenter/components/selectPage";
 import mixin from "@/common/service/mixin";
-import { extend } from "@/common/util/object";
+import {extend} from "@/common/util/object";
 
 let sourceInfoMap = {
-  0: { measure: "", formula: "", dimension: "" },
-  1: { indicatorName: "", formula: "", dimension: "" },
-  2: { indicatorName: "", cycle: "", modifier: "", dimension: "" },
-  3: { indicatorName: "", formula: "", modifier: "", dimension: "" },
-  4: { formula: "", dimension: "" },
+  0: {measure: "", formula: "", dimension: ""},
+  1: {indicatorName: "", formula: "", dimension: ""},
+  2: {indicatorName: "", cycle: "", modifier: "", dimension: ""},
+  3: {indicatorName: "", formula: "", modifier: "", dimension: ""},
+  4: {formula: "", dimension: ""},
 };
 export default {
-  components: { SelectPage },
+  components: {SelectPage},
   model: {
     prop: "_visible",
     event: "_changeVisible",
@@ -399,6 +440,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
+      if (val) this.handlePreFetchData()
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -415,14 +457,10 @@ export default {
         principalName: "ALL",
         isCoreIndicator: 0,
         isAvailable: 1,
-        // 主题域 名字|英文名
+        // 主题域 名字|英文名 themeArea|themeAreaEn
         _themeArea: "",
-        // themeArea
-        // themeAreaEn
-        // 分层 名字|英文名
+        // 分层 名字|英文名 layerArea|layerAreaEn
         _layerArea: "",
-        // layerArea
-        // layerAreaEn
         content: {
           indicatorType: 0,
           sourceInfo: {},
@@ -464,13 +502,6 @@ export default {
           {
             message: "仅支持英文，下划线，数字",
             pattern: /^[a-zA-Z0-9_]+$/g,
-            trigger: "submit",
-          },
-        ],
-        _warehouseTheme: [
-          {
-            required: true,
-            message: "主题域必选",
             trigger: "submit",
           },
         ],
@@ -580,19 +611,40 @@ export default {
         paddingBottom: "53px",
         position: "static",
       },
-      // 角色列表
-      authorityList: [
-        {
-          value: "ALL",
-          label: "ALL",
-        },
-      ],
       // 引用次数
-      refCount: 0
+      refCount: 0,
+      // 主题列表
+      themesList: [],
+      // 用户列表
+      usersList: [],
+      // 角色列表
+      rolesList: [],
+      // 分层列表
+      layersList: []
     };
   },
   methods: {
-    // 获取维度列表
+    /**
+     * 获取预置数据
+     */
+    handlePreFetchData() {
+      this.loading = true
+      let id = this.getCurrentWorkspaceId()
+      Promise.all([getUsersList(id), getRolesList(id), getThemesList(), getLayersList()]).then(([userRes, roleRes, themeRes, layerRes]) => {
+        this.loading = false
+        this.usersList = userRes.users;
+        this.rolesList = roleRes.users;
+        this.themesList = themeRes.list;
+        this.layersList = layerRes.list;
+      }).catch(() => {
+        this.loading = false
+      })
+    },
+    /**
+     * 获取维度
+     * @param name
+     * @returns {*}
+     */
     handleGetDimensions(name) {
       return getDimensions({
         name: name,
@@ -608,7 +660,11 @@ export default {
         };
       });
     },
-    // 获取度量列表
+    /**
+     * 获取度量列表
+     * @param name
+     * @returns {*}
+     */
     handleGetMeasures(name) {
       return getMeasures({
         name: name,
@@ -624,7 +680,11 @@ export default {
         };
       });
     },
-    // 获取指标列表
+    /**
+     * 获取指标列表
+     * @param name
+     * @returns {*}
+     */
     handleGetIndicators(name) {
       return getIndicators({
         name: name,
@@ -640,7 +700,11 @@ export default {
         };
       });
     },
-    // 获取原子指标列表
+    /**
+     * 获取原子指标列表
+     * @param name
+     * @returns {*}
+     */
     handleGetIndicatorsTypeOne(name) {
       return getIndicators({
         name: name,
@@ -657,7 +721,10 @@ export default {
         };
       });
     },
-    // 获取修饰词列表
+    /**
+     * 获取修饰词列表
+     * @returns {Promise<{list: *}>}
+     */
     handleGetModifiersList() {
       return getModifiersList().then((res) => {
         return {
@@ -668,29 +735,10 @@ export default {
         };
       });
     },
-    // 获取分层列表
-    handleGetLayersList() {
-      return getLayersList().then((res) => {
-        return {
-          list: res.list.map((item) => ({
-            label: item.name,
-            value: `${item.name}|${item.enName}`,
-          })),
-        };
-      });
-    },
-    // 获取主题列表
-    handleGetThemesList() {
-      return getThemesList().then((res) => {
-        return {
-          list: res.list.map((item) => ({
-            label: item.name,
-            value: `${item.name}|${item.enName}`,
-          })),
-        };
-      });
-    },
-    // 获取周期列表
+    /**
+     * 获取周期列表
+     * @returns {Promise<{list: *}>}
+     */
     handleGetCyclesList() {
       return getCyclesList().then((res) => {
         return {
@@ -701,10 +749,14 @@ export default {
         };
       });
     },
-    // 根据id获取数据
+    /**
+     * 根据id获取数据
+     * @param id
+     * @returns {Promise<void>}
+     */
     async handleGetById(id) {
       this.loading = true;
-      let { detail } = await getIndicatorsById(id);
+      let {detail} = await getIndicatorsById(id);
       this.loading = false;
       detail.content.indicatorSourceInfo = JSON.parse(
         detail.content.indicatorSourceInfo
@@ -713,7 +765,6 @@ export default {
         name: detail.name,
         fieldIdentifier: detail.fieldIdentifier,
         comment: detail.comment,
-        _warehouseTheme: `${detail.warehouseThemeName}|${detail.warehouseThemeNameEn}`,
         owner: detail.owner,
         principalName: detail.principalName,
         isCoreIndicator: detail.isCoreIndicator,
@@ -745,14 +796,23 @@ export default {
       this.formState = newFormState;
       this.refCount = detail.refCount;
     },
+    /**
+     * 默认取消回调
+     */
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
     },
+    /**
+     * 取消按钮操作
+     */
     handleCancel() {
       this.$refs["formRef"].resetFields();
       this.$emit("_changeVisible", false);
     },
-    // 新增版本
+    /**
+     * 新增版本
+     * @returns {Promise<void>}
+     */
     async handleAddVersion() {
       this.$refs["formRef"].validate(async (valid) => {
         if (valid) {
@@ -770,28 +830,29 @@ export default {
         }
       });
     },
-    // 格式化form中的数据，
+    /**
+     * 格式化form中的数据
+     * @returns {Object}
+     */
     formatFormState() {
       let [themeArea, themeAreaEn] = this.formState._themeArea.split("|");
       let [layerArea, layerAreaEn] = this.formState._layerArea.split("|");
-      let [warehouseThemeName, warehouseThemeNameEn] =
-        this.formState._warehouseTheme.split("|");
       let key = `info_${this.formState.content.indicatorType}`;
       this.formState.content.sourceInfo = this.formState._sourceInfo[key];
       return Object.assign({}, this.formState, {
         _sourceInfo: undefined,
         _themeArea: undefined,
         _layerArea: undefined,
-        _warehouseTheme: undefined,
-        warehouseThemeName,
-        warehouseThemeNameEn,
         themeArea,
         layerArea,
         themeAreaEn,
         layerAreaEn,
       });
     },
-    // 表单确定
+    /**
+     * 表单确定
+     * @returns {Promise<void>}
+     */
     async handleOk() {
       this.$refs["formRef"].validate(async (valid) => {
         if (valid) {
@@ -831,6 +892,7 @@ export default {
   text-align: left;
   background: #fff;
 }
+
 .form-block-title {
   font-size: 18px;
   font-weight: 600;

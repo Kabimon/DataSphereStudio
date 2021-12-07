@@ -1,5 +1,5 @@
 <template>
-  <div class="page-content">
+  <div>
     <div style="margin-bottom: 16px">
       <div class="flex-row-center top-title">
         <Icon type="md-grid" color="#2d8cf0" :size="50" class="top-icon"/>
@@ -90,7 +90,7 @@
         </Card>
       </Col>
       <Col :span="19">
-        <div class="page-content searc-data-box">
+        <div class="searc-data-box">
           <div style="margin-bottom: 16px">
             <span class="title">
               {{ getDataMode === 0 ? "搜索结果" : "" }}
@@ -424,7 +424,7 @@ export default {
           await deleteTableById(id).catch(() => {
           });
           this.loading = false;
-          this.handleSearchTables(true);
+          this.handleSearchTables();
         },
       });
     },
@@ -602,8 +602,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../../assets/styles/common.scss";
-
 .flex-row-center {
   display: flex;
   justify-content: center;
@@ -624,6 +622,8 @@ export default {
 
 .searc-data-box {
   border: 1px solid #e8eaec;
+  padding: 20px;
+  box-sizing: border-box;
 
   .title {
     font-size: 18px;

@@ -12,6 +12,7 @@ if (apps.modules.length === 1) {
     subRoutes = appsRoutes[0].subAppRoutes
   }
 }
+console.log(apps)
 /**
  * * 工作流子应用：workflows和scriptis一起打包
  * * npm run build --module=scriptis,workflows --micro_module=workflows

@@ -233,13 +233,13 @@ export default {
 
   methods: {
     /**
-     * @description 是否在编辑状态
+     * 是否在编辑状态
      */
     isEditMode() {
       return this.editIndex !== -1;
     },
     /**
-     * @description 字段绑定模型回调
+     * 字段绑定模型回调
      */
     handleSelectModelFinish(arg) {
       if (this.editIndex === -1) return;
@@ -247,13 +247,13 @@ export default {
       this.editData.modelName = arg.modelName;
     },
     /**
-     * @description 管理数仓需改
+     * 管理数仓需改
      */
     handleSelectModel() {
       this.selectModelCfg = { visible: true };
     },
     /**
-     * @description 编辑某字段
+     * 编辑某字段
      */
     handleEdit(index, row) {
       this.editData.name = row.name;
@@ -270,17 +270,10 @@ export default {
       this.editIndex = index;
     },
     /**
-     * @description 需改字段，修改前验证是否符合需求
+     * 需改字段，修改前验证是否符合需求
      * @param index 列序号
      */
     handleSave(index) {
-      let checkResArr = this.checkEditValue();
-      if (checkResArr.length !== 0) {
-        for (const key of checkResArr) {
-          this.$Message.warning(key);
-        }
-        return;
-      }
       this.columnData[index].name = this.editData.name;
       this.columnData[index].alias = this.editData.alias;
       this.columnData[index].type = this.editData.type;
@@ -291,25 +284,22 @@ export default {
       this.columnData[index].rule = this.editData.rule;
       this.columnData[index].modelType = this.editData.modelType;
       this.columnData[index].modelName = this.editData.modelName;
-
       this.editIndex = -1;
     },
     /**
-     * @description 检查当前正在编辑的数据时候合规
-     * @returns array
-     */
-    checkEditValue() {
-      let resArr = [];
-      if (!Boolean(/^[a-zA-Z0-9_]{1,100}$/g.test(this.editData.name))) {
-        resArr.push("字段名必须是英文字母下划线,且长度在1-100字符之间");
-      }
-      return resArr;
-    },
-    /**
-     * @description 规范性验证
+     * 规范性验证
      */
     checkColumnData() {
+      let checkPartitionField = false
       for (let i = 0; i < this.columnData.length - 1; i++) {
+        let item = this.columnData[i]
+        if (!Boolean(/^[a-zA-Z0-9_]{1,100}$/g.test(item.name))) {
+          this.$Message.warning("字段名必须是英文字母下划线,且长度在1-100字符之间");
+          return false
+        }
+        if(item.isPartitionField === 0){
+          checkPartitionField = true
+        }
         for (let j = i + 1; j < this.columnData.length; j++) {
           if (this.columnData[i].name === this.columnData[j].name) {
             this.$Message.warning("校验不通过，字段名称不能重复！");
@@ -317,7 +307,11 @@ export default {
           }
         }
       }
-      this.$Message.success("校验通过！");
+      if(checkPartitionField === false){
+        this.$Message.warning("必须有一个非分区字段");
+        return false
+      }
+      this.$Message.success("字段格式校验通过！");
       return true;
     },
     /**

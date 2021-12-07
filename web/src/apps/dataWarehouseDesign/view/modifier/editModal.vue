@@ -36,7 +36,7 @@
           <FormItem prop="themeDomainId">
             <Select v-model="formState.themeDomainId" placeholder="主题域">
               <Option
-                v-for="item in subjectDomainList"
+                v-for="item in themeList"
                 :value="item.id"
                 :key="item.name"
               >
@@ -49,7 +49,7 @@
           <FormItem prop="layerId">
             <Select v-model="formState.layerId" placeholder="分层">
               <Option
-                v-for="item in layeredList"
+                v-for="item in layerList"
                 :value="item.id"
                 :key="item.name"
               >
@@ -114,13 +114,14 @@
 </template>
 
 <script>
+import {getThemedomains} from "@dataWarehouseDesign/service/api/theme";
 import {
-  getThemedomains,
-  getLayersAll,
   createModifiers,
   editModifiers,
   getModifiersById,
-} from "@dataWarehouseDesign/service/api";
+} from "@dataWarehouseDesign/service/api/modifiers";
+import {getDbs, getLayersAll} from '@dataWarehouseDesign/service/api/layer'
+import {getRolesList, getUsersList} from "@dataWarehouseDesign/service/api/common";
 export default {
   model: {
     prop: "_visible",
@@ -146,7 +147,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
-      if (val) this.handleGetLayerListAndSubjectDomainList();
+      if (val) this.handlePreFetchData()
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -184,9 +185,13 @@ export default {
       // 是否加载中
       loading: false,
       // 主题域列表
-      subjectDomainList: [],
+      themeList: [],
       // 分层列表
-      layeredList: [],
+      layerList: [],
+      // 用户列表
+      usersList: [],
+      // 角色列表
+      rolesList: [],
       // 是否有引用
       referenced: false,
       // 验证规则
@@ -228,6 +233,24 @@ export default {
     };
   },
   methods: {
+    /**
+     * 获取预置数据
+     */
+    handlePreFetchData() {
+      this.loading = true
+      Promise.all([getLayersAll({ isAvailable: true }), getThemedomains({ enabled: true })]).then(([layersRes,themesRes]) => {
+        this.loading = false
+        this.layerList = layersRes.list;
+        this.themeList = themesRes.page.items;
+      }).catch(() => {
+        this.loading = false
+      })
+    },
+    /**
+     * 根据id获取数据
+     * @param id
+     * @returns {Promise<void>}
+     */
     async handleGetById(id) {
       this.loading = true;
       let { item } = await getModifiersById(id);
@@ -246,13 +269,23 @@ export default {
       this.formState.themeDomainId = item.themeDomainId;
       this.referenced = item.referenced;
     },
+    /**
+     * 弹框关闭
+     */
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
     },
+    /**
+     * 取消按钮
+     */
     handleCancel() {
       this.$refs["formRef"].resetFields();
       this.$emit("_changeVisible", false);
     },
+    /**
+     * 表单提交
+     * @returns {Promise<void>}
+     */
     async handleOk() {
       this.$refs["formRef"].validate(async (valid) => {
         if (valid) {
@@ -276,23 +309,22 @@ export default {
         }
       });
     },
+    /**
+     * 删除一个词
+     * @param index
+     */
     handleDeleteOneToken(index) {
       this.formState.list.splice(index, 1);
     },
+    /**
+     * 添加词
+     */
     handleAddToken() {
       this.formState.list.push({
         name: "",
         identifier: "",
         formula: "",
       });
-    },
-    async handleGetLayerListAndSubjectDomainList() {
-      this.loading = true;
-      let { page } = await getThemedomains({ enabled: true });
-      let { list } = await getLayersAll({ isAvailable: true });
-      this.loading = false;
-      this.subjectDomainList = page.items;
-      this.layeredList = list;
     },
   },
 };

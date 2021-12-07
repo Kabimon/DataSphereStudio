@@ -20,23 +20,23 @@
 
         <div class="assets-info-b-l-content">
           <div class="assets-info-b-l-content-item">
-            <label for="owner">负责人：</label>
+            <label>负责人：</label>
             <span>{{ basicData.owner }}</span>
           </div>
           <div class="assets-info-b-l-content-item">
-            <label for="createTime">创建时间：</label>
+            <label>创建时间：</label>
             <span>{{ basicData.createTime }}</span>
           </div>
           <div class="assets-info-b-l-content-item">
-            <label for="lifeCircle">生命周期：</label>
+            <label>生命周期：</label>
             <span>{{ basicData.lifeCircle }}</span>
           </div>
           <div class="assets-info-b-l-content-item">
-            <label for="store">存储量：</label>
+            <label>存储量：</label>
             <span>{{ basicData.store }}</span>
           </div>
           <div class="assets-info-b-l-content-item">
-            <label for="comment">描述：</label>
+            <label>描述：</label>
             <Button
               v-show="!isCommentEdit"
               type="text"
@@ -54,22 +54,7 @@
             />
           </div>
           <div class="assets-info-b-l-content-item">
-            <label for="labels">标签：</label>
-            <!-- <Button
-              v-show="!isLabelEdit"
-              type="dashed"
-              size="large"
-              style="marginRight: 8px; marginBottom: 8px"
-              @click="() => (isLabelEdit = true)"
-            >添加标签</Button
-            >
-            <Input
-              v-show="isLabelEdit"
-              v-model="singleLabel"
-              size="small"
-              placeholder=""
-              @on-enter="editSingleLabel"
-            /> -->
+            <label>标签：</label>
             <span
               v-for="label in labelOptions"
               :key="label"
@@ -88,10 +73,6 @@
             <field-info :fieldInfo="fieldInfo" :rangeFieldInfo="rangeFieldInfo">
             </field-info>
           </TabPane>
-          <!-- <TabPane label="分区信息" v-show="isParTbl"
-            ><range-info :rangeInfo="rangeInfo"></range-info
-          ></TabPane> -->
-          <!-- <TabPane label="数据预览">标签三的内容</TabPane> -->
           <TabPane label="数据血缘">
             <div class="dagreLayout-page" v-if="lineageData">
               <lineage

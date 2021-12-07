@@ -23,7 +23,18 @@
         <Input v-model="formState.fieldIdentifier" placeholder="英文名"></Input>
       </FormItem>
       <FormItem label="负责人" prop="owner">
-        <Input v-model="formState.owner" placeholder="默认为创建用户"></Input>
+        <Select
+          v-model="formState.owner"
+          placeholder="默认为创建用户"
+        >
+          <Option
+            v-for="item in usersList"
+            :value="item.name"
+            :key="item.name"
+          >
+            {{ item.name }}
+          </Option>
+        </Select>
       </FormItem>
       <FormItem label="可用角色" prop="principalName">
         <Select
@@ -33,11 +44,11 @@
           placeholder="可用角色"
         >
           <Option
-            v-for="item in authorityList"
-            :value="item.value"
-            :key="item.value"
+            v-for="item in rolesList"
+            :value="item.roleFrontName"
+            :key="item.roleId"
           >
-            {{ item.label }}
+            {{ item.roleFrontName }}
           </Option>
         </Select>
       </FormItem>
@@ -112,7 +123,7 @@ import {
   createLabel,
   getLabelById,
 } from "@dataModelCenter/service/api/labels";
-import {getThemesList} from "@/apps/dataModelCenter/service/api/common";
+import {getRolesList, getThemesList, getUsersList} from "@/apps/dataModelCenter/service/api/common";
 import mixin from "@/common/service/mixin";
 
 export default {
@@ -138,7 +149,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
-      if (val) this.handleGetSubjectDomainList();
+      if (val) this.handlePreFetchData();
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -168,10 +179,6 @@ export default {
           slot: "action",
         },
       ],
-      // 是否加载中
-      loading: false,
-      // 主题列表
-      themesList: [],
       // 验证规则
       ruleValidate: {
         name: [
@@ -210,22 +217,34 @@ export default {
         principalName: "",
         isAvailable: 1,
       },
+      // 是否加载中
+      loading: false,
+      // 主题列表
+      themesList: [],
+      // 用户列表
+      usersList: [],
+      // 角色列表
+      rolesList: [],
       // 引用次数
       refCount: 0,
-      // 角色列表
-      authorityList: [
-        {
-          value: "ALL",
-          label: "ALL",
-        },
-        {
-          value: "角色1",
-          label: "角色1",
-        },
-      ],
     };
   },
   methods: {
+    /**
+     * 获取预置数据
+     */
+    handlePreFetchData() {
+      this.loading = true
+      let id = this.getCurrentWorkspaceId()
+      Promise.all([getUsersList(id), getRolesList(id), getThemesList()]).then(([userRes, roleRes, themeRes]) => {
+        this.loading = false
+        this.usersList = userRes.users;
+        this.rolesList = roleRes.users;
+        this.themesList = themeRes.list;
+      }).catch(() => {
+        this.loading = false
+      })
+    },
     /**
      * @description 根据id获取数据
      */
@@ -320,15 +339,6 @@ export default {
         key: "",
         value: ""
       });
-    },
-    /**
-     * @description 获取主题列表
-     */
-    async handleGetSubjectDomainList() {
-      this.loading = true;
-      let {list} = await getThemesList();
-      this.loading = false;
-      this.themesList = list;
     },
   },
 };

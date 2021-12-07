@@ -23,7 +23,18 @@
         <Input v-model="formState.enName" placeholder="英文名"></Input>
       </FormItem>
       <FormItem label="负责人" prop="owner">
-        <Input v-model="formState.owner" placeholder="负责人"></Input>
+        <Select
+          v-model="formState.owner"
+          placeholder="默认为创建用户"
+        >
+          <Option
+            v-for="item in usersList"
+            :value="item.name"
+            :key="item.name"
+          >
+            {{ item.name }}
+          </Option>
+        </Select>
       </FormItem>
       <FormItem label="可用角色" prop="principalName">
         <Select
@@ -33,11 +44,11 @@
           placeholder="可用角色"
         >
           <Option
-            v-for="item in authorityList"
-            :value="item.value"
-            :key="item.value"
+            v-for="item in rolesList"
+            :value="item.roleFrontName"
+            :key="item.roleId"
           >
-            {{ item.label }}
+            {{ item.roleFrontName }}
           </Option>
         </Select>
       </FormItem>
@@ -69,8 +80,10 @@ import {
   createThemedomains,
   getThemedomainsById,
   editThemedomains,
-} from "@dataWarehouseDesign/service/api";
+} from "@dataWarehouseDesign/service/api/theme";
+import { getRolesList,getUsersList } from "@dataWarehouseDesign/service/api/common"
 import mixin from "@/common/service/mixin";
+import {getThemesList} from "@dataModelCenter/service/api/common";
 export default {
   model: {
     prop: "_visible",
@@ -95,6 +108,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
+      if(val) this.handlePreFetchData();
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -164,9 +178,32 @@ export default {
         paddingBottom: "53px",
         position: "static",
       },
+      // 用户列表
+      usersList: [],
+      // 角色列表
+      rolesList: []
     };
   },
   methods: {
+    /**
+     * 获取预置数据
+     */
+    handlePreFetchData() {
+      this.loading = true
+      let id = this.getCurrentWorkspaceId()
+      Promise.all([getUsersList(id), getRolesList(id)]).then(([userRes, roleRes]) => {
+        this.loading = false
+        this.usersList = userRes.list;
+        this.rolesList = roleRes.list;
+      }).catch(() => {
+        this.loading = false
+      })
+    },
+    /**
+     * 根据 id 获取数据
+     * @param id
+     * @returns {void}
+     */
     async handleGetById(id) {
       this.loading = true;
       let { item } = await getThemedomainsById(id);

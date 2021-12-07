@@ -31,3 +31,20 @@ export const getModifiersList = () => api.fetch(`${API_PATH.DATAMODEL_PATH}modif
  *
  */
 export const getCyclesList = () => api.fetch(`${API_PATH.DATAMODEL_PATH}cycles/list`, {}, "post");
+
+
+/**
+ * 获取可用角色列表
+ * @param workspaceid {String} 工作区id
+ * @returns {Promise}
+ *
+ */
+export const getRolesList = (workspaceid) => api.fetch(`${API_PATH.DATAMODEL_PATH}roles/${workspaceid}`, {}, "get");
+
+/**
+ * 获取所有用户列表
+ * @param workspaceid {String} 工作区id
+ * @returns {Promise}
+ *
+ */
+export const getUsersList = (workspaceid) => api.fetch(`${API_PATH.DATAMODEL_PATH}users/${workspaceid}`, {}, "get");

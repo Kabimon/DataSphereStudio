@@ -1,5 +1,5 @@
 <template>
-  <div class="page-content">
+  <div>
     <Spin fix v-if="loading"></Spin>
     <Row :gutter="15" style="margin-bottom: 16px">
       <Col span="18">
@@ -41,7 +41,7 @@
             type="primary"
             style="margin-right: 15px"
             @click="handleFormFinish"
-            v-if="config.mode === 'create' || !checkTableData"
+            v-if="config.mode === 'create' || config.mode === 'copy' || !checkTableData"
           >
             保存
           </Button>
@@ -97,6 +97,7 @@
             </FormItem>
             <FormItem label="所属分层" prop="warehouseLayerName">
               <Select
+                :loading="layersLoading"
                 v-model="formState._warehouseLayer"
                 placeholder="选择分层"
               >
@@ -131,11 +132,11 @@
                 placeholder="可用角色"
               >
                 <Option
-                  v-for="item in principalNameList"
-                  :value="item.value"
-                  :key="item.value"
+                  v-for="item in rolesList"
+                  :value="item.roleFrontName"
+                  :key="item.roleId"
                 >
-                  {{ item.label }}
+                  {{ item.roleFrontName }}
                 </Option>
               </Select>
             </FormItem>
@@ -250,14 +251,16 @@ import {
   getTableInfoByName,
   updateTable,
 } from "@dataModelCenter/service/api/tableManage";
-import {getCyclesList, getLayersList, getThemesList,} from "@dataModelCenter/service/api/common";
+import {getCyclesList, getLayersList, getThemesList, getRolesList} from "@dataModelCenter/service/api/common";
 import ColumnEditor from "./columnEditor.vue";
 import {getLabelList} from "@/apps/dataModelCenter/service/api/labels";
-
+import mixin from "@/common/service/mixin";
 export default {
   components: {ColumnEditor},
+  mixins: [mixin],
   data() {
     return {
+      // 验证基本信息
       ruleValidateBaseicInfo: {
         // 表名
         name: [
@@ -267,8 +270,8 @@ export default {
             trigger: "submit",
           },
           {
-            message: "仅支持英文，下划线，数字",
-            pattern: /^[a-zA-Z0-9_]+$/g,
+            message: "仅支持小写英文，下划线，数字",
+            pattern: /^[a-z0-9_]+$/g,
             trigger: "submit",
           },
         ],
@@ -369,18 +372,12 @@ export default {
         comment: "",
         // 是否外部表
         isExternal: 0,
-        // 分层
+        // 分层 名字|英文名 warehouseLayerName|warehouseLayerNameEn
         _warehouseLayer: "",
-        // warehouseLayerName
-        // warehouseLayerNameEn
-        // 主题
+        // 主题 名字|英文名 warehouseThemeName|warehouseThemeNameEn
         _warehouseTheme: "",
-        // warehouseThemeName
-        // warehouseThemeNameEn
-        // 生命周期
+        // 生命周期 lifecycle|lifecycleEn
         _lifecycle: "永久",
-        // lifecycle
-        // lifecycleEn
         // 是否分区表
         isPartitionTable: 1,
         // 是否启用
@@ -401,12 +398,7 @@ export default {
         columns: [],
       },
       // 角色列表
-      principalNameList: [
-        {
-          value: "ALL",
-          label: "ALL",
-        },
-      ],
+      rolesList: [],
       // 主题列表
       themesList: [],
       // 分层列表
@@ -425,6 +417,8 @@ export default {
       storageTypeList: [],
       // 是否加载中
       loading: false,
+      // 主题加载中
+      layersLoading: [],
       // 一些额外的信息
       extraInfo: {
         name: "",
@@ -441,16 +435,6 @@ export default {
       checkTableData: true,
     };
   },
-  mounted() {
-    this.handleGetFrontData();
-    // 检查当前表是否有数据
-    if (this.config.mode === "update") {
-      this.handleCheckTableData();
-    }
-    if (this.config.id || (this.config.name && this.config.guid)) {
-      this.handleGetData();
-    }
-  },
   watch: {
     // 监听库变化 实时获取分层
     "formState.dataBase": {
@@ -462,19 +446,32 @@ export default {
       }
     }
   },
+  mounted() {
+    // 用户操作时需要的数据
+    this.handlePreFetchData();
+    // 检查当前表是否有数据
+    if (this.config.mode === "update") {
+      this.handleCheckTableData();
+    }
+    // 如果有id或者guid就去获取数据
+    if (this.config.id || (this.config.name && this.config.guid)) {
+      this.handleGetData();
+    }
+  },
+
   methods: {
     /**
      * 获取分层
      * @param dbName {String} 可用库
      */
     async handlegetLayers(dbName) {
-      this.loading = true
+      this.layersLoading = true
       let {list} = await getLayersList(dbName);
-      this.loading = false
+      this.layersLoading = false
       this.layersList = list
     },
     /**
-     * @description 检查当前表是否存在数据，有数据的情况下某些操作是不允许的
+     * 检查当前表是否存在数据，有数据的情况下某些操作是不允许的
      */
     async handleCheckTableData() {
       this.loading = true;
@@ -489,7 +486,7 @@ export default {
         });
     },
     /**
-     * @description 获取当前表数据
+     * 获取当前表数据
      */
     async handleGetData() {
       this.loading = true;
@@ -501,10 +498,16 @@ export default {
       }
       this.loading = false;
       let {detail} = data;
+      // 如果有id更新id
+      if (detail.id) {
+        this.config.id = detail.id;
+      }
+      // 额外信息
       this.extraInfo = {
         name: detail.name,
         version: detail.version,
       };
+      // 表单数据
       this.formState = {
         // 所属库
         dataBase: detail.dataBase || detail.name.split(".")[0] || "",
@@ -554,6 +557,12 @@ export default {
           };
         }),
       };
+      // 如果是 copy 模式，则清空一些信息
+      if(this.config.mode === 'copy'){
+        this.formState.name = ''
+        this.extraInfo.name = ''
+        this.extraInfo.version = ''
+      }
     },
     /**
      * @description 新增版本
@@ -573,7 +582,7 @@ export default {
         });
     },
     /**
-     * @description 执行表创建
+     * 执行表创建
      */
     async handleTableCreate(id) {
       this.loading = true;
@@ -587,37 +596,43 @@ export default {
       }
     },
     /**
-     * @description 获取前置选填数据
+     * 获取前置选填数据
      */
-    handleGetFrontData() {
+    handlePreFetchData() {
       this.loading = true;
       Promise.all([
+        // 主题
         getThemesList(),
+        // 数据库
         getDataBasesList(),
+        // 字典
         getDictionariesList(),
+        // 周期
         getCyclesList(),
-        getLabelList({
-          isAvailable: 1
-        }),
-      ]).then(([res1, res2, res3, res4, res5]) => {
+        // 标签
+        getLabelList({isAvailable: 1}),
+        // 可选角色
+        getRolesList(this.getCurrentWorkspaceId())
+      ]).then(([themeRes, dbRes, dictionariesRes, cyclesRes, labelRes, roleRes]) => {
         this.loading = false;
-        this.themesList = res1.list;
-        this.dataBasesList = res2.list;
-        this.lifecycleList = res4.list;
-        this.labelList = res5.list;
-        this.compressList = res3.list.filter(
+        this.themesList = themeRes.list;
+        this.dataBasesList = dbRes.list;
+        this.lifecycleList = cyclesRes.list;
+        this.labelList = labelRes.list;
+        this.compressList = dictionariesRes.list.filter(
           (item) => item.type === "COMPRESS"
         );
-        this.fileTypeList = res3.list.filter(
+        this.fileTypeList = dictionariesRes.list.filter(
           (item) => item.type === "FILE_STORAGE"
         );
-        this.storageTypeList = res3.list.filter(
+        this.storageTypeList = dictionariesRes.list.filter(
           (item) => item.type === "STORAGE_ENGINE"
         );
+        this.rolesList = roleRes.users
       });
     },
     /**
-     * @description 获取格式化之后的数据
+     * 获取格式化之后的数据
      * @return Object
      */
     handleGetFormatData() {
@@ -640,7 +655,7 @@ export default {
       });
     },
     /**
-     * @description 表单完成逻辑
+     * 表单完成逻辑
      */
     handleFormFinish() {
       // 表单验证
@@ -655,7 +670,7 @@ export default {
         this.$refs["coreInfoForm"].validate(),
       ]).then(([valid1, valid2]) => {
         if (valid1 && valid2) {
-          if (this.config.mode === "create") {
+          if (this.config.mode === "create" || this.config.mode === "copy") {
             addTable(this.handleGetFormatData()).then((res) => {
               this.$Message.success("创建成功");
               this.$Modal.confirm({
@@ -692,5 +707,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../../assets/styles/common.scss";
 </style>

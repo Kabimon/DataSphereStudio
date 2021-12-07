@@ -1,5 +1,5 @@
 <template>
-  <div class="page-content" style="position: relative">
+  <div style="position: relative">
     <Spin v-if="loading" fix></Spin>
     <div>
       <Card dis-hover>
@@ -18,7 +18,12 @@
             @click="handleSwitchCollect"
             :color="isCollect ? '#3399ff' : '#657180'"
           />
-          <!-- <Icon type="ios-copy" :size="24" color="#3399ff" /> -->
+          <Icon
+            type="ios-copy"
+            :size="24"
+            color="#3399ff"
+            @click="handleCopyTable"
+          />
           <Icon
             type="ios-create"
             :size="24"
@@ -610,6 +615,20 @@ export default {
       });
     },
     /**
+     * 复制表
+     */
+    handleCopyTable(){
+      this.$router.push({
+        path: `/datamodelcenter/tableManage/tableEditor`,
+        query: {
+          mode: "copy",
+          id: this.config.id,
+          guid: this.config.guid,
+          name: this.config.name
+        },
+      });
+    },
+    /**
      * @description 切换收藏
      * @returns {Promise<void>}
      */
@@ -784,8 +803,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../../assets/styles/common.scss";
-
 .census-item {
   .value {
     font-weight: 700;

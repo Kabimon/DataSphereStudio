@@ -1,5 +1,5 @@
 <template>
-  <div class="page-content">
+  <div>
     <div class="top-line">
       <div style="display: flex">
         <Select
@@ -126,7 +126,10 @@ export default {
         mode: "create",
       };
     },
-    // 删除操作
+    /**
+     * 删除操作
+     * @param id
+     */
     handleDelete(id) {
       this.$Modal.confirm({
         title: "警告",
@@ -135,7 +138,7 @@ export default {
           this.loading = true;
           await delMeasures(id).catch(() => {});
           this.loading = false;
-          this.handleGetData(true);
+          this.handleGetData();
         },
       });
     },
@@ -274,8 +277,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/styles/common.scss";
-
 .top-line {
   margin-bottom: 16px;
   display: flex;

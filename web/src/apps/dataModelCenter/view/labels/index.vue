@@ -1,5 +1,5 @@
 <template>
-  <div class="page-content">
+  <div>
     <div class="top-line">
       <div style="display: flex">
         <Select
@@ -37,6 +37,11 @@
     >
       <template slot-scope="{ row }" slot="isAvailable">
         {{ row.isAvailable ? "启用" : "禁用" }}
+      </template>
+      <template slot-scope="{ row }" slot="principalName">
+        <Tag v-for="name of row.principalName.split(',')" :key="name">
+          {{ name }}
+        </Tag>
       </template>
       <template slot-scope="{ row }" slot="createTime">
         {{ row.createTime | formatDate }}
@@ -120,7 +125,10 @@ export default {
         mode: "create",
       };
     },
-    // 删除操作
+    /**
+     * 删除操作
+     * @param id
+     */
     handleDelete(id) {
       this.$Modal.confirm({
         title: "警告",
@@ -130,7 +138,7 @@ export default {
           await delLabel(id).catch(() => {
           });
           this.loading = false;
-          await this.handleGetData(true);
+          await this.handleGetData();
         },
       });
     },
@@ -231,6 +239,11 @@ export default {
           key: "owner"
         },
         {
+          title: "可用角色",
+          key: "principalName",
+          slot: "principalName"
+        },
+        {
           title: "引用次数",
           key: "refCount",
         },
@@ -278,8 +291,6 @@ export default {
 
 
 <style lang="scss" scoped>
-@import "../../assets/styles/common.scss";
-
 .top-line {
   margin-bottom: 16px;
   display: flex;

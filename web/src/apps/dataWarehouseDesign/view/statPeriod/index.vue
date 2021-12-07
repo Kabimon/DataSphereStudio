@@ -1,5 +1,5 @@
 <template>
-  <div class="console-page">
+  <div>
     <div class="top-line">
       <div style="display: flex">
         <Select
@@ -102,7 +102,7 @@ import {
   deleteStatisticalPeriods,
   enableStatisticalPeriods,
   disableStatisticalPeriods,
-} from "../../service/api";
+} from "@dataWarehouseDesign/service/api/statisticalPeriods";
 import formatDate from "../../utils/formatDate";
 import EditModal from "./editModal.vue";
 
@@ -124,7 +124,7 @@ export default {
   methods: {
     // 弹框回调
     handleModalFinish() {
-      this.handleGetData();
+      this.handleGetData(true);
     },
     // 创建操作
     handleCreate() {
@@ -142,7 +142,7 @@ export default {
           this.loading = true;
           await deleteStatisticalPeriods(id).catch(() => {});
           this.loading = false;
-          this.handleGetData(true);
+          this.handleGetData();
         },
       });
     },
@@ -168,11 +168,17 @@ export default {
       this.loading = false;
       this.handleGetData(true);
     },
-    // 搜索
+    /**
+     * 搜索
+     */
     handleSearch() {
       this.handleGetData();
     },
-    // 获取数据
+    /**
+     * 获取数据
+     * @param changePage
+     * @returns {void}
+     */
     async handleGetData(changePage = false) {
       if (changePage === false && this.pageCfg.page !== 1) {
         return (this.pageCfg.page = 1);
@@ -191,7 +197,7 @@ export default {
     },
   },
   mounted() {
-    this.handleGetData(true);
+    this.handleGetData();
   },
   watch: {
     "pageCfg.page"() {

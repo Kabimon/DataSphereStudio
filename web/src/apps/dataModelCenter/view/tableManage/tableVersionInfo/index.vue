@@ -1,5 +1,5 @@
 <template>
-  <div class="page-content">
+  <div>
     <Spin fix v-if="loading"></Spin>
     <div style="margin-bottom: 15px">
       <Button @click="$router.back()">返回</Button>
@@ -417,5 +417,4 @@ export default {
 </script>
 
 <style  lang="scss" scoped>
-@import "../../../assets/styles/common.scss";
 </style>

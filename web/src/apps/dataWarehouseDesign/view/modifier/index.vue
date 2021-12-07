@@ -1,5 +1,5 @@
 <template>
-  <div class="console-page">
+  <div>
     <div class="top-line">
       <div style="display: flex">
         <Select
@@ -97,8 +97,8 @@ import {
   deleteModifiers,
   enableModifiers,
   disableModifiers,
-} from "../../service/api";
-import formatDate from "../../utils/formatDate";
+} from "@dataWarehouseDesign/service/api/modifiers";
+import formatDate from "@dataWarehouseDesign/utils/formatDate";
 import EditModal from "./editModal.vue";
 
 /**
@@ -137,7 +137,7 @@ export default {
           this.loading = true;
           await deleteModifiers(id).catch(() => {});
           this.loading = false;
-          this.handleGetData(true);
+          this.handleGetData();
         },
       });
     },
@@ -186,7 +186,7 @@ export default {
     },
   },
   mounted() {
-    this.handleGetData(true);
+    this.handleGetData();
   },
   watch: {
     "pageCfg.page"() {

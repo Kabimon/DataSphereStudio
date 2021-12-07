@@ -1,5 +1,5 @@
 <template>
-  <div class="console-page">
+  <div>
     <div class="top-line">
       <Input
         search
@@ -86,31 +86,38 @@
 </template>
 
 <script>
-import EditModal from "./editModal.vue";
-import formatDate from "@dataWarehouseDesign/utils/formatDate";
 import {
   getThemedomains,
   deleteThemedomains,
   enableThemedomains,
   disableThemedomains,
-} from "@dataWarehouseDesign/service/api";
-
+} from "@dataWarehouseDesign/service/api/theme";
+import EditModal from "./editModal.vue";
+import formatDate from "@dataWarehouseDesign/utils/formatDate";
 export default {
   components: { EditModal },
   filters: { formatDate },
   methods: {
-    // 弹框回调
+    /**
+     * 弹框回调
+     */
     handleModalFinish() {
       this.handleGetData(true);
     },
-    // 创建操作
+    /**
+     * 创建操作
+     */
     handleCreate() {
       this.modalCfg = {
         visible: true,
         mode: "create",
       };
     },
-    // 删除操作
+    /**
+     * 删除操作
+     * @param id
+     * @returns {void}
+     */
     async handleDelete(id) {
       this.$Modal.confirm({
         title: "警告",
@@ -119,37 +126,50 @@ export default {
           this.loading = true;
           await deleteThemedomains(id).catch(() => {});
           this.loading = false;
-          this.handleGetData(true);
+          this.handleGetData();
         },
       });
     },
-    // 编辑操作
+    /**
+     * 编辑操作
+     * @param id
+     */
     handleEdit(id) {
       this.modalCfg = {
         visible: true,
         mode: "edit",
-        id,
+        id: id,
       };
     },
-    // 启用
+    /**
+     * 启用
+     */
     async handleEnable(id) {
       this.loading = true;
       await enableThemedomains(id);
       this.loading = false;
       this.handleGetData(true);
     },
-    // 禁用
+    /**
+     * 禁用
+     */
     async handleDisable(id) {
       this.loading = true;
       await disableThemedomains(id);
       this.loading = false;
       this.handleGetData(true);
     },
-    // 搜索
+    /**
+     * 搜索
+     */
     handleSearch() {
       this.handleGetData();
     },
-    // 获取数据
+    /**
+     * 获取数据
+     * @param changePage
+     * @returns {void}
+     */
     async handleGetData(changePage = false) {
       if (changePage === false && this.pageCfg.page !== 1) {
         return (this.pageCfg.page = 1);
@@ -166,7 +186,7 @@ export default {
     },
   },
   mounted() {
-    this.handleGetData(true);
+    this.handleGetData();
   },
   watch: {
     "pageCfg.page"() {

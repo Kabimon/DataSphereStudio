@@ -1,5 +1,5 @@
 <template>
-  <div class="console-page">
+  <div>
     <div>
       <div class="title-line">
         <span class="title">
@@ -9,7 +9,7 @@
       <Table
         :columns="columns"
         :data="presetDataList"
-        :loading="preSetloading"
+        :loading="presetloading"
         style="margin-bottom: 16px"
       >
         <template slot-scope="{ row }" slot="isAvailable">
@@ -32,13 +32,6 @@
           </Tag>
         </template>
         <template slot-scope="{ row }" slot="action">
-          <Button
-            size="small"
-            style="margin-right: 5px"
-            @click="handleEdit(0, row.id)"
-          >
-            编辑
-          </Button>
           <Button
             size="small"
             @click="handleDisable(0, row.id)"
@@ -153,21 +146,27 @@ import {
   getLayersCustom,
   deleteLayers,
   enableLayers,
-  disableLayers
-} from "@dataWarehouseDesign/service/api";
+  disableLayers,
+} from "@dataWarehouseDesign/service/api/layer";
 import EditModal from "./editModal.vue";
 import formatDate from "@dataWarehouseDesign/utils/formatDate";
 
 export default {
-  components: {EditModal},
-  filters: {formatDate},
+  components: { EditModal },
+  filters: { formatDate },
   methods: {
-    // 弹窗回调
+    /**
+     * 弹窗回调
+     * @param type
+     * @returns {void}
+     */
     handleModalFinish(type) {
       if (type === 0) return this.handleGetLayersPreset();
       if (type === 1) return this.handleGetLayersCustom(true);
     },
-    // 创建操作
+    /**
+     * 创建操作
+     */
     handleCreate() {
       this.modalCfg = {
         visible: true,
@@ -175,21 +174,27 @@ export default {
         type: 1,
       };
     },
-    // 删除操作
+    /**
+     * 删除操作
+     * @param id
+     */
     handleDelete(id) {
       this.$Modal.confirm({
         title: "警告",
         content: "确定删除此项吗？",
         onOk: async () => {
           this.customloading = true;
-          await deleteLayers(id).catch(() => {
-          });
+          await deleteLayers(id).catch(() => {});
           this.customloading = false;
-          this.handleGetLayersCustom(true);
+          this.handleGetLayersCustom();
         },
       });
     },
-    // 编辑弹窗
+    /**
+     * 打开编辑弹窗
+     * @param type
+     * @param id
+     */
     handleEdit(type, id) {
       this.modalCfg = {
         visible: true,
@@ -198,7 +203,12 @@ export default {
         type: type,
       };
     },
-    // 启用
+    /**
+     * 启用
+     * @param type
+     * @param id
+     * @returns {void}
+     */
     async handleEnable(type, id) {
       this.loading = true;
       await enableLayers(id);
@@ -206,7 +216,12 @@ export default {
       if (type === 0) return this.handleGetLayersPreset();
       if (type === 1) return this.handleGetLayersCustom(true);
     },
-    // 停用
+    /**
+     * 停用
+     * @param type
+     * @param id
+     * @returns {void}
+     */
     async handleDisable(type, id) {
       this.loading = true;
       await disableLayers(id);
@@ -214,32 +229,38 @@ export default {
       if (type === 0) return this.handleGetLayersPreset();
       if (type === 1) return this.handleGetLayersCustom(true);
     },
-    // 获取预设分层
+    /**
+     * 获取预设分层
+     * @returns {void}
+     */
     async handleGetLayersPreset() {
-      this.preSetloading = true;
-      let {list} = await getLayersPreset();
-      this.preSetloading = false;
+      this.presetloading = true;
+      let { list } = await getLayersPreset();
+      this.presetloading = false;
       this.presetDataList = list;
     },
-    // 获取自定义分层
+    /**
+     * 获取自定义分层
+     * @returns {void}
+     */
     async handleGetLayersCustom(changePage = false) {
       if (changePage === false && this.pageCfg.page !== 1) {
         return (this.pageCfg.page = 1);
       }
       this.customloading = true;
-      let data = await getLayersCustom(
-        this.pageCfg.page,
-        this.pageCfg.pageSize
-      );
+      let data = await getLayersCustom({
+        page: this.pageCfg.page,
+        size: this.pageCfg.pageSize
+      });
       this.customloading = false;
-      let {items, total} = data.page;
+      let { items, total } = data.page;
       this.pageCfg.total = total;
       this.customDataList = items;
     },
   },
   mounted() {
     this.handleGetLayersPreset();
-    this.handleGetLayersCustom(true);
+    this.handleGetLayersCustom();
   },
   watch: {
     "pageCfg.page"() {
@@ -303,7 +324,7 @@ export default {
       // 自定义分数据
       customDataList: [],
       // 预设分层加载中
-      preSetloading: false,
+      presetloading: false,
       // 预设分层数据
       presetDataList: [],
       // 弹窗参数
@@ -316,7 +337,7 @@ export default {
       // 分页配置
       pageCfg: {
         current: 1,
-        pageSize: 10,
+        pageSize: 1,
         total: 10,
       },
     };

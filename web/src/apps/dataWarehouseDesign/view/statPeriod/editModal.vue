@@ -29,7 +29,7 @@
           <FormItem prop="themeDomainId">
             <Select v-model="formState.themeDomainId" placeholder="主题域">
               <Option
-                v-for="item in subjectDomainList"
+                v-for="item in themeList"
                 :value="item.id"
                 :key="item.name"
               >
@@ -42,7 +42,7 @@
           <FormItem prop="layerId">
             <Select v-model="formState.layerId" placeholder="分层">
               <Option
-                v-for="item in layeredList"
+                v-for="item in layerList"
                 :value="item.id"
                 :key="item.name"
               >
@@ -74,7 +74,18 @@
         </Col>
       </Row>
       <FormItem label="负责人" prop="owner">
-        <Input v-model="formState.owner" placeholder="负责人"></Input>
+        <Select
+          v-model="formState.owner"
+          placeholder="默认为创建用户"
+        >
+          <Option
+            v-for="item in usersList"
+            :value="item.name"
+            :key="item.name"
+          >
+            {{ item.name }}
+          </Option>
+        </Select>
       </FormItem>
       <FormItem label="可用角色" prop="principalName">
         <Select
@@ -84,11 +95,11 @@
           placeholder="可用角色"
         >
           <Option
-            v-for="item in authorityList"
-            :value="item.value"
-            :key="item.value"
+            v-for="item in rolesList"
+            :value="item.roleFrontName"
+            :key="item.roleId"
           >
-            {{ item.label }}
+            {{ item.roleFrontName }}
           </Option>
         </Select>
       </FormItem>
@@ -116,14 +127,15 @@
 </template>
 
 <script>
+import {getThemedomains} from "@dataWarehouseDesign/service/api/theme";
 import {
   createStatisticalPeriods,
   getStatisticalPeriodsById,
   editStatisticalPeriods,
-  getThemedomains,
-  getLayersAll,
-} from "@dataWarehouseDesign/service/api";
+} from "@dataWarehouseDesign/service/api/statisticalPeriods";
+import {getLayersAll} from "@dataWarehouseDesign/service/api/layer";
 import mixin from "@/common/service/mixin";
+import {getRolesList, getUsersList} from "@dataWarehouseDesign/service/api/common";
 
 export default {
   model: {
@@ -148,7 +160,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
-      if (val) this.handleGetLayerListAndSubjectDomainList();
+      if (val) this.handlePreFetchData();
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -212,20 +224,13 @@ export default {
       // 是否有引用
       referenced: false,
       // 主题列表
-      subjectDomainList: [],
+      themeList: [],
       // 分层列表
-      layeredList: [],
-      // 可用角色列表
-      authorityList: [
-        {
-          value: "ALL",
-          label: "ALL",
-        },
-        {
-          value: "New York",
-          label: "New York",
-        },
-      ],
+      layerList: [],
+      // 用户列表
+      usersList: [],
+      // 角色列表
+      rolesList: [],
       // 底部样式
       styles: {
         height: "calc(100% - 55px)",
@@ -236,9 +241,35 @@ export default {
     };
   },
   methods: {
+    /**
+     * 获取预置数据
+     */
+    handlePreFetchData() {
+      this.loading = true
+      let id = this.getCurrentWorkspaceId()
+      Promise.all([
+        getUsersList(id),
+        getRolesList(id),
+        getLayersAll({ isAvailable: true }),
+        getThemedomains({ enabled: true }),
+      ]).then(([userRes, roleRes, layersRes, themesRes]) => {
+        this.loading = false
+        this.usersList = userRes.list;
+        this.rolesList = roleRes.list;
+        this.layerList = layersRes.list;
+        this.themeList = themesRes.page.items;
+      }).catch(() => {
+        this.loading = false
+      })
+    },
+    /**
+     * 根据id获取数据
+     * @param id
+     * @returns {Promise<void>}
+     */
     async handleGetById(id) {
       this.loading = true;
-      let { item } = await getStatisticalPeriodsById(id);
+      let {item} = await getStatisticalPeriodsById(id);
       this.loading = false;
       this.formState.name = item.name;
       this.formState.enName = item.enName;
@@ -283,8 +314,8 @@ export default {
     },
     async handleGetLayerListAndSubjectDomainList() {
       this.loading = true;
-      let { page } = await getThemedomains({ enabled: true });
-      let { list } = await getLayersAll({ isAvailable: true });
+      let {page} = await getThemedomains({enabled: true});
+      let {list} = await getLayersAll({isAvailable: true});
       this.loading = false;
       this.subjectDomainList = page.items;
       this.layeredList = list;

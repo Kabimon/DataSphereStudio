@@ -22,15 +22,26 @@
       <FormItem label="英文名" prop="enName">
         <Input v-model="formState.enName" placeholder="英文名"></Input>
       </FormItem>
-      <FormItem label="负责人" prop="owner">
-        <Input v-model="formState.owner" placeholder="负责人"></Input>
-      </FormItem>
       <FormItem label="排序" prop="order">
         <Input
           v-model="formState.order"
           type="number"
           placeholder="排序"
         ></Input>
+      </FormItem>
+      <FormItem label="负责人" prop="owner">
+        <Select
+          v-model="formState.owner"
+          placeholder="默认为创建用户"
+        >
+          <Option
+            v-for="item in usersList"
+            :value="item.name"
+            :key="item.name"
+          >
+            {{ item.name }}
+          </Option>
+        </Select>
       </FormItem>
       <FormItem label="可用角色" prop="principalName">
         <Select
@@ -40,11 +51,11 @@
           placeholder="可用角色"
         >
           <Option
-            v-for="item in principalNameList"
-            :value="item.value"
-            :key="item.value"
+            v-for="item in rolesList"
+            :value="item.roleFrontName"
+            :key="item.roleId"
           >
-            {{ item.label }}
+            {{ item.roleFrontName }}
           </Option>
         </Select>
       </FormItem>
@@ -91,8 +102,10 @@
 import {
   createLayersCustom,
   getLayersById,
-  editLayersCustom, getDbs,
-} from "@dataWarehouseDesign/service/api";
+  editLayersCustom,
+  getDbs,
+} from "@dataWarehouseDesign/service/api/layer";
+import {getRolesList, getUsersList} from "@dataWarehouseDesign/service/api/common";
 import mixin from "@/common/service/mixin";
 
 export default {
@@ -122,7 +135,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
-      if (val) this.handleGetDbs()
+      if (val) this.handlePreFetchData()
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -177,30 +190,11 @@ export default {
       // 是否加载中
       loading: false,
       // 库列表
-      dataBasesList: [
-        {
-          value: "New York",
-          label: "New York",
-        },
-        {
-          value: "London",
-          label: "London",
-        },
-      ],
-      principalNameList: [
-        {
-          value: "ALL",
-          label: "ALL",
-        },
-        {
-          value: "New York",
-          label: "New York",
-        },
-        {
-          value: "London",
-          label: "London",
-        },
-      ],
+      dataBasesList: [],
+      // 用户列表
+      usersList: [],
+      // 角色列表
+      rolesList: [],
       // 底部样式
       styles: {
         height: "calc(100% - 55px)",
@@ -212,19 +206,26 @@ export default {
   },
   methods: {
     /**
-     * @description 获取可用库
+     * 获取预置数据
      */
-    handleGetDbs() {
+    handlePreFetchData() {
       this.loading = true
-      getDbs().then((res) => {
+      let id = this.getCurrentWorkspaceId()
+      Promise.all([getUsersList(id), getRolesList(id), getDbs()]).then(([userRes, roleRes, dbsRes]) => {
+        console.log(dbsRes)
         this.loading = false
-        let {list} = res;
-        this.dataBasesList = list
+        this.usersList = userRes.list;
+        this.rolesList = roleRes.list;
+        this.dataBasesList = dbsRes.list;
       }).catch(() => {
         this.loading = false
       })
     },
-    // 根据id获取数据
+    /**
+     * 根据id获取数据
+     * @param id
+     * @returns {void}
+     */
     async handleGetById(id) {
       this.loading = true;
       let {item} = await getLayersById(id);
@@ -238,20 +239,30 @@ export default {
       this.formState.order = item.sort;
       this.referenced = item.referenced;
     },
-    // 弹框取消回调
+    /**
+     * 弹框取消回调
+     */
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
     },
-    // 处理取消按钮
+    /**
+     * 处理取消按钮
+     */
     handleCancel() {
       this.$refs["formRef"].resetFields();
       this.$emit("_changeVisible", false);
     },
-    // 获取表单提交数据
+    /**
+     * 获取表单提交数据
+     * @returns {Object}
+     */
     handleGetFormatData() {
       return Object.assign({}, this.formState, {});
     },
-    // 处理表单完成
+    /**
+     * 处理表单完成
+     * @returns {void}
+     */
     async handleOk() {
       this.$refs["formRef"].validate(async (valid) => {
         if (valid) {

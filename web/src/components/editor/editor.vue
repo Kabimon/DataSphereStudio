@@ -4,7 +4,6 @@
     class="we-editor"/>
 </template>
 <script>
-import monaco from './monaco-loader';
 import { merge, debounce } from 'lodash';
 import storage from '@/common/helper/storage';
 import highRiskGrammar from './highRiskGrammar';
@@ -57,6 +56,7 @@ export default {
       closeParser: null,
       openParser: null,
       sqlParser: null,
+      monaco: null,
     };
   },
   computed: {
@@ -140,9 +140,12 @@ export default {
   },
   methods: {
     // 初始化
-    initMonaco() {
-      this.editor = monaco.editor.create(this.$el, this.currentConfig);
+    async initMonaco() {
+      // 按需加载编辑器
+      let monaco = await import('./monaco-loader.js')
+      monaco = monaco.default
       this.monaco = monaco;
+      this.editor = monaco.editor.create(this.$el, this.currentConfig);
       this.editorModel = this.editor.getModel();
       if (this.type !== 'log') {
         if (this.scriptType !== 'hdfsScript' && !this.readOnly) {
@@ -228,6 +231,7 @@ export default {
     },
     // 在编辑器选中的范围插入值
     insertValueIntoEditor(value) {
+      let monaco = this.monaco
       if (this.editor) {
         const SelectedRange = this.editor.getSelection();
         let range = null;
@@ -253,6 +257,7 @@ export default {
       }
     },
     addCommands() {
+      let monaco = this.monaco
       // 保存当前脚本
       this.editor.addCommand(monaco.KeyMod.CtrlCmd + monaco.KeyCode.KEY_S, () => {
         this.$emit('on-save');
@@ -275,6 +280,7 @@ export default {
     },
     addActions() {
       const vm = this;
+      let monaco = this.monaco
 
       this.editor.addAction({
         id: 'editor.action.execute',
@@ -406,6 +412,7 @@ export default {
       }
     },
     deltaDecorations: debounce(function(value, cb) {
+      let monaco = this.monaco
       const vm = this;
       if (!vm.isParserClose) {
         let highRiskList = [];

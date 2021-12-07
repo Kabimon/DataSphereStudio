@@ -1,5 +1,5 @@
 <template>
-  <div class="page-content">
+  <div>
     <div class="top-line">
       <div style="display: flex">
         <Select
@@ -133,7 +133,7 @@ export default {
           this.loading = true;
           await delDimensions(id).catch(() => {});
           this.loading = false;
-          this.handleGetData(true);
+          this.handleGetData();
         },
       });
     },
@@ -272,7 +272,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/styles/common.scss";
 .top-line {
   margin-bottom: 16px;
   display: flex;

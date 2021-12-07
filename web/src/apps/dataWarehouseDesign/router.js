@@ -2,7 +2,7 @@ const routes = [
   {
     name: "dataWarehouseDesign",
     path: "/dataWarehouseDesign",
-    redirect: "/dataWarehouseDesign/subjectdomain",
+    redirect: "/dataWarehouseDesign/themeDomains",
     component: () => import("./view/layout/index.vue"),
     meta: {
       title: "数仓规划",
@@ -10,9 +10,9 @@ const routes = [
     },
     children: [
       {
-        name: "subjectDomain",
-        path: "/dataWarehouseDesign/subjectdomain",
-        component: () => import("./view/subjectDomain/index.vue"),
+        name: "themeDomains",
+        path: "/dataWarehouseDesign/themeDomains",
+        component: () => import("./view/themeDomains/index.vue"),
         meta: {
           title: "主题域配置",
           publicPage: true,

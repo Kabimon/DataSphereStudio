@@ -37,15 +37,16 @@
     </div>
 
     <!-- bottom  -->
-    <div class="assets-index-b">
+    <div class="assets-index-b"
+      :style="{overflow: $route.path === '/dataAssetManage/assets/search' ? 'hidden' : 'auto' }">
       <router-view></router-view>
     </div>
   </div>
 </template>
 <script>
-//import api from "@/common/service/api";
 import weTab from "../common/tabList/tabs.vue";
-import { EventBus } from "../common/eventBus/event-bus";
+import {EventBus} from "../common/eventBus/event-bus";
+
 export default {
   components: {
     weTab,
@@ -59,13 +60,14 @@ export default {
       topTapList: [],
     };
   },
-  created() {},
+  created() {
+  },
   mounted() {
     EventBus.$on("on-choose-card", (model) => {
       let that = this;
       that.textColor = false;
       const topTapList = that.topTapList.slice(0);
-      const { guid } = model;
+      const {guid} = model;
       that.currentTab = model;
       if (topTapList.some((model) => model.guid === guid)) {
         return false;
@@ -85,17 +87,17 @@ export default {
       const workspaceId = this.$route.query.workspaceId;
       this.$router.push({
         name: "assetsSearch",
-        query: { workspaceId },
+        query: {workspaceId},
       });
       this.textColor = true;
     },
     onChooseWork(modal) {
       const workspaceId = this.$route.query.workspaceId;
-      const { guid } = modal;
+      const {guid} = modal;
       this.$router.push({
         name: "assetsInfo",
-        params: { guid },
-        query: { workspaceId },
+        params: {guid},
+        query: {workspaceId},
       });
       this.currentTab = modal;
       this.textColor = false;
@@ -114,28 +116,28 @@ export default {
 
       const removeAction = () => {
         if (that.currentTab.guid === modal.guid) {
-          const { guid } = that.currentTab;
+          const {guid} = that.currentTab;
           const workspaceId = that.$route.query.workspaceId;
           if (len > 1 && idx < len - 1) {
             that.currentTab = topTapList[idx + 1];
             that.$router.push({
               name: "assetsInfo",
-              params: { guid },
-              query: { workspaceId },
+              params: {guid},
+              query: {workspaceId},
             });
           } else if (len > 1 && idx == len - 1) {
             that.currentTab = topTapList[idx - 1];
             that.$router.push({
               name: "assetsInfo",
-              params: { guid },
-              query: { workspaceId },
+              params: {guid},
+              query: {workspaceId},
             });
           } else {
             that.currentTab = {};
             that.textColor = true;
             that.$router.push({
               name: "assetsSearch",
-              query: { workspaceId },
+              query: {workspaceId},
             });
           }
         }
@@ -158,19 +160,21 @@ export default {
   overflow: scroll;
   display: flex;
   flex-direction: column;
+
   .assets-index-t {
     .assets-index-t-t1 {
       padding: 0px $padding-25;
       border-bottom: $border-width-base $border-style-base $border-color-base;
       @include border-color(
-        $background-color-base,
-        $dark-workspace-body-bg-color
+          $background-color-base,
+          $dark-workspace-body-bg-color
       );
       @include font-color($workspace-title-color, $dark-workspace-title-color);
       flex: none;
       display: flex;
       align-items: center;
       font-size: $font-size-large;
+
       .top-l-text {
         cursor: pointer;
         flex: none;
@@ -179,6 +183,7 @@ export default {
         margin-bottom: -1px;
         line-height: 40px;
         position: relative;
+
         &::after {
           content: "";
           border-left: 1px solid #dee4ec;
@@ -191,13 +196,16 @@ export default {
           margin: 0 15px;
         }
       }
+
       .active {
         border-bottom: 2px solid $primary-color;
         @include border-color($primary-color, $dark-primary-color);
       }
+
       .top-r-container {
         flex: 1;
         height: 40px;
+
         .tab-item {
           display: inline-block;
           height: 40px;
@@ -215,7 +223,6 @@ export default {
 
   .assets-index-b {
     flex: 1;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
