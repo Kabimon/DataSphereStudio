@@ -1,7 +1,9 @@
 package com.webank.wedatasphere.warehouse.service.impl;
 
 import com.webank.wedatasphere.dss.framework.workspace.client.WorkSpaceRemoteClient;
+import com.webank.wedatasphere.dss.framework.workspace.client.request.GetWorkspaceRolesAction;
 import com.webank.wedatasphere.dss.framework.workspace.client.request.GetWorkspaceUsersAction;
+import com.webank.wedatasphere.dss.framework.workspace.client.response.GetWorkspaceRolesResult;
 import com.webank.wedatasphere.dss.framework.workspace.client.response.GetWorkspaceUsersResult;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
 import com.webank.wedatasphere.linkis.datasource.client.impl.LinkisMetadataSourceRemoteClient;
@@ -94,6 +96,26 @@ public class DwDsServiceImpl implements DwDsService {
                 throw new DwException(DwExceptionCode.GET_PRINCIPAL_USERS_ERROR.getCode(), e.getMessage(), ee.getIp(), ee.getPort(), ee.getServiceKind());
             } else {
                 throw new DwException(DwExceptionCode.GET_PRINCIPAL_USERS_ERROR.getCode(), e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public Message getPrincipalRoles(HttpServletRequest request, String workspaceId) throws Exception {
+        String userName = SecurityFilter.getLoginUsername(request);
+        LOGGER.info("get Principal roles, userName:" + userName);
+        try {
+            WorkSpaceRemoteClient client = LinkisRemoteClientHolder.getWorkspaceRemoteClient();
+            GetWorkspaceRolesAction action = GetWorkspaceRolesAction.builder().setUser(userName).setWorkspaceId(workspaceId).build();
+            GetWorkspaceRolesResult result = client.getWorkspaceRoles(action);
+            List<Map<String, Object>> roles = result.getWorkspaceRoles();
+            return Message.ok().data("list", roles);
+        } catch (Exception e) {
+            if (e instanceof ErrorException) {
+                ErrorException ee = (ErrorException) e;
+                throw new DwException(DwExceptionCode.GET_PRINCIPAL_ROLES_ERROR.getCode(), e.getMessage(), ee.getIp(), ee.getPort(), ee.getServiceKind());
+            } else {
+                throw new DwException(DwExceptionCode.GET_PRINCIPAL_ROLES_ERROR.getCode(), e.getMessage());
             }
         }
     }

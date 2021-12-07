@@ -39,5 +39,11 @@ public class DwDsRestfulApi {
         return Message.messageToResponse(message);
     }
 
+    @GET
+    @Path("/workspace/{id}/principal_roles")
+    public Response getAllAvailableRoles(@Context HttpServletRequest request, @PathParam(value = "id") String id) throws Exception {
+        Message message = this.dwDsService.getPrincipalRoles(request, id);
+        return Message.messageToResponse(message);
+    }
 
 }
