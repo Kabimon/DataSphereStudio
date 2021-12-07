@@ -2,8 +2,13 @@ package com.webank.wedatasphere.dss.data.governance.restful;
 
 import com.webank.wedatasphere.dss.data.governance.entity.*;
 import com.webank.wedatasphere.dss.data.governance.service.AssetService;
+import com.webank.wedatasphere.dss.data.governance.service.AuthenticationClientStrategy;
 import com.webank.wedatasphere.dss.data.governance.service.WorkspaceInfoService;
 import com.webank.wedatasphere.dss.data.governance.vo.*;
+import com.webank.wedatasphere.dss.framework.workspace.client.impl.LinkisWorkSpaceRemoteClient;
+import com.webank.wedatasphere.dss.framework.workspace.client.request.GetWorkspaceUsersAction;
+import com.webank.wedatasphere.dss.framework.workspace.client.response.GetWorkspaceUsersResult;
+import com.webank.wedatasphere.linkis.common.exception.ErrorException;
 import com.webank.wedatasphere.linkis.server.Message;
 import org.apache.atlas.model.lineage.AtlasLineageInfo;
 import org.apache.commons.lang.StringUtils;
@@ -13,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -28,7 +34,7 @@ import java.util.Set;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Component
-public class DSSDataGovernanceAssetRestful {
+public class DSSDataGovernanceAssetRestful implements AuthenticationClientStrategy {
     private static final Logger logger = LoggerFactory.getLogger(DSSDataGovernanceAssetRestful.class);
 
     private static final String DEFAULT_DIRECTION = "BOTH";
@@ -40,6 +46,9 @@ public class DSSDataGovernanceAssetRestful {
     private AssetService assetService;
     @Autowired
     private WorkspaceInfoService workspaceInfoService;
+
+    @Resource
+    private LinkisWorkSpaceRemoteClient linkisWorkSpaceRemoteClient;
 
     /**
      * 获取数据资产概要：hivedb数、hivetable数据、总存储量
@@ -445,5 +454,37 @@ public class DSSDataGovernanceAssetRestful {
         return Message.messageToResponse(Message.ok().data("result", workspaceUsers));
 
     }
+
+    /**
+     * 查询用户
+     *
+     * @param req
+     * @param workspaceId
+     * @return
+     */
+    @GET
+    @Path("/users/{workspaceId}")
+    public Response users(@Context HttpServletRequest req, @PathParam("workspaceId") String workspaceId) throws ErrorException {
+        logger.info("users workspaceId : {}", workspaceId);
+        GetWorkspaceUsersResult result = linkisWorkSpaceRemoteClient.getWorkspaceUsers(GetWorkspaceUsersAction.builder().setUser(getStrategyUser(req)).setWorkspaceId(workspaceId).build());
+        return Message.messageToResponse(Message.ok().data("users", result.getWorkspaceUserList()));
+    }
+
+
+    /**
+     * 查询角色
+     *
+     * @param req
+     * @param workspaceId
+     * @return
+     */
+    @GET
+    @Path("/roles/{workspaceId}")
+    public Response roles(@Context HttpServletRequest req, @PathParam("workspaceId") String workspaceId) throws ErrorException {
+        logger.info("roles workspaceId : {}", workspaceId);
+        GetWorkspaceUsersResult result = linkisWorkSpaceRemoteClient.getWorkspaceUsers(GetWorkspaceUsersAction.builder().setUser(getStrategyUser(req)).setWorkspaceId(workspaceId).build());
+        return Message.messageToResponse(Message.ok().data("users", result.getWorkspaceRoleList()));
+    }
+
 
 }
