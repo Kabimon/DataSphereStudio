@@ -6,4 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface DwDsService {
     Message getAllHiveDbs(HttpServletRequest request) throws Exception;
+
+    Message getPrincipalUsers(HttpServletRequest request, String id) throws Exception;
 }

@@ -7,6 +7,7 @@ public enum DwExceptionCode {
     DELETE_MODEL_TYPE_ERROR(41002),
     UPDATE_MODEL_TYPE_ERROR(41003),
     GET_AVAILABLE_DBS_ERROR(41004),
+    GET_PRINCIPAL_USERS_ERROR(41005),
     ;
 
     private int code;

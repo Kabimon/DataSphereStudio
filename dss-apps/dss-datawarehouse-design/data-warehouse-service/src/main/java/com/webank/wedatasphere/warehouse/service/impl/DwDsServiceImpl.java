@@ -1,5 +1,8 @@
 package com.webank.wedatasphere.warehouse.service.impl;
 
+import com.webank.wedatasphere.dss.framework.workspace.client.WorkSpaceRemoteClient;
+import com.webank.wedatasphere.dss.framework.workspace.client.request.GetWorkspaceUsersAction;
+import com.webank.wedatasphere.dss.framework.workspace.client.response.GetWorkspaceUsersResult;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
 import com.webank.wedatasphere.linkis.datasource.client.impl.LinkisMetadataSourceRemoteClient;
 import com.webank.wedatasphere.linkis.datasource.client.request.GetMetadataSourceAllDatabasesAction;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class DwDsServiceImpl implements DwDsService {
@@ -72,5 +76,25 @@ public class DwDsServiceImpl implements DwDsService {
 //            });
 //        }
 //        return Message.ok().data("list", dataSources);
+    }
+
+    @Override
+    public Message getPrincipalUsers(HttpServletRequest request, String workspaceId) throws Exception {
+        String userName = SecurityFilter.getLoginUsername(request);
+        LOGGER.info("get Principal users, userName:" + userName);
+        try {
+            WorkSpaceRemoteClient client = LinkisRemoteClientHolder.getWorkspaceRemoteClient();
+            GetWorkspaceUsersAction action = GetWorkspaceUsersAction.builder().setUser(userName).setWorkspaceId(workspaceId).setPageNow(1).setPageSize(500).build();
+            GetWorkspaceUsersResult result = client.getWorkspaceUsers(action);
+            List<Map<String, Object>> users = result.getWorkspaceUsers();
+            return Message.ok().data("list", users);
+        } catch (Exception e) {
+            if (e instanceof ErrorException) {
+                ErrorException ee = (ErrorException) e;
+                throw new DwException(DwExceptionCode.GET_PRINCIPAL_USERS_ERROR.getCode(), e.getMessage(), ee.getIp(), ee.getPort(), ee.getServiceKind());
+            } else {
+                throw new DwException(DwExceptionCode.GET_PRINCIPAL_USERS_ERROR.getCode(), e.getMessage());
+            }
+        }
     }
 }
