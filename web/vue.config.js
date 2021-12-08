@@ -22,7 +22,8 @@ const FileManagerPlugin = require("filemanager-webpack-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const VirtualModulesPlugin = require("webpack-virtual-modules");
 const apps = require("./src/config.json");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+  .BundleAnalyzerPlugin;
 
 // 获取packages中的版本号
 const getVersion = () => {
@@ -57,7 +58,10 @@ function formatSplitChunksSubApps(apps) {
     let routePath = value.routes.split("/");
     let path = routePath.splice(0, routePath.length - 1).join("[\\\\/]");
     obj[key] = {
-      test: new RegExp("[\\\\/]" + path + "[\\\\/]"), name: key + "-app", enforce: true, reuseExistingChunk: true
+      test: new RegExp("[\\\\/]" + path + "[\\\\/]"),
+      name: key + "-app",
+      enforce: true,
+      reuseExistingChunk: true
     };
   });
   return obj;
@@ -66,8 +70,12 @@ function formatSplitChunksSubApps(apps) {
 Object.entries(apps).forEach(item => {
   // 自动加载各个模块的 module
   if (item[1].module) {
-    requireComponent.push(`require.context('@/${item[1].module}',true,/([a-z|A-Z])+\\/index\.js$/)`);
-    requireComponentVue.push(`require.context('@/${item[1].module}',true,/([a-z|A-Z])+.vue$/)`);
+    requireComponent.push(
+      `require.context('@/${item[1].module}',true,/([a-z|A-Z])+\\/index\.js$/)`
+    );
+    requireComponentVue.push(
+      `require.context('@/${item[1].module}',true,/([a-z|A-Z])+.vue$/)`
+    );
   }
   // 获取个模块header
   if (item[1].header) {
@@ -97,19 +105,26 @@ const virtualModules = new VirtualModulesPlugin({
     appsI18n: [${appsI18n.join(",")}],
     requireComponent: [${requireComponent.join(",")}],
     requireComponentVue: [${requireComponentVue.join(",")}],
-    microModule: ${JSON.stringify(process.env.npm_config_micro_module) || false},
+    microModule: ${JSON.stringify(process.env.npm_config_micro_module) ||
+      false},
     headers:{${headers.join(",")}}
   };`
 });
 
-const plugins = [virtualModules, new BundleAnalyzerPlugin(), new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-cn|ja/)];
+const plugins = [
+  virtualModules,
+  // new BundleAnalyzerPlugin(),
+  new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-cn|ja/)
+];
 
 // 针对木桶子模块加载一些插件
 // scriptis 有使用编辑器组件, 需要Monaco Editor
 if (modules.indexOf("scriptis") > -1) {
-  plugins.push(new MonacoWebpackPlugin({
-    languages: []
-  }));
+  plugins.push(
+    new MonacoWebpackPlugin({
+      languages: []
+    })
+  );
 }
 
 /**
@@ -121,7 +136,10 @@ function resolve(dir) {
 }
 
 module.exports = {
-  productionSourceMap: false, publicPath: "./", outputDir: "dist/dist", chainWebpack: config => {
+  productionSourceMap: false,
+  publicPath: "./",
+  outputDir: "dist/dist",
+  chainWebpack: config => {
     // set svg-sprite-loader
     config.module
       .rule("svg")
@@ -138,61 +156,118 @@ module.exports = {
         symbolId: "icon-[name]"
       })
       .end();
-    if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "sandbox" || process.env.NODE_ENV === "bdp") {
-      config.plugin("compress").use(FileManagerPlugin, [{
-        onEnd: {
-          copy: [{source: "./config.sh", destination: `./dist`}, {
-            source: "./install.sh",
-            destination: `./dist`
-          }], // 先删除根目录下的zip包
-          delete: [`./wedatasphere-DataSphereStudio-${getVersion()}-dist.zip`], // 将dist文件夹下的文件进行打包
-          archive: [{
-            source: "./dist", destination: `./wedatasphere-DataSphereStudio-${getVersion()}-dist.zip`
-          }]
+    if (
+      process.env.NODE_ENV === "production" ||
+      process.env.NODE_ENV === "sandbox" ||
+      process.env.NODE_ENV === "bdp"
+    ) {
+      config.plugin("compress").use(FileManagerPlugin, [
+        {
+          onEnd: {
+            copy: [
+              { source: "./config.sh", destination: `./dist` },
+              {
+                source: "./install.sh",
+                destination: `./dist`
+              }
+            ], // 先删除根目录下的zip包
+            delete: [
+              `./wedatasphere-DataSphereStudio-${getVersion()}-dist.zip`
+            ], // 将dist文件夹下的文件进行打包
+            archive: [
+              {
+                source: "./dist",
+                destination: `./wedatasphere-DataSphereStudio-${getVersion()}-dist.zip`
+              }
+            ]
+          }
         }
-      }]);
+      ]);
     }
-  }, configureWebpack: {
+  },
+  configureWebpack: {
     optimization: {
       splitChunks: {
-        chunks: "all", cacheGroups: {
+        chunks: "all",
+        cacheGroups: {
           "monaco-editor": {
-            test: /[\\/]monaco-editor[\\/]/, name: "monaco-editor", enforce: true, reuseExistingChunk: true
-          }, svgIcon: {
-            test: /[\\/]svgIcon[\\/]/, name: "svgIcon", enforce: true, reuseExistingChunk: true
-          }, iview: {
-            test: /[\\/]iview[\\/]/, name: "iview", enforce: true, reuseExistingChunk: true
-          }, "@antv": {
-            test: /[\\/]@antv[\\/]/, name: "@antv", enforce: true, reuseExistingChunk: true
-          }, lodash: {
-            test: /[\\/]lodash[\\/]/, name: "lodash", enforce: true, reuseExistingChunk: true
-          }, "dt-sql-parser": {
-            test: /[\\/]dt-sql-parser[\\/]/, name: "dt-sql-parser", enforce: true, reuseExistingChunk: true
-          }, ...formatSplitChunksSubApps(apps)
+            test: /[\\/]monaco-editor[\\/]/,
+            name: "monaco-editor",
+            enforce: true,
+            reuseExistingChunk: true
+          },
+          svgIcon: {
+            test: /[\\/]svgIcon[\\/]/,
+            name: "svgIcon",
+            enforce: true,
+            reuseExistingChunk: true
+          },
+          iview: {
+            test: /[\\/]iview[\\/]/,
+            name: "iview",
+            enforce: true,
+            reuseExistingChunk: true
+          },
+          "@antv": {
+            test: /[\\/]@antv[\\/]/,
+            name: "@antv",
+            enforce: true,
+            reuseExistingChunk: true
+          },
+          lodash: {
+            test: /[\\/]lodash[\\/]/,
+            name: "lodash",
+            enforce: true,
+            reuseExistingChunk: true
+          },
+          "dt-sql-parser": {
+            test: /[\\/]dt-sql-parser[\\/]/,
+            name: "dt-sql-parser",
+            enforce: true,
+            reuseExistingChunk: true
+          },
+          ...formatSplitChunksSubApps(apps)
         }
       }
-    }, resolve: {
+    },
+    resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
         "@component": path.resolve(__dirname, "./src/components"), // 各个子应用
         "@apiServices": path.resolve(__dirname, "./src/apps/apiServices"),
-        "@dataAssetManage": path.resolve(__dirname, "./src/apps/dataAssetManage"),
-        "@dataModelCenter": path.resolve(__dirname, "./src/apps/dataModelCenter"),
-        "@dataWarehouseDesign": path.resolve(__dirname, "./src/apps/dataWarehouseDesign"),
+        "@dataAssetManage": path.resolve(
+          __dirname,
+          "./src/apps/dataAssetManage"
+        ),
+        "@dataModelCenter": path.resolve(
+          __dirname,
+          "./src/apps/dataModelCenter"
+        ),
+        "@dataWarehouseDesign": path.resolve(
+          __dirname,
+          "./src/apps/dataWarehouseDesign"
+        ),
         "@scriptis": path.resolve(__dirname, "./src/apps/scriptis"),
         "@workflows": path.resolve(__dirname, "./src/apps/workflows"),
         "@workspace": path.resolve(__dirname, "./src/apps/workspace")
       }
-    }, plugins
+    },
+    plugins
   }, // 选项...
   pluginOptions: {
     mock: {
-      entry: "mock.js", power: false
+      entry: "mock.js",
+      power: false
     }
-  }, devServer: {
-    host: "0.0.0.0", compress: true, proxy: {
+  },
+  devServer: {
+    host: "0.0.0.0",
+    compress: true,
+    proxy: {
       "/api": {
-        target: "http://121.36.12.247:8088/", changeOrigin: true, pathRewrite: {
+        target: "http://121.36.12.247:8088/",
+        changeOrigin: true,
+        pathRewrite: {
           "^/api": "/api"
         }
       }

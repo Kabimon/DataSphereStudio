@@ -1,7 +1,7 @@
 <template>
   <Select
     :value="value"
-    @input="$emit('input', $event)"
+    @input="handleChangeVal"
     :loading="loading"
     :placeholder="placeholder"
     :multiple="multiple"
@@ -46,9 +46,10 @@ export default {
   },
   watch: {
     value: {
-      handler(value) {
+      handler(value,oldValue) {
         if (value === undefined) return;
         if (value.toString() === "") return;
+        if (value.toString() === oldValue.toString()) return;
         if (this.dataList.join() !== "") return;
         let nowData = [];
         if (Object.prototype.toString.call(value) === "[object Array]") {
@@ -85,16 +86,14 @@ export default {
         this.loading = false;
       });
   },
-  beforeDestroy() {
-    let value;
-    if (this.value instanceof Array) {
-      value = [];
-    } else {
-      value = "";
-    }
-    this.$emit("input", value);
-  },
   methods: {
+    handleChangeVal(event){
+      if(event instanceof  Array){
+        this.$emit('input', Object.assign(event))
+      }else{
+        this.$emit('input', event)
+      }
+    },
     // 搜索方法
     handleGetData(query = "") {
       // 结束之前的任务

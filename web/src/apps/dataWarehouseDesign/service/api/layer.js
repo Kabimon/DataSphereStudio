@@ -20,7 +20,7 @@ export const getLayersPreset = () => api.fetch(`${API_PATH.WAREHOUSE_PATH}layers
  * @param size {Number} 分页数量
  * @returns {Promise}
  */
-export const getLayersCustom = ({page,size}) => api.fetch(`${API_PATH.WAREHOUSE_PATH}layers/custom`, { page,size }, "get");
+export const getLayersCustom = ({page = 1,size = 10}) => api.fetch(`${API_PATH.WAREHOUSE_PATH}layers/custom`, { page,size }, "get");
 
 /**
  * 新增自定义分层

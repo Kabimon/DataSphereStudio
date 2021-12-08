@@ -26,7 +26,7 @@
         />
       </div>
       <Button type="primary" icon="md-add" @click="handleCreate">
-        新增修饰词
+        新增标签
       </Button>
     </div>
     <Table

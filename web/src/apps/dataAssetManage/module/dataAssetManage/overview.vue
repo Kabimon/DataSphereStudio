@@ -22,7 +22,11 @@
           :data="data1"
           width="558"
           size="large"
-        ></Table>
+        >
+          <template slot="storage" slot-scope="{row}">
+            <div> {{ transformCompany(row.storage).str }} </div>
+          </template>
+        </Table>
       </div>
 
       <!-- bottom right -->
@@ -96,7 +100,8 @@ export default {
         },
         {
           title: "存储量",
-          key: "storage"
+          key: "storage",
+          slot: "storage"
         }
       ],
       columns2: [

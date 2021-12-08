@@ -51,7 +51,7 @@ export const getDimensionsById = id =>
  */
 export const switchDimensionsStatus = (id, status) =>
   api.fetch(
-    `${API_PATH.DATAMODEL_PATH}dimensions/${id}`,
+    `${API_PATH.DATAMODEL_PATH}dimensions/enable/${id}`,
     { isAvailable: status },
     "put"
   );

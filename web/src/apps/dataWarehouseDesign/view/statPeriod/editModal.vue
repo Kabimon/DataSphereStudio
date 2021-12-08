@@ -296,10 +296,12 @@ export default {
             this.loading = true;
             if (this.mode === "create") {
               await createStatisticalPeriods(this.formState);
+              this.$Message.success("创建成功")
               this.loading = false;
             }
             if (this.mode === "edit") {
               await editStatisticalPeriods(this.id, this.formState);
+              this.$Message.success("更新成功")
               this.loading = false;
             }
             this.$refs["formRef"].resetFields();

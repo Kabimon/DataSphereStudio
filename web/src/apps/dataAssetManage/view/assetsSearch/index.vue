@@ -11,7 +11,7 @@
             :placeholder="$t(`message.dataAssetManage.pleaseEnterATableName`)"
             size="large"
             @on-search="onSearch"
-            v-model="queryForTbls"
+            v-model="searchToken"
           />
         </div>
       </div>
@@ -28,19 +28,16 @@
           <span>负责人</span>
           <Select
             v-model="serachOption.owner"
-            filterable
             clearable
-            remote
-            :remote-method="remoteSearchOwner"
-            :loading="owerSerachLoading"
+            :loading="ownerListLoading"
             style="width: 167px"
           >
             <Option
               v-for="(item, idx) in ownerList"
-              :value="item.value"
+              :value="item.name"
               :key="idx"
             >
-              {{ item.label }}
+              {{ item.name }}
             </Option>
           </Select>
         </div>
@@ -51,7 +48,7 @@
             filterable
             clearable
             :remote-method="remoteSearchLabel"
-            :loading="labelSerachLoading"
+            :loading="labelSearchLoading"
             style="width: 167px"
           >
             <Option
@@ -72,7 +69,6 @@
           <tab-card
             :model="model"
             :key="model.guid"
-            @on-choose="onChooseCard"
           ></tab-card>
         </template>
       </div>
@@ -80,21 +76,21 @@
   </div>
 </template>
 <script>
-//import api from "@/common/service/api";
 import tabCard from "../../module/common/tabCard/index.vue";
 import {getHiveTbls, getWorkspaceUsers, getLabels} from "../../service/api";
-import {EventBus} from "../../module/common/eventBus/event-bus";
 import {storage} from "../../utils/storage";
 import {throttle} from "lodash";
-
+import mixin from "@/common/service/mixin";
 export default {
   components: {
     tabCard,
   },
+  mixins: [mixin],
   data() {
     return {
       // 搜索参数
       serachOption: {
+        owner: "",
         label: "",
         limit: 10,
         offset: 0,
@@ -106,11 +102,11 @@ export default {
       // 数据
       cardTabs: [],
       // 搜索词
-      queryForTbls: "",
+      searchToken: "",
       // 负责人加载中
-      owerSerachLoading: false,
+      ownerListLoading: false,
       // 标签加载中
-      labelSerachLoading: false,
+      labelSearchLoading: false,
       // 请求加载中
       loading: false,
       // 所有数据是否全部加载完成
@@ -124,7 +120,7 @@ export default {
     let searchParams = storage.getItem("searchTbls");
     // 判断搜索
     if (searchParams) {
-      this.queryForTbls = JSON.parse(searchParams).query;
+      this.searchToken = JSON.parse(searchParams).query;
       getHiveTbls(JSON.parse(searchParams))
         .then((data) => {
           if (data.result) {
@@ -139,27 +135,47 @@ export default {
     }
   },
   mounted() {
+    // 获取用户
+    this.handleGetUsers()
+    // 设置防抖函数
     this.throttleLoad = throttle(() => {
       this.scrollHander();
     }, 300);
+    // 添加事件监听
     this.$refs["assets-index-wrap"].addEventListener(
       "scroll",
       this.throttleLoad
     );
   },
   beforeDestroy() {
+    // 解除事件监听
     this.$refs["assets-index-wrap"].removeEventListener(
       "scroll",
       this.throttleLoad
     );
   },
   methods: {
-    // 搜索
+    /**
+     * 获取用户列表
+     */
+    handleGetUsers(){
+      let id = this.getCurrentWorkspaceId()
+      this.ownerListLoading = true;
+      getWorkspaceUsers(id).then((res) => {
+        this.ownerListLoading = false
+        this.ownerList = res.users
+      }).catch(() => {
+        this.ownerListLoading = false
+      })
+    },
+    /**
+     * 搜索
+     */
     onSearch() {
       this.isLoadDataFinish = false
       // 构造搜索参数
       const params = {
-        query: this.queryForTbls,
+        query: this.searchToken,
         owner: this.serachOption.owner || "",
         label: this.serachOption.label || "",
         limit: 10,
@@ -185,19 +201,10 @@ export default {
         });
     },
 
-    onChooseCard(model) {
-      let that = this;
-      EventBus.$emit("on-choose-card", model);
-      const workspaceId = that.$route.query.workspaceId;
-      const {guid} = model;
-      that.$router.push({
-        name: "assetsInfo",
-        params: {guid},
-        query: {workspaceId},
-      });
-    },
-
-    // 下拉到底部加载
+    /**
+     * 下拉到底部加载
+     * @returns {Promise<unknown>|void}
+     */
     handleReachBottom() {
       // 复制一份
       const res = this.cardTabs.slice(0);
@@ -206,7 +213,7 @@ export default {
       }
       return new Promise((resolve) => {
         const params = {
-          query: this.queryForTbls,
+          query: this.searchToken,
           owner: this.serachOption.owner || "",
           label: this.serachOption.label || "",
           limit: this.serachOption.limit,
@@ -232,48 +239,25 @@ export default {
       });
     },
 
-    // 搜索负责人
-    remoteSearchOwner(query) {
-      let that = this;
-      if (query !== "") {
-        that.owerSerachLoading = true;
-        let workspaceId = that.$route.query.workspaceId;
-        getWorkspaceUsers(workspaceId, query)
-          .then((data) => {
-            const {result} = data;
-            const _res = [];
-            if (result) {
-              result.forEach((item) => {
-                let o = Object.create(null);
-                o["value"] = item;
-                o["label"] = item;
-                _res.push(o);
-              });
-              that.ownerList = _res;
-              that.owerSerachLoading = false;
-            }
-          })
-          .catch((err) => {
-            console.log("getWorkspaceUsers", err);
-          });
-      } else {
-        that.ownerList = [];
-      }
-    },
 
-    // 搜索标签
+    /**
+     * 搜索标签
+     * @param query
+     */
     remoteSearchLabel(query) {
       if (query !== "") {
-        this.labelSerachLoading = true;
+        this.labelSearchLoading = true;
         getLabels(query).then((data) => {
-          this.labelSerachLoading = false;
+          this.labelSearchLoading = false;
           const {result} = data;
           this.labelList = result;
         });
       }
     },
 
-    // 下拉加載
+    /**
+     * 下拉加載
+     */
     scrollHander() {
       const getScrollTop = () => {
         return this.$refs["assets-index-wrap"].scrollTop;

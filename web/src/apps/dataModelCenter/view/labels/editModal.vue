@@ -330,6 +330,7 @@ export default {
      */
     handleDeleteOneToken(index) {
       this.formState.paramMap.splice(index, 1);
+      this.formState.paramMap = Array.from(this.formState.paramMap)
     },
     /**
      * @description 添加一个token
@@ -339,6 +340,7 @@ export default {
         key: "",
         value: ""
       });
+      this.formState.paramMap = Array.from(this.formState.paramMap)
     },
   },
 };

@@ -1,6 +1,6 @@
 <template>
   <Drawer
-    title="新建/编辑主题域"
+    title="新建/编辑分层"
     :value="_visible"
     @input="$emit('_changeVisible', $event)"
     @on-close="cancelCallBack"
@@ -270,10 +270,12 @@ export default {
             this.loading = true;
             if (this.mode === "create") {
               await createLayersCustom(this.handleGetFormatData());
+              this.$Message.success("创建成功")
               this.loading = false;
             }
             if (this.mode === "edit") {
               await editLayersCustom(this.id, this.handleGetFormatData());
+              this.$Message.success("编辑成功")
               this.loading = false;
             }
             this.$refs["formRef"].resetFields();

@@ -51,7 +51,7 @@ export const getMeasuresById = id =>
  */
 export const switchMeasuresStatus = (id, status) =>
   api.fetch(
-    `${API_PATH.DATAMODEL_PATH}measures/${id}`,
+    `${API_PATH.DATAMODEL_PATH}measures/enable/${id}`,
     {isAvailable: status},
     "put"
   );

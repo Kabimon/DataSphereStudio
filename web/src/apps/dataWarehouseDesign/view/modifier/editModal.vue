@@ -293,10 +293,12 @@ export default {
             this.loading = true;
             if (this.mode === "create") {
               await createModifiers(Object.assign({}, this.formState));
+              this.$Message.success("创建成功")
               this.loading = false;
             }
             if (this.mode === "edit") {
               await editModifiers(this.id, Object.assign({}, this.formState));
+              this.$Message.success("更新成功")
               this.loading = false;
             }
             this.$refs["formRef"].resetFields();
@@ -315,6 +317,7 @@ export default {
      */
     handleDeleteOneToken(index) {
       this.formState.list.splice(index, 1);
+      this.formState.list = Array.from(this.formState.list)
     },
     /**
      * 添加词
@@ -325,6 +328,7 @@ export default {
         identifier: "",
         formula: "",
       });
+      this.formState.list = Array.from(this.formState.list)
     },
   },
 };

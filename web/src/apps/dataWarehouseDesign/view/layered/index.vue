@@ -336,8 +336,8 @@ export default {
       },
       // 分页配置
       pageCfg: {
-        current: 1,
-        pageSize: 1,
+        page: 1,
+        pageSize: 10,
         total: 10,
       },
     };
