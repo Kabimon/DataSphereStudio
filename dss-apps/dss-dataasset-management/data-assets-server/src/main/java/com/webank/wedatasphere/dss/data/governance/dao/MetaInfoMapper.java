@@ -12,7 +12,7 @@ import java.util.List;
 
 @Mapper
 public interface MetaInfoMapper {
-    Integer getTableStorage() throws DAOException;
+    Long getTableStorage() throws DAOException;
     List<TableInfo> getTop10Table() throws DAOException;
     int getTableInfo(@Param("dbName") String dbName,@Param("tableName") String tableName,@Param("isPartTable") Boolean isPartTable) throws  DAOException;
     List<PartInfo> getPartInfo(@Param("dbName") String dbName, @Param("tableName") String tableName) throws DAOException;
