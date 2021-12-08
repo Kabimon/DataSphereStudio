@@ -44,7 +44,7 @@ public class DataWarehouseReferenceServiceImpl implements DataWarehouseReference
         return tableReferenceService.tableThemeReferenceCount(name)
                 + indicatorReferenceService.indicatorThemeReferenceCount(name)
                 + dimensionReferenceService.dimensionThemeReferenceCount(name)
-                + measuredReferenceService.dimensionThemeReferenceCount(name)
+                + measuredReferenceService.measureThemeReferenceCount(name)
                 + labelReferenceService.labelThemeReferenceCount(name);
     }
 }

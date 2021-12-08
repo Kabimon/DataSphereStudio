@@ -214,7 +214,7 @@ public class MeasureServiceImpl extends ServiceImpl<DssDatamodelMeasureMapper, D
     @Override
     public int measureThemeReferenceCount(String name) {
         int count = getBaseMapper().selectCount(Wrappers.<DssDatamodelMeasure>lambdaQuery().eq(DssDatamodelMeasure::getWarehouseThemeName, name));
-        int countEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelMeasure>lambdaQuery().eq(DssDatamodelMeasure::getWarehouseThemeName, name));
+        int countEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelMeasure>lambdaQuery().eq(DssDatamodelMeasure::getWarehouseThemeNameEn, name));
         return count + countEn;
     }
 }

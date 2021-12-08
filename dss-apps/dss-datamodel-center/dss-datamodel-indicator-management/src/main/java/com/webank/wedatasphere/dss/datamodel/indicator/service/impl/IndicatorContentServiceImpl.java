@@ -85,8 +85,9 @@ public class IndicatorContentServiceImpl extends ServiceImpl<DssDatamodelIndicat
 
     @Override
     public int sourceAtomicIndicatorReference(String indicatorName) {
-        return getBaseMapper().selectCount(
-                Wrappers.<DssDatamodelIndicatorContent>lambdaQuery()
-                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\"indicatorName\":\""+ indicatorName + "\""));
+//        return getBaseMapper().selectCount(
+//                Wrappers.<DssDatamodelIndicatorContent>lambdaQuery()
+//                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\"indicatorName\":\""+ indicatorName + "\""));
+        return sourceInfoReference(indicatorName);
     }
 }

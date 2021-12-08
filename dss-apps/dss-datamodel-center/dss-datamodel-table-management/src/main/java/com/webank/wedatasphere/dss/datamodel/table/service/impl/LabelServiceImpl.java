@@ -197,7 +197,7 @@ public class LabelServiceImpl extends ServiceImpl<DssDatamodelLabelMapper, DssDa
     @Override
     public int labelThemeReferenceCount(String themeName) {
         int count = getBaseMapper().selectCount(Wrappers.<DssDatamodelLabel>lambdaQuery().eq(DssDatamodelLabel::getWarehouseThemeName,themeName));
-        int countEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelLabel>lambdaQuery().eq(DssDatamodelLabel::getWarehouseThemeName,themeName));
+        int countEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelLabel>lambdaQuery().eq(DssDatamodelLabel::getWarehouseThemeNameEn,themeName));
         return count + countEn;
     }
 }

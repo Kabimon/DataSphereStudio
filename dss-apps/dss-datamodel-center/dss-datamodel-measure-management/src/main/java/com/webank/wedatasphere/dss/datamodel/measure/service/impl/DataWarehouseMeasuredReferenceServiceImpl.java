@@ -14,7 +14,7 @@ public class DataWarehouseMeasuredReferenceServiceImpl implements DataWarehouseM
     private MeasureService measureService;
 
     @Override
-    public int dimensionThemeReferenceCount(String name) {
+    public int measureThemeReferenceCount(String name) {
         return measureService.measureThemeReferenceCount(name);
     }
 }
