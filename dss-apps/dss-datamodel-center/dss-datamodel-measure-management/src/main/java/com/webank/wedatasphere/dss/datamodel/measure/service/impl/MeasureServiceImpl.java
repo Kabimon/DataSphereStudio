@@ -16,8 +16,6 @@ import com.webank.wedatasphere.dss.datamodel.center.common.event.UpdateModelEven
 import com.webank.wedatasphere.dss.datamodel.center.common.exception.DSSDatamodelCenterException;
 import com.webank.wedatasphere.dss.datamodel.center.common.service.AssertsSyncService;
 import com.webank.wedatasphere.dss.datamodel.center.common.service.DatamodelReferencService;
-import com.webank.wedatasphere.dss.datamodel.center.common.service.MeasureIndicatorCheckService;
-import com.webank.wedatasphere.dss.datamodel.center.common.service.MeasuredTableCheckService;
 import com.webank.wedatasphere.dss.datamodel.measure.dao.DssDatamodelMeasureMapper;
 import com.webank.wedatasphere.dss.datamodel.measure.dto.MeasureQueryDTO;
 import com.webank.wedatasphere.dss.datamodel.measure.entity.DssDatamodelMeasure;
@@ -47,11 +45,7 @@ public class MeasureServiceImpl extends ServiceImpl<DssDatamodelMeasureMapper, D
 
     private final ModelMapper modelMapper = new ModelMapper();
 
-    @Resource
-    private MeasureIndicatorCheckService measureIndicatorCheckService;
 
-    @Resource
-    private MeasuredTableCheckService measuredTableCheckService;
 
     @Resource
     private AssertsSyncService assertsSyncService;
@@ -132,7 +126,7 @@ public class MeasureServiceImpl extends ServiceImpl<DssDatamodelMeasureMapper, D
         if (!StringUtils.equals(vo.getFieldIdentifier(), orgFieldIdentifier)) {
             int repeat = getBaseMapper().selectCount(Wrappers.<DssDatamodelMeasure>lambdaQuery().eq(DssDatamodelMeasure::getFieldIdentifier, vo.getFieldIdentifier()));
 
-            if (repeat > 0 || (measureIndicatorCheckService.referenceEn(orgFieldIdentifier)) || measureIndicatorCheckService.referenceEn(orgFieldIdentifier)) {
+            if (repeat > 0 || datamodelReferencService.measureReferenceCount(orgFieldIdentifier)>0) {
                 LOGGER.error("errorCode : {}, measure field identifier can not repeat or referenced", ErrorCode.MEASURE_UPDATE_ERROR.getCode());
                 throw new DSSDatamodelCenterException(ErrorCode.MEASURE_UPDATE_ERROR.getCode(), "measure field identifier can not repeat or referenced");
             }

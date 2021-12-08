@@ -5,6 +5,8 @@ import com.webank.wedatasphere.dss.datamodel.indicator.dto.IndicatorVersionDTO;
 import com.webank.wedatasphere.dss.datamodel.indicator.entity.DssDatamodelIndicatorVersion;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
 
+import java.util.List;
+
 
 public interface IndicatorVersionService extends IService<DssDatamodelIndicatorVersion> {
 
@@ -43,7 +45,7 @@ public interface IndicatorVersionService extends IService<DssDatamodelIndicatorV
      * @param context
      * @return
      */
-    int contentReferenceCount(String context);
+    List<DssDatamodelIndicatorVersion> contentReferenceCount(String context);
 
 
     /**

@@ -80,23 +80,23 @@ public class TableVersionServiceImpl extends ServiceImpl<DssDatamodelTableVersio
 
 
     @Override
-    public int tableContentReference(String content) {
-        return getBaseMapper().selectCount(
+    public List<DssDatamodelTableVersion> tableContentReference(String content) {
+        return getBaseMapper().selectList(
                 Wrappers.<DssDatamodelTableVersion>lambdaQuery()
                         .like(DssDatamodelTableVersion::getTableParams,"\""+content + "\""));
     }
 
     @Override
-    public int tableColumnsReference(String content) {
-        return getBaseMapper().selectCount(
+    public List<DssDatamodelTableVersion> tableColumnsReference(String content) {
+        return getBaseMapper().selectList(
                 Wrappers.<DssDatamodelTableVersion>lambdaQuery()
                         .like(DssDatamodelTableVersion::getColumns,"\""+content + "\""));
     }
 
 
     @Override
-    public int tableContentMultipleReference(String context) {
-        return getBaseMapper().selectCount(
+    public List<DssDatamodelTableVersion> tableContentMultipleReference(String context) {
+        return getBaseMapper().selectList(
                 Wrappers.<DssDatamodelTableVersion>lambdaQuery()
                         .like(DssDatamodelTableVersion::getTableParams,"\""+ context + "\"")
                         .or()

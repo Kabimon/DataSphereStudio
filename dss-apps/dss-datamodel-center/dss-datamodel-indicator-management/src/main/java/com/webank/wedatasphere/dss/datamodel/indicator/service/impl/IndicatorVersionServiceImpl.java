@@ -71,16 +71,19 @@ public class IndicatorVersionServiceImpl extends ServiceImpl<DssDatamodelIndicat
 
 
     @Override
-    public int contentReferenceCount(String context) {
-        return getBaseMapper().selectCount(
+    public List<DssDatamodelIndicatorVersion> contentReferenceCount(String context) {
+        return getBaseMapper().selectList(
                 Wrappers.<DssDatamodelIndicatorVersion>lambdaQuery()
-                        .like(DssDatamodelIndicatorVersion::getVersionContext,"\""+ context + "\"")
-                        .or()
-                        .like(DssDatamodelIndicatorVersion::getVersionContext,"\""+ context + ",")
-                        .or()
-                        .like(DssDatamodelIndicatorVersion::getVersionContext,","+ context + ",")
-                        .or()
-                        .like(DssDatamodelIndicatorVersion::getVersionContext,","+ context + "\""));
+                        .like(DssDatamodelIndicatorVersion::getVersionContext,context ));
+//                        .like(DssDatamodelIndicatorVersion::getVersionContext,"\""+ context + "\"")
+//                        .or()
+//                        .like(DssDatamodelIndicatorVersion::getVersionContext,"\""+ context + "\"")
+//                        .or()
+//                        .like(DssDatamodelIndicatorVersion::getVersionContext,"\""+ context + ",")
+//                        .or()
+//                        .like(DssDatamodelIndicatorVersion::getVersionContext,","+ context + ",")
+//                        .or()
+//                        .like(DssDatamodelIndicatorVersion::getVersionContext,","+ context + "\""));
     }
 
 

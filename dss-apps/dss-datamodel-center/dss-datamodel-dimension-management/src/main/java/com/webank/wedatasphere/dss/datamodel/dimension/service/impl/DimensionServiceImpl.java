@@ -16,8 +16,6 @@ import com.webank.wedatasphere.dss.datamodel.center.common.event.UpdateModelEven
 import com.webank.wedatasphere.dss.datamodel.center.common.exception.DSSDatamodelCenterException;
 import com.webank.wedatasphere.dss.datamodel.center.common.service.AssertsSyncService;
 import com.webank.wedatasphere.dss.datamodel.center.common.service.DatamodelReferencService;
-import com.webank.wedatasphere.dss.datamodel.center.common.service.DimensionIndicatorCheckService;
-import com.webank.wedatasphere.dss.datamodel.center.common.service.DimensionTableCheckService;
 import com.webank.wedatasphere.dss.datamodel.dimension.dao.DssDatamodelDimensionMapper;
 import com.webank.wedatasphere.dss.datamodel.dimension.dto.DimensionQueryDTO;
 import com.webank.wedatasphere.dss.datamodel.dimension.entity.DssDatamodelDimension;
@@ -48,11 +46,6 @@ public class DimensionServiceImpl extends ServiceImpl<DssDatamodelDimensionMappe
 
     private final ModelMapper modelMapper = new ModelMapper();
 
-    @Resource
-    private DimensionIndicatorCheckService dimensionIndicatorCheckService;
-
-    @Resource
-    private DimensionTableCheckService dimensionTableCheckService;
 
     @Resource
     private AssertsSyncService assertsSyncService;

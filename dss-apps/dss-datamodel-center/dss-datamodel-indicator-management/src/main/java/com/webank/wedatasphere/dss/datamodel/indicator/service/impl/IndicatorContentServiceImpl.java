@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 
 
 @Service
@@ -69,25 +70,19 @@ public class IndicatorContentServiceImpl extends ServiceImpl<DssDatamodelIndicat
 
 
     @Override
-    public int sourceInfoReference(String name) {
+    public List<DssDatamodelIndicatorContent> sourceInfoReference(String name) {
 
-        return getBaseMapper().selectCount(
-                Wrappers.<DssDatamodelIndicatorContent>lambdaQuery()
-                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\""+ name + "\"")
-                        .or()
-                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\""+ name + ",")
-                        .or()
-                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,","+ name + ",")
-                        .or()
-                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,","+ name + "\""));
+        return getBaseMapper().selectList(
+                Wrappers.<DssDatamodelIndicatorContent>lambdaQuery().like(DssDatamodelIndicatorContent::getIndicatorSourceInfo, name));
+//                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\""+ name + "\"")
+//                        .or()
+//                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\""+ name + ",")
+//                        .or()
+//                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,","+ name + ",")
+//                        .or()
+//                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,","+ name + "\""));
     }
 
 
-    @Override
-    public int sourceAtomicIndicatorReference(String indicatorName) {
-//        return getBaseMapper().selectCount(
-//                Wrappers.<DssDatamodelIndicatorContent>lambdaQuery()
-//                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\"indicatorName\":\""+ indicatorName + "\""));
-        return sourceInfoReference(indicatorName);
-    }
+
 }

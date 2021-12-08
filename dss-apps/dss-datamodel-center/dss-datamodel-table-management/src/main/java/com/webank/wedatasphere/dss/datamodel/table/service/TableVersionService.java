@@ -42,7 +42,7 @@ public interface TableVersionService extends IService<DssDatamodelTableVersion> 
      * @param content
      * @return
      */
-    int tableContentReference(String content);
+    List<DssDatamodelTableVersion> tableContentReference(String content);
 
 
     /**
@@ -50,12 +50,12 @@ public interface TableVersionService extends IService<DssDatamodelTableVersion> 
      * @param content
      * @return
      */
-    int tableColumnsReference(String content);
+    List<DssDatamodelTableVersion> tableColumnsReference(String content);
 
 
     /**
      * 表多重引用
      * @return
      */
-    int tableContentMultipleReference(String content);
+    List<DssDatamodelTableVersion> tableContentMultipleReference(String content);
 }

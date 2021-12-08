@@ -35,7 +35,6 @@ public class DatamodelIndicatorReferenceServiceImpl implements DatamodelIndicato
 
     @Override
     public int indicatorIndicatorCount(String name) {
-        return indicatorContentService.sourceAtomicIndicatorReference(name)
-                + indicatorVersionService.sourceAtomicIndicatorReference(name);
+        return indicatorService.indicatorIndicatorReferenceCount(name);
     }
 }

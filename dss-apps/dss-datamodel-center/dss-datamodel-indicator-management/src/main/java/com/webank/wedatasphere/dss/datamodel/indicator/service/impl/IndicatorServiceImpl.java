@@ -5,14 +5,14 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.webank.wedatasphere.dss.data.governance.entity.ClassificationConstant;
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient;
-import com.webank.wedatasphere.dss.data.governance.request.CreateModelTypeAction;
-import com.webank.wedatasphere.dss.data.governance.request.UpdateModelTypeAction;
 import com.webank.wedatasphere.dss.data.governance.response.CreateModelTypeResult;
 import com.webank.wedatasphere.dss.data.governance.response.UpdateModelTypeResult;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ErrorCode;
+import com.webank.wedatasphere.dss.datamodel.center.common.constant.IndicatorSourceInfoConstant;
 import com.webank.wedatasphere.dss.datamodel.center.common.context.DataModelSecurityContextHolder;
 import com.webank.wedatasphere.dss.datamodel.center.common.event.CreateModelEvent;
 import com.webank.wedatasphere.dss.datamodel.center.common.event.DeleteModelEvent;
@@ -20,7 +20,6 @@ import com.webank.wedatasphere.dss.datamodel.center.common.event.UpdateModelEven
 import com.webank.wedatasphere.dss.datamodel.center.common.exception.DSSDatamodelCenterException;
 import com.webank.wedatasphere.dss.datamodel.center.common.service.AssertsSyncService;
 import com.webank.wedatasphere.dss.datamodel.center.common.service.DatamodelReferencService;
-import com.webank.wedatasphere.dss.datamodel.center.common.service.IndicatorTableCheckService;
 import com.webank.wedatasphere.dss.datamodel.indicator.dao.DssDatamodelIndicatorMapper;
 import com.webank.wedatasphere.dss.datamodel.indicator.dao.IndicatorQueryMapper;
 import com.webank.wedatasphere.dss.datamodel.indicator.dto.IndicatorContentQueryDTO;
@@ -47,6 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -70,8 +70,6 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
     @Resource
     private IndicatorQueryMapper indicatorQueryMapper;
 
-    @Resource
-    private IndicatorTableCheckService indicatorTableCheckService;
 
     @Resource
     private LinkisDataAssetsRemoteClient linkisDataAssetsRemoteClient;
@@ -141,10 +139,6 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
 
 
         DssDatamodelIndicatorContent orgContent = indicatorContentService.queryByIndicateId(id);
-        //如果修改指标性质
-        if (orgContent.getIndicatorType()==0&&vo.getContent().getIndicatorType()!=0){
-            checkAtomicIndicators(org.getName());
-        }
 
 
         //当更新指标名称时,存在其他指标名称同名或者当前指标名称已经存在版本信息，则不允许修改指标名称
@@ -195,13 +189,6 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
 
 
         return 1;
-    }
-
-    private void checkAtomicIndicators(String indicatorName) throws ErrorException{
-        if(indicatorContentService.sourceAtomicIndicatorReference(indicatorName)>0
-                ||indicatorVersionService.sourceAtomicIndicatorReference(indicatorName)>0){
-            throw new DSSDatamodelCenterException(ErrorCode.INDICATOR_UPDATE_ERROR.getCode(), "atomic indicator " +indicatorName+ " has referenced");
-        }
     }
 
 
@@ -447,7 +434,12 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
     public int indicatorThemeReferenceCount(String name) {
         int currentCount = getBaseMapper().selectCount(Wrappers.<DssDatamodelIndicator>lambdaQuery().eq(DssDatamodelIndicator::getThemeArea, name));
         int currentCountEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelIndicator>lambdaQuery().eq(DssDatamodelIndicator::getThemeAreaEn, name));
-        int versionCount = indicatorVersionService.contentReferenceCount(name);
+        List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
+        int versionCount = (int) preReferences.stream().filter(e->{
+            IndicatorVersionDTO rollBackDTO = gson.fromJson(e.getVersionContext(), IndicatorVersionDTO.class);
+            DssDatamodelIndicator rollBackIndicator = rollBackDTO.getEssential();
+            return StringUtils.equals(rollBackIndicator.getThemeArea(),name)||StringUtils.equals(rollBackIndicator.getThemeAreaEn(),name);
+        }).count();
         return currentCount + versionCount + currentCountEn;
     }
 
@@ -455,36 +447,89 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
     public int indicatorLayerReferenceCount(String name) {
         int currentCount = getBaseMapper().selectCount(Wrappers.<DssDatamodelIndicator>lambdaQuery().eq(DssDatamodelIndicator::getLayerArea, name));
         int currentCountEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelIndicator>lambdaQuery().eq(DssDatamodelIndicator::getLayerAreaEn, name));
-        int versionCount = indicatorVersionService.contentReferenceCount(name);
+        List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
+        int versionCount = (int) preReferences.stream().filter(e->{
+            IndicatorVersionDTO rollBackDTO = gson.fromJson(e.getVersionContext(), IndicatorVersionDTO.class);
+            DssDatamodelIndicator rollBackIndicator = rollBackDTO.getEssential();
+            return StringUtils.equals(rollBackIndicator.getLayerArea(),name)||StringUtils.equals(rollBackIndicator.getLayerAreaEn(),name);
+        }).count();
         return currentCount + versionCount + currentCountEn;
     }
 
     @Override
     public int indicatorCycleReferenceCount(String name) {
-        int currentCount = indicatorContentService.sourceInfoReference(name);
-        int versionCount = indicatorVersionService.contentReferenceCount(name);
-        return currentCount + versionCount;
+        List<DssDatamodelIndicatorContent> currentContents = indicatorContentService.sourceInfoReference(name);
+        int currentCount = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.cycle.name(),name,e)).count();
+        int currentCountEn = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.cycleEn.name(),name,e)).count();
+        List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
+        int versionCount = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.cycle.name(),name);
+        int versionCountEn = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.cycleEn.name(),name);
+        return currentCount + currentCountEn + versionCount + versionCountEn;
+    }
+
+    private int versionCountFromIndicatorContentSourceInfo(List<DssDatamodelIndicatorVersion> preReferences,String type,String name){
+        return (int) preReferences.stream().filter(e->{
+            IndicatorVersionDTO rollBackDTO = gson.fromJson(e.getVersionContext(), IndicatorVersionDTO.class);
+            DssDatamodelIndicatorContent rollBackContent = rollBackDTO.getContent();
+            return countFromIndicatorContentSourceInfo(type, name, rollBackContent);
+        }).count();
+    }
+
+    private boolean countFromIndicatorContentSourceInfo(String type, String name, DssDatamodelIndicatorContent rollBackContent) {
+        Map<String,String> content =  gson.fromJson(rollBackContent.getIndicatorSourceInfo(),Map.class);
+        if (!content.containsKey(type)){
+            return false;
+        }
+        return Sets.newHashSet(StringUtils.split(content.get(type), ",")).contains(name);
     }
 
     @Override
     public int indicatorModifierReferenceCount(String name) {
-        int currentCount = indicatorContentService.sourceInfoReference(name);
-        int versionCount = indicatorVersionService.contentReferenceCount(name);
-        return currentCount + versionCount;
+        List<DssDatamodelIndicatorContent> currentContents = indicatorContentService.sourceInfoReference(name);
+        int currentCount = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.modifier.name(),name,e)).count();
+        int currentCountEn = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.modifierEn.name(),name,e)).count();
+        List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
+        int versionCount = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.modifier.name(),name);
+        int versionCountEn = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.modifierEn.name(),name);
+        return currentCount + currentCountEn + versionCount + versionCountEn;
     }
 
 
     @Override
     public int indicatorDimensionReferenceCount(String name) {
-        int currentCount = indicatorContentService.sourceInfoReference(name);
-        int versionCount = indicatorVersionService.contentReferenceCount(name);
-        return currentCount + versionCount;
+        List<DssDatamodelIndicatorContent> currentContents = indicatorContentService.sourceInfoReference(name);
+        int currentCount = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.dimension.name(),name,e)).count();
+        int currentCountEn = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.dimensionEn.name(),name,e)).count();
+
+        List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
+        int versionCount = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.dimension.name(),name);
+        int versionCountEn = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.dimensionEn.name(),name);
+        return currentCount + currentCountEn + versionCount + versionCountEn;
     }
 
     @Override
     public int indicatorMeasureReferenceCount(String name) {
-        int currentCount = indicatorContentService.sourceInfoReference(name);
-        int versionCount = indicatorVersionService.contentReferenceCount(name);
-        return currentCount + versionCount;
+        List<DssDatamodelIndicatorContent> currentContents = indicatorContentService.sourceInfoReference(name);
+        int currentCount = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.measure.name(),name,e)).count();
+        int currentCountEn = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.measureEn.name(),name,e)).count();
+
+        List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
+        int versionCount = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.measure.name(),name);
+        int versionCountEn = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.measureEn.name(), name);
+        return currentCount + currentCountEn + versionCount + versionCountEn;
     }
+
+    @Override
+    public int indicatorIndicatorReferenceCount(String name) {
+        List<DssDatamodelIndicatorContent> currentContents = indicatorContentService.sourceInfoReference(name);
+        int currentCount = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.indicatorName.name(),name,e)).count();
+        int currentCountEn = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.indicatorNameEn.name(),name,e)).count();
+
+        List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
+        int versionCount = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.indicatorName.name(),name);
+        int versionCountEn = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.indicatorNameEn.name(),name);
+        return currentCount + currentCountEn + versionCount + versionCountEn;
+    }
+
+
 }

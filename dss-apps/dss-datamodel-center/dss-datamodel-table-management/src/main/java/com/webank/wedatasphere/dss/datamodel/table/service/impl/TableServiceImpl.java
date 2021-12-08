@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -15,6 +16,7 @@ import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteCl
 import com.webank.wedatasphere.dss.data.governance.request.*;
 import com.webank.wedatasphere.dss.data.governance.response.*;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ErrorCode;
+import com.webank.wedatasphere.dss.datamodel.center.common.constant.LabelConstant;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ModeType;
 import com.webank.wedatasphere.dss.datamodel.center.common.context.DataModelSecurityContextHolder;
 import com.webank.wedatasphere.dss.datamodel.center.common.dto.PreviewDataDTO;
@@ -661,7 +663,14 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
     public int tableThemeReferenceCount(String name) {
         int currentCount = getBaseMapper().selectCount(Wrappers.<DssDatamodelTable>lambdaQuery().eq(DssDatamodelTable::getWarehouseThemeName, name));
         int currentCountEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelTable>lambdaQuery().eq(DssDatamodelTable::getWarehouseThemeNameEn, name));
-        int versionCount = tableVersionService.tableContentReference(name);
+       // int versionCount = tableVersionService.tableContentReference(name);
+
+        List<DssDatamodelTableVersion> preReferences = tableVersionService.tableContentMultipleReference(name);
+        int versionCount = (int) preReferences.stream().filter(e->{
+            DssDatamodelTable temp = gson.fromJson(e.getTableParams(),DssDatamodelTable.class);
+            return StringUtils.equals(temp.getWarehouseThemeName(),name)||StringUtils.equals(temp.getWarehouseThemeNameEn(),name);
+        }).count();
+
         return currentCount + versionCount + currentCountEn;
     }
 
@@ -669,7 +678,12 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
     public int tableLayerReferenceCount(String name) {
         int currentCount = getBaseMapper().selectCount(Wrappers.<DssDatamodelTable>lambdaQuery().eq(DssDatamodelTable::getWarehouseLayerName, name));
         int currentCountEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelTable>lambdaQuery().eq(DssDatamodelTable::getWarehouseLayerNameEn, name));
-        int versionCount = tableVersionService.tableContentReference(name);
+        //int versionCount = tableVersionService.tableContentReference(name);
+        List<DssDatamodelTableVersion> preReferences = tableVersionService.tableContentMultipleReference(name);
+        int versionCount = (int) preReferences.stream().filter(e->{
+            DssDatamodelTable temp = gson.fromJson(e.getTableParams(),DssDatamodelTable.class);
+            return StringUtils.equals(temp.getWarehouseLayerName(),name)||StringUtils.equals(temp.getWarehouseLayerNameEn(),name);
+        }).count();
         return currentCount + versionCount + currentCountEn;
     }
 
@@ -677,7 +691,11 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
     public int tableCycleReferenceCount(String name) {
         int currentCount = getBaseMapper().selectCount(Wrappers.<DssDatamodelTable>lambdaQuery().eq(DssDatamodelTable::getLifecycle, name));
         int currentCountEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelTable>lambdaQuery().eq(DssDatamodelTable::getLifecycleEn, name));
-        int versionCount = tableVersionService.tableContentReference(name);
+        List<DssDatamodelTableVersion> preReferences = tableVersionService.tableContentMultipleReference(name);
+        int versionCount = (int) preReferences.stream().filter(e->{
+            DssDatamodelTable temp = gson.fromJson(e.getTableParams(),DssDatamodelTable.class);
+            return StringUtils.equals(temp.getLifecycle(),name)||StringUtils.equals(temp.getLifecycleEn(),name);
+        }).count();
         return currentCount + versionCount + currentCountEn;
     }
 
@@ -689,7 +707,14 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
     private int referenceCount(String name, ModeType modeType) {
         int currentCount = tableColumnsService.modelReferenceCount(modeType, name);
         int currentCountEn = tableColumnsService.modelReferenceCountEn(modeType, name);
-        int versionCount = tableVersionService.tableColumnsReference(name);
+        //int versionCount = tableVersionService.tableColumnsReference(name);
+
+        List<DssDatamodelTableVersion> preReferences = tableVersionService.tableColumnsReference(name);
+        int versionCount = (int) preReferences.stream().filter(e->{
+            DssDatamodelTableColumns temp = gson.fromJson(e.getTableParams(),DssDatamodelTableColumns.class);
+            //名称相同且类型相同
+            return modeType.getType() == temp.getModelType()&&StringUtils.equals(name,temp.getModelName());
+        }).count();
         return currentCount + versionCount + currentCountEn;
     }
 
@@ -768,7 +793,12 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
                 .like(DssDatamodelTable::getLabel, "," + name + ",")
                 .or()
                 .like(DssDatamodelTable::getLabel, "," + name));
-        int versionCount = tableVersionService.tableContentMultipleReference(name);
+
+        List<DssDatamodelTableVersion> preReferences = tableVersionService.tableContentMultipleReference(name);
+        int versionCount = (int) preReferences.stream().filter(e->{
+            DssDatamodelTable temp = gson.fromJson(e.getTableParams(),DssDatamodelTable.class);
+            return Sets.newHashSet(StringUtils.split(temp.getLabel(), LabelConstant.SEPARATOR)).contains(name);
+        }).count();
         return currentCount + versionCount;
     }
 }
