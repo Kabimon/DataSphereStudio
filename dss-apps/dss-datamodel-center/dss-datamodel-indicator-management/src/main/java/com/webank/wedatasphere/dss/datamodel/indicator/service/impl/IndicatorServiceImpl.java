@@ -152,8 +152,8 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
             int repeat = getBaseMapper().selectCount(Wrappers.<DssDatamodelIndicator>lambdaQuery().eq(DssDatamodelIndicator::getName, vo.getName()));
             String lastVersion = indicatorVersionService.findLastVersion(org.getName());
             if (repeat > 0 || StringUtils.isNotBlank(lastVersion)) {
-                LOGGER.error("errorCode : {}, indicator name can not repeat", ErrorCode.INDICATOR_UPDATE_ERROR.getCode());
-                throw new DSSDatamodelCenterException(ErrorCode.INDICATOR_UPDATE_ERROR.getCode(), "indicator name can not repeat");
+                LOGGER.error("errorCode : {}, indicator name can not repeat or has version", ErrorCode.INDICATOR_UPDATE_ERROR.getCode());
+                throw new DSSDatamodelCenterException(ErrorCode.INDICATOR_UPDATE_ERROR.getCode(), "indicator name can not repeat or has version");
             }
         }
 
@@ -162,8 +162,8 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
         if (!StringUtils.equals(vo.getFieldIdentifier(), orgFieldIdentifier)) {
             int repeat = getBaseMapper().selectCount(Wrappers.<DssDatamodelIndicator>lambdaQuery().eq(DssDatamodelIndicator::getFieldIdentifier, vo.getFieldIdentifier()));
             if (repeat > 0) {
-                LOGGER.error("errorCode : {}, indicator field identifier can not repeat ", ErrorCode.INDICATOR_UPDATE_ERROR.getCode());
-                throw new DSSDatamodelCenterException(ErrorCode.INDICATOR_UPDATE_ERROR.getCode(), "indicator field identifier can not repeat ");
+                LOGGER.error("errorCode : {}, indicator field identifier can not repeat or has version", ErrorCode.INDICATOR_UPDATE_ERROR.getCode());
+                throw new DSSDatamodelCenterException(ErrorCode.INDICATOR_UPDATE_ERROR.getCode(), "indicator field identifier can not repeat or has version");
             }
         }
 

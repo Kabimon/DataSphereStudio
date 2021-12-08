@@ -160,8 +160,8 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
             int repeat = getBaseMapper().selectCount(Wrappers.<DssDatamodelTable>lambdaQuery().eq(DssDatamodelTable::getName, vo.getName()));
             String lastVersion = tableVersionService.findLastVersion(org.getName());
             if (repeat > 0 || StringUtils.isNotBlank(lastVersion)) {
-                LOGGER.error("errorCode : {}, table name can not repeat", ErrorCode.TABLE_UPDATE_ERROR.getCode());
-                throw new DSSDatamodelCenterException(ErrorCode.TABLE_UPDATE_ERROR.getCode(), "table name can not repeat");
+                LOGGER.error("errorCode : {}, table name can not repeat or has version", ErrorCode.TABLE_UPDATE_ERROR.getCode());
+                throw new DSSDatamodelCenterException(ErrorCode.TABLE_UPDATE_ERROR.getCode(), "table name can not repeat or has version");
             }
         }
 

@@ -215,7 +215,7 @@ public class DimensionServiceImpl extends ServiceImpl<DssDatamodelDimensionMappe
     @Override
     public int dimensionThemeReferenceCount(String name) {
         int count = getBaseMapper().selectCount(Wrappers.<DssDatamodelDimension>lambdaQuery().eq(DssDatamodelDimension::getWarehouseThemeName,name));
-        int countEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelDimension>lambdaQuery().eq(DssDatamodelDimension::getWarehouseThemeName,name));
+        int countEn = getBaseMapper().selectCount(Wrappers.<DssDatamodelDimension>lambdaQuery().eq(DssDatamodelDimension::getWarehouseThemeNameEn,name));
         return count + countEn;
     }
 }

@@ -8,5 +8,5 @@ public interface MeasuredThemeReferenceService {
      * @param name
      * @return
      */
-    int dimensionThemeReferenceCount(String name);
+    int measureThemeReferenceCount(String name);
 }

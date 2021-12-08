@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
@@ -86,7 +87,7 @@ public class DSSDataGovernanceAssetRestful implements AuthenticationClientStrate
         }
 
         List<HiveTblSimpleInfo> hiveTblBasicList = assetService.searchHiveTable(classification, "*" + query + "*",label,limit, offset);
-        if (StringUtils.isBlank(owner) || owner.equals("undefined")) {
+        if (StringUtils.isBlank(owner) || owner.equals("undefined")|| CollectionUtils.isEmpty(hiveTblBasicList)) {
             return Message.messageToResponse(Message.ok().data("result", hiveTblBasicList));
         } else {
             List<HiveTblSimpleInfo> res = new ArrayList<>();

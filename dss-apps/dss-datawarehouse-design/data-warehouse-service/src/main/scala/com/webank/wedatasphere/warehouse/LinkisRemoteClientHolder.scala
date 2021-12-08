@@ -2,6 +2,7 @@ package com.webank.wedatasphere.warehouse
 
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient
 import com.webank.wedatasphere.dss.datamodel.center.client.impl.LinkisDatamodelCenterRemoteClient
+import com.webank.wedatasphere.dss.framework.workspace.client.impl.LinkisWorkSpaceRemoteClient
 import com.webank.wedatasphere.linkis.datasource.client.impl.{LinkisDataSourceRemoteClient, LinkisMetadataSourceRemoteClient}
 import com.webank.wedatasphere.linkis.httpclient.dws.authentication.TokenAuthenticationStrategy
 import com.webank.wedatasphere.linkis.httpclient.dws.config.{DWSClientConfig, DWSClientConfigBuilder}
@@ -46,6 +47,12 @@ object LinkisRemoteClientHolder {
   var dataModelRemoteClient = new LinkisDatamodelCenterRemoteClient(clientConfig)
 
   var dataAssetsRemoteClient = new LinkisDataAssetsRemoteClient(clientConfig)
+
+  var workspaceRemoteClient = new LinkisWorkSpaceRemoteClient(clientConfig)
+
+  def getWorkspaceRemoteClient: LinkisWorkSpaceRemoteClient = {
+    workspaceRemoteClient
+  }
 
   def getLinkisDataSourceRemoteClient: LinkisDataSourceRemoteClient = {
     dataSourceClient
