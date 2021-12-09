@@ -459,8 +459,8 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
     @Override
     public int indicatorCycleReferenceCount(String name) {
         List<DssDatamodelIndicatorContent> currentContents = indicatorContentService.sourceInfoReference(name);
-        int currentCount = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.cycle.name(),name,e)).count();
-        int currentCountEn = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.cycleEn.name(),name,e)).count();
+        int currentCount = currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.cycle,name,currentContents);
+        int currentCountEn = currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.cycleEn,name,currentContents);
         List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
         int versionCount = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.cycle.name(),name);
         int versionCountEn = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.cycleEn.name(),name);
@@ -471,11 +471,15 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
         return (int) preReferences.stream().filter(e->{
             IndicatorVersionDTO rollBackDTO = gson.fromJson(e.getVersionContext(), IndicatorVersionDTO.class);
             DssDatamodelIndicatorContent rollBackContent = rollBackDTO.getContent();
-            return countFromIndicatorContentSourceInfo(type, name, rollBackContent);
+            return filterFromIndicatorContentSourceInfo(type, name, rollBackContent);
         }).count();
     }
 
-    private boolean countFromIndicatorContentSourceInfo(String type, String name, DssDatamodelIndicatorContent rollBackContent) {
+    private int currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant type, String name,List<DssDatamodelIndicatorContent> contents){
+        return (int) contents.stream().filter(e-> filterFromIndicatorContentSourceInfo(type.name(),name,e)).count();
+    }
+
+    private boolean filterFromIndicatorContentSourceInfo(String type, String name, DssDatamodelIndicatorContent rollBackContent) {
         Map<String,String> content =  gson.fromJson(rollBackContent.getIndicatorSourceInfo(),Map.class);
         if (!content.containsKey(type)){
             return false;
@@ -486,8 +490,8 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
     @Override
     public int indicatorModifierReferenceCount(String name) {
         List<DssDatamodelIndicatorContent> currentContents = indicatorContentService.sourceInfoReference(name);
-        int currentCount = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.modifier.name(),name,e)).count();
-        int currentCountEn = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.modifierEn.name(),name,e)).count();
+        int currentCount = currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.modifier,name,currentContents);
+        int currentCountEn = currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.modifierEn,name,currentContents);
         List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
         int versionCount = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.modifier.name(),name);
         int versionCountEn = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.modifierEn.name(),name);
@@ -498,8 +502,8 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
     @Override
     public int indicatorDimensionReferenceCount(String name) {
         List<DssDatamodelIndicatorContent> currentContents = indicatorContentService.sourceInfoReference(name);
-        int currentCount = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.dimension.name(),name,e)).count();
-        int currentCountEn = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.dimensionEn.name(),name,e)).count();
+        int currentCount = currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.dimension,name,currentContents);
+        int currentCountEn =  currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.dimensionEn,name,currentContents);
 
         List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
         int versionCount = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.dimension.name(),name);
@@ -510,8 +514,8 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
     @Override
     public int indicatorMeasureReferenceCount(String name) {
         List<DssDatamodelIndicatorContent> currentContents = indicatorContentService.sourceInfoReference(name);
-        int currentCount = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.measure.name(),name,e)).count();
-        int currentCountEn = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.measureEn.name(),name,e)).count();
+        int currentCount = currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.measure,name,currentContents);
+        int currentCountEn = currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.measureEn,name,currentContents);
 
         List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
         int versionCount = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.measure.name(),name);
@@ -522,8 +526,8 @@ public class IndicatorServiceImpl extends ServiceImpl<DssDatamodelIndicatorMappe
     @Override
     public int indicatorIndicatorReferenceCount(String name) {
         List<DssDatamodelIndicatorContent> currentContents = indicatorContentService.sourceInfoReference(name);
-        int currentCount = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.indicatorName.name(),name,e)).count();
-        int currentCountEn = (int) currentContents.stream().filter(e->countFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.indicatorNameEn.name(),name,e)).count();
+        int currentCount = currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.indicatorName,name,currentContents);
+        int currentCountEn = currentCountFromIndicatorContentSourceInfo(IndicatorSourceInfoConstant.indicatorNameEn,name,currentContents);
 
         List<DssDatamodelIndicatorVersion> preReferences = indicatorVersionService.contentReferenceCount(name);
         int versionCount = versionCountFromIndicatorContentSourceInfo(preReferences,IndicatorSourceInfoConstant.indicatorName.name(),name);
