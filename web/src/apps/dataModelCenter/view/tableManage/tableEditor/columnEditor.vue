@@ -290,15 +290,20 @@ export default {
      * 规范性验证
      */
     checkColumnData() {
-      let checkPartitionField = false
-      for (let i = 0; i < this.columnData.length - 1; i++) {
-        let item = this.columnData[i]
-        if (!Boolean(/^[a-zA-Z0-9_]{1,100}$/g.test(item.name))) {
-          this.$Message.warning("字段名必须是英文字母下划线,且长度在1-100字符之间");
-          return false
+      let checkPartitionField = false;
+      for (let i = 0; i < this.columnData.length; i++) {
+        let item = this.columnData[i];
+        if (!Boolean(/^[a-z][a-z0-9]{0,99}$/g.test(item.name))) {
+          this.$Message.warning(
+            "字段名仅支持小写英文，数字，长度在100字符以内并必须以字母开头"
+          );
+          return false;
         }
-        if(item.isPartitionField === 0){
-          checkPartitionField = true
+        if (item.isPartitionField === 0) {
+          checkPartitionField = true;
+        }
+        if (i === this.columnData.length - 1) {
+          continue;
         }
         for (let j = i + 1; j < this.columnData.length; j++) {
           if (this.columnData[i].name === this.columnData[j].name) {
@@ -307,9 +312,9 @@ export default {
           }
         }
       }
-      if(checkPartitionField === false){
+      if (checkPartitionField === false) {
         this.$Message.warning("必须有一个非分区字段");
-        return false
+        return false;
       }
       this.$Message.success("字段格式校验通过！");
       return true;
@@ -348,7 +353,7 @@ export default {
      */
     handleAddColumn() {
       this.columnData.push({
-        name: "columnName",
+        name: "columnname",
         alias: "别名",
         type: "string",
         comment: "备注",

@@ -5,13 +5,9 @@
     :loading="loading"
     :placeholder="placeholder"
     :multiple="multiple"
-    :filterable="searchMode"
-    :remote="searchMode"
-    :remote-method="handleGetData"
-    v-if="update"
+    clearable
   >
     <Option
-      ref="optionRef"
       v-for="(item, index) in dataList"
       :value="item.value"
       :label="item.label"
@@ -36,10 +32,6 @@ export default {
       type: Function,
       require: true,
     },
-    // 是否远程搜索
-    searchMode: {
-      type: Boolean,
-    },
     // 提示
     placeholder: {
       type: String,
@@ -49,24 +41,19 @@ export default {
     return {
       dataList: [],
       loading: false,
-      update: true,
     };
   },
   mounted() {
-    if (!!this.searchMode === false) {
-      this.handleGetData();
-    }
+    this.handleGetData();
   },
   computed: {
     formatValue() {
       if (this.value === void 0) return void 0;
       let valueArr = this.value.split(",");
       if (valueArr.length > 1) {
-        this.fileDataList(valueArr);
         return valueArr;
       } else if (valueArr.length === 1) {
         if (valueArr[0] === "" || valueArr[0] === "|") return void 0;
-        this.fileDataList(valueArr);
         return valueArr[0];
       } else {
         return void 0;
@@ -74,26 +61,6 @@ export default {
     },
   },
   methods: {
-    // 空数据的时候填充数据数组
-    fileDataList(value) {
-      setTimeout(() => {
-        if (!!this.searchMode === false) return;
-        if (this.dataList.length === 0) {
-          let resArr = [];
-          for (let i = 0; i < value.length; i++) {
-            resArr.push({
-              label: value[i].split("|")[0],
-              value: value[i],
-            });
-          }
-          this.dataList = [...resArr];
-          this.update = false;
-          this.$nextTick(() => {
-            this.update = true;
-          });
-        }
-      });
-    },
     // 值改变的时候
     handleChangeVal(value) {
       // 忽略undefined处理

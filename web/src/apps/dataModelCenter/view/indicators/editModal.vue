@@ -112,7 +112,6 @@
                 "
                 @input="formState._sourceInfo.info_0.measure = $event"
                 @change="formState._sourceInfo.info_0.measureEn = $event"
-                searchMode
                 placeholder="请选择度量"
                 :fetch="handleGetMeasures"
               />
@@ -130,7 +129,6 @@
           <Col :span="24">
             <FormItem label="指定维度" prop="_sourceInfo.info_0.dimension">
               <SelectPage
-                searchMode
                 multiple
                 :value="
                   formatSelectPageValue(
@@ -154,7 +152,6 @@
               prop="_sourceInfo.info_1.indicatorName"
             >
               <SelectPage
-                searchMode
                 multiple
                 :value="
                   formatSelectPageValue(
@@ -181,7 +178,6 @@
           <Col :span="24">
             <FormItem label="指定维度" prop="_sourceInfo.info_1.dimension">
               <SelectPage
-                searchMode
                 multiple
                 :value="
                   formatSelectPageValue(
@@ -213,7 +209,6 @@
                 "
                 @input="formState._sourceInfo.info_2.indicatorName = $event"
                 @change="formState._sourceInfo.info_2.indicatorNameEn = $event"
-                searchMode
                 placeholder="请选择指标"
                 :fetch="handleGetIndicators"
               />
@@ -255,7 +250,6 @@
           <Col :span="24">
             <FormItem label="指定维度" prop="_sourceInfo.info_2.dimension">
               <SelectPage
-                searchMode
                 multiple
                 :value="
                   formatSelectPageValue(
@@ -280,7 +274,6 @@
             >
               <SelectPage
                 multiple
-                searchMode
                 :value="
                   formatSelectPageValue(
                     formState._sourceInfo.info_3.indicatorName,
@@ -323,7 +316,6 @@
           <Col :span="24">
             <FormItem label="指定维度" prop="_sourceInfo.info_3.dimension">
               <SelectPage
-                searchMode
                 multiple
                 :value="
                   formatSelectPageValue(
@@ -353,7 +345,6 @@
           <Col :span="24">
             <FormItem label="指定维度" prop="_sourceInfo.info_4.dimension">
               <SelectPage
-                searchMode
                 multiple
                 :value="
                   formatSelectPageValue(
@@ -491,7 +482,7 @@ export default {
         fieldIdentifier: "",
         comment: "",
         owner: this.getUserName(),
-        principalName: "ALL",
+        principalName: "",
         isCoreIndicator: 0,
         isAvailable: 1,
         // 主题域 名字|英文名 themeArea|themeAreaEn
@@ -716,7 +707,7 @@ export default {
       return getDimensions({
         name: name,
         pageNum: 1,
-        pageSize: 10,
+        pageSize: 2147483647,
         isAvailable: 1,
       }).then((res) => {
         return {
@@ -736,7 +727,7 @@ export default {
       return getMeasures({
         name: name,
         pageNum: 1,
-        pageSize: 10,
+        pageSize: 2147483647,
         isAvailable: 1,
       }).then((res) => {
         return {
@@ -756,7 +747,7 @@ export default {
       return getIndicators({
         name: name,
         pageNum: 1,
-        pageSize: 10,
+        pageSize: 2147483647,
         isAvailable: 1,
       }).then((res) => {
         let resArr = [];
@@ -783,7 +774,7 @@ export default {
       return getIndicators({
         name: name,
         pageNum: 1,
-        pageSize: 10,
+        pageSize: 2147483647,
         isAvailable: 1,
         indicatorType: 0,
       }).then((res) => {
@@ -878,16 +869,29 @@ export default {
       this.refCount = detail.refCount;
     },
     /**
+     * 手动置空内容
+     *
+     */
+    emptySourceInfoMap() {
+      let type = this.formState.content.indicatorType;
+      this.formState._sourceInfo[`info_${type}`] = Object.assign(
+        {},
+        sourceInfoMap[type]
+      );
+    },
+    /**
      * 默认取消回调
      */
     cancelCallBack() {
       this.$refs["formRef"].resetFields();
+      this.emptySourceInfoMap();
     },
     /**
      * 取消按钮操作
      */
     handleCancel() {
       this.$refs["formRef"].resetFields();
+      this.emptySourceInfoMap();
       this.$emit("_changeVisible", false);
     },
     /**

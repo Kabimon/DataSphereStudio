@@ -147,7 +147,11 @@ export default {
     // 获取维度
     handleGetDimensions(theme) {
       this.loading = true;
-      getDimensions({ warehouseThemeName: theme }).then((res) => {
+      getDimensions({
+        warehouseThemeName: theme,
+        pageNum: 1,
+        pageSize: 2147483647,
+      }).then((res) => {
         this.loading = false;
         this.rightDataList = res.list;
       });
@@ -155,7 +159,11 @@ export default {
     // 获取度量
     handleGetMeasures(theme) {
       this.loading = true;
-      getMeasures({ warehouseThemeName: theme }).then((res) => {
+      getMeasures({
+        warehouseThemeName: theme,
+        pageNum: 1,
+        pageSize: 2147483647,
+      }).then((res) => {
         this.loading = false;
         this.rightDataList = res.list;
       });
@@ -163,7 +171,11 @@ export default {
     // 获取指标
     handleGetIndicators(theme) {
       this.loading = true;
-      getIndicators({ warehouseThemeName: theme }).then((res) => {
+      getIndicators({
+        warehouseThemeName: theme,
+        pageNum: 1,
+        pageSize: 2147483647,
+      }).then((res) => {
         this.loading = false;
         this.rightDataList = res.list;
       });

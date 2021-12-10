@@ -5,7 +5,7 @@
       <Col span="18">
         <div style="display: flex; justify-content: space-between">
           <div>
-            <Icon type="ios-home" :size="26"/>
+            <Icon type="ios-home" :size="26" />
             <span style="font-size: 16px"> 表信息 / {{ extraInfo.name }}</span>
             &nbsp;
             <Tag color="primary">V{{ extraInfo.version || 0 }}</Tag>
@@ -41,7 +41,11 @@
             type="primary"
             style="margin-right: 15px"
             @click="handleFormFinish"
-            v-if="config.mode === 'create' || config.mode === 'copy' || !checkTableData"
+            v-if="
+              config.mode === 'create' ||
+                config.mode === 'copy' ||
+                !checkTableData
+            "
           >
             保存
           </Button>
@@ -58,7 +62,7 @@
 
     <Row :gutter="15">
       <Col span="18">
-        <ColumnEditor ref="ColumnEditor" v-model="formState.columns"/>
+        <ColumnEditor ref="ColumnEditor" v-model="formState.columns" />
       </Col>
       <Col span="6">
         <Card title="基本信息" dis-hover style="margin-bottom: 15px">
@@ -251,12 +255,17 @@ import {
   getTableInfoByName,
   updateTable,
 } from "@dataModelCenter/service/api/tableManage";
-import {getCyclesList, getLayersList, getThemesList, getRolesList} from "@dataModelCenter/service/api/common";
+import {
+  getCyclesList,
+  getLayersList,
+  getThemesList,
+  getRolesList,
+} from "@dataModelCenter/service/api/common";
 import ColumnEditor from "./columnEditor.vue";
-import {getLabelList} from "@/apps/dataModelCenter/service/api/labels";
+import { getLabelList } from "@/apps/dataModelCenter/service/api/labels";
 import mixin from "@/common/service/mixin";
 export default {
-  components: {ColumnEditor},
+  components: { ColumnEditor },
   mixins: [mixin],
   data() {
     return {
@@ -270,8 +279,8 @@ export default {
             trigger: "submit",
           },
           {
-            message: "仅支持小写英文，下划线，数字",
-            pattern: /^[a-z0-9_]+$/g,
+            message: "仅支持小写英文，数字，长度在100字符以内并必须以字母开头",
+            pattern: /^[a-z][a-z0-9]{0,99}$/g,
             trigger: "submit",
           },
         ],
@@ -441,10 +450,10 @@ export default {
       immediate: true,
       handler(value) {
         if (value) {
-          this.handlegetLayers(value)
+          this.handlegetLayers(value);
         }
-      }
-    }
+      },
+    },
   },
   mounted() {
     // 用户操作时需要的数据
@@ -465,10 +474,10 @@ export default {
      * @param dbName {String} 可用库
      */
     async handlegetLayers(dbName) {
-      this.layersLoading = true
-      let {list} = await getLayersList(dbName);
-      this.layersLoading = false
-      this.layersList = list
+      this.layersLoading = true;
+      let { list } = await getLayersList(dbName);
+      this.layersLoading = false;
+      this.layersList = list;
     },
     /**
      * 检查当前表是否存在数据，有数据的情况下某些操作是不允许的
@@ -497,7 +506,7 @@ export default {
         data = await getTableInfoByName(this.config.name, this.config.guid);
       }
       this.loading = false;
-      let {detail} = data;
+      let { detail } = data;
       // 如果有id更新id
       if (detail.id) {
         this.config.id = detail.id;
@@ -558,10 +567,10 @@ export default {
         }),
       };
       // 如果是 copy 模式，则清空一些信息
-      if(this.config.mode === 'copy'){
-        this.formState.name = ''
-        this.extraInfo.name = ''
-        this.extraInfo.version = ''
+      if (this.config.mode === "copy") {
+        this.formState.name = "";
+        this.extraInfo.name = "";
+        this.extraInfo.version = 0;
       }
     },
     /**
@@ -610,26 +619,28 @@ export default {
         // 周期
         getCyclesList(),
         // 标签
-        getLabelList({isAvailable: 1}),
+        getLabelList({ isAvailable: 1, pageNum: 1, pageSize: 2147483647 }),
         // 可选角色
-        getRolesList(this.getCurrentWorkspaceId())
-      ]).then(([themeRes, dbRes, dictionariesRes, cyclesRes, labelRes, roleRes]) => {
-        this.loading = false;
-        this.themesList = themeRes.list;
-        this.dataBasesList = dbRes.list;
-        this.lifecycleList = cyclesRes.list;
-        this.labelList = labelRes.list;
-        this.compressList = dictionariesRes.list.filter(
-          (item) => item.type === "COMPRESS"
-        );
-        this.fileTypeList = dictionariesRes.list.filter(
-          (item) => item.type === "FILE_STORAGE"
-        );
-        this.storageTypeList = dictionariesRes.list.filter(
-          (item) => item.type === "STORAGE_ENGINE"
-        );
-        this.rolesList = roleRes.users
-      });
+        getRolesList(this.getCurrentWorkspaceId()),
+      ]).then(
+        ([themeRes, dbRes, dictionariesRes, cyclesRes, labelRes, roleRes]) => {
+          this.loading = false;
+          this.themesList = themeRes.list;
+          this.dataBasesList = dbRes.list;
+          this.lifecycleList = cyclesRes.list;
+          this.labelList = labelRes.list;
+          this.compressList = dictionariesRes.list.filter(
+            (item) => item.type === "COMPRESS"
+          );
+          this.fileTypeList = dictionariesRes.list.filter(
+            (item) => item.type === "FILE_STORAGE"
+          );
+          this.storageTypeList = dictionariesRes.list.filter(
+            (item) => item.type === "STORAGE_ENGINE"
+          );
+          this.rolesList = roleRes.users;
+        }
+      );
     },
     /**
      * 获取格式化之后的数据
