@@ -3,17 +3,13 @@
     <!-- top -->
     <div class="overview-t">
       <i-title :title="'总体计量'"></i-title>
-
       <div class="overview-t-card">
         <div v-for="model in models" :key="model.title">
           <ICard :model="model"></ICard>
         </div>
       </div>
     </div>
-
-    <!-- bottom -->
     <div class="overview-b">
-      <!-- bottom left -->
       <div class="overview-b-l">
         <i-title :title="'表占有存储 Top10'"></i-title>
         <Table
@@ -23,21 +19,7 @@
           width="558"
           size="large"
         >
-          <template slot="storage" slot-scope="{row}">
-            <div> {{ transformCompany(row.storage).str }} </div>
-          </template>
         </Table>
-      </div>
-
-      <!-- bottom right -->
-      <div class="overview-b-r">
-        <!-- <Title :title="'表读取次数 Top10'"></Title>
-        <Table
-          :columns="columns2"
-          :data="data2"
-          width="558"
-          size="large"
-        ></Table> -->
       </div>
     </div>
   </div>
@@ -47,26 +29,28 @@ import { getHiveSummary, getTopStorage } from "../../service/api";
 import iTitle from "../common/title.vue";
 import ICard from "../common/iCard.vue";
 export default {
-  components: {
-    iTitle,
-    ICard
-  },
+  components: { iTitle, ICard },
   data() {
     return {
       models: [
         {
           title: "数据库总数",
           iconName: "shujukuzongshu",
-          content: 2,
-          unit: "个"
+          content: 0,
+          unit: "个",
         },
-        { title: "表总数", iconName: "biaozongshu", content: 6, unit: "个" },
+        {
+          title: "表总数",
+          iconName: "biaozongshu",
+          content: 0,
+          unit: "个",
+        },
         {
           title: "总存容量",
           iconName: "zongcunchuliang",
-          content: 296.25,
-          unit: "MB"
-        }
+          content: 0,
+          unit: "MB",
+        },
       ],
       tableSelf: this,
       columns1: [
@@ -78,11 +62,11 @@ export default {
               h("SvgIcon", {
                 props: {
                   "icon-class": "biao",
-                  color: "#3495F7"
+                  color: "#3495F7",
                 },
                 style: {
-                  fontSize: "15px"
-                }
+                  fontSize: "15px",
+                },
               }),
               h(
                 "span",
@@ -90,67 +74,20 @@ export default {
                   style: {
                     marginLeft: "4.8px",
                     fontSize: "14px",
-                    color: "#3495F7"
-                  }
+                    color: "#3495F7",
+                  },
                 },
                 params.row.tableName
-              )
+              ),
             ]);
-          }
+          },
         },
         {
           title: "存储量",
           key: "storage",
-          slot: "storage"
-        }
-      ],
-      columns2: [
-        {
-          title: "表名",
-          key: "tableName",
-          render: (h, params) => {
-            return h("div", [
-              h("SvgIcon", {
-                props: {
-                  "icon-class": "biao",
-                  color: "#3495F7"
-                },
-                style: {
-                  fontSize: "15px"
-                }
-              }),
-              h(
-                "span",
-                {
-                  style: {
-                    marginLeft: "4.8px",
-                    fontSize: "14px",
-                    color: "#3495F7"
-                  }
-                },
-                params.row.tableName
-              )
-            ]);
-          }
         },
-        {
-          title: "读取次数",
-          key: "readTimes"
-        }
       ],
       data1: [],
-      data2: [
-        { tableName: "Table2", readTimes: "36次" },
-        { tableName: "Table2", readTimes: "36次" },
-        { tableName: "Table2", readTimes: "36次" },
-        { tableName: "Table2", readTimes: "36次" },
-        { tableName: "Table2", readTimes: "36次" },
-        { tableName: "Table2", readTimes: "36次" },
-        { tableName: "Table2", readTimes: "36次" },
-        { tableName: "Table2", readTimes: "36次" },
-        { tableName: "Table2", readTimes: "36次" },
-        { tableName: "Table2", readTimes: "36次" }
-      ]
     };
   },
   mounted() {
@@ -161,30 +98,32 @@ export default {
       this.getDataAssetsSummary();
       this.getTblTopStorage();
     },
-
-    // 获取 数据资产概要
+    /**
+     * 获取 数据资产概要
+     */
     getDataAssetsSummary() {
       let that = this;
       getHiveSummary()
-        .then(data => {
+        .then((data) => {
           if (data.result) {
             const { hiveStore, hiveDb, hiveTable } = data.result;
-            // data.result["hiveStore"] = (hiveStore / 1024 / 1024).toFixed(2);
-            let n = this.transformCompany(data.result["hiveStore"])
+            let n = this.transformCompany(hiveStore);
             const models = that.models.slice(0);
             models[0].content = hiveDb;
             models[1].content = hiveTable;
             models[2].content = n.num;
-            models[2].unit = n.unit
+            models[2].unit = n.unit;
             that.models = models;
           }
           console.log(data);
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("getDataAssetsSummary", err);
         });
     },
-    // 转换存储单位
+    /**
+     * 转换存储单位
+     */
     transformCompany(number) {
       if (!number) {
         return { num: 0, unit: "B", str: "0B" };
@@ -198,19 +137,26 @@ export default {
         }
       }
     },
+    /**
+     * 获取排行
+     */
     getTblTopStorage() {
-      let that = this;
       getTopStorage()
-        .then(data => {
+        .then((data) => {
           if (data.result) {
-            that.data1 = data.result.slice(0);
+            console.log(data.result);
+            for (let i = 0; i < data.result.length; i++) {
+              let vlaue = this.transformCompany(data.result[i].storage);
+              data.result[i].storage = vlaue ? vlaue.str : "";
+            }
+            this.data1 = data.result;
           }
         })
-        .catch(err => {
-          that.$Message.error(err);
+        .catch((err) => {
+          this.$Message.error(err);
         });
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

@@ -27,10 +27,7 @@
           </Input>
         </FormItem>
         <FormItem label="负责人" prop="owner">
-          <Select
-            v-model="formState.owner"
-            placeholder="默认为创建用户"
-          >
+          <Select v-model="formState.owner" placeholder="默认为创建用户">
             <Option
               v-for="item in usersList"
               :value="item.name"
@@ -71,10 +68,7 @@
         </FormItem>
         <h2 class="form-block-title">作用范围</h2>
         <FormItem label="主题域" prop="_themeArea">
-          <Select
-            v-model="formState._themeArea"
-            placeholder="主题域"
-          >
+          <Select v-model="formState._themeArea" placeholder="主题域">
             <Option
               v-for="item in themesList"
               :value="`${item.name}|${item.enName}`"
@@ -85,10 +79,7 @@
           </Select>
         </FormItem>
         <FormItem label="分层" prop="_layerArea">
-          <Select
-            v-model="formState._layerArea"
-            placeholder="分层"
-          >
+          <Select v-model="formState._layerArea" placeholder="分层">
             <Option
               v-for="item in layersList"
               :value="`${item.name}|${item.enName}`"
@@ -113,7 +104,14 @@
           <Col :span="24">
             <FormItem label="关联度量" prop="_sourceInfo.info_0.measure">
               <SelectPage
-                v-model="formState._sourceInfo.info_0.measure"
+                :value="
+                  formatSelectPageValue2(
+                    formState._sourceInfo.info_0.measure,
+                    formState._sourceInfo.info_0.measureEn
+                  )
+                "
+                @input="formState._sourceInfo.info_0.measure = $event"
+                @change="formState._sourceInfo.info_0.measureEn = $event"
                 searchMode
                 placeholder="请选择度量"
                 :fetch="handleGetMeasures"
@@ -135,9 +133,13 @@
                 searchMode
                 multiple
                 :value="
-                  (formState._sourceInfo.info_0.dimension || '').split(',')
+                  formatSelectPageValue(
+                    formState._sourceInfo.info_0.dimension,
+                    formState._sourceInfo.info_0.dimensionEn
+                  )
                 "
-                @input="formState._sourceInfo.info_0.dimension = $event.join()"
+                @input="formState._sourceInfo.info_0.dimension = $event"
+                @change="formState._sourceInfo.info_0.dimensionEn = $event"
                 placeholder="请选择一个或多个维度"
                 :fetch="handleGetDimensions"
               />
@@ -155,11 +157,13 @@
                 searchMode
                 multiple
                 :value="
-                  (formState._sourceInfo.info_1.indicatorName || '').split(',')
+                  formatSelectPageValue(
+                    formState._sourceInfo.info_1.indicatorName,
+                    formState._sourceInfo.info_1.indicatorNameEn
+                  )
                 "
-                @input="
-                  formState._sourceInfo.info_1.indicatorName = $event.join()
-                "
+                @input="formState._sourceInfo.info_1.indicatorName = $event"
+                @change="formState._sourceInfo.info_1.indicatorNameEn = $event"
                 placeholder="请选择一个或多个原子指标"
                 :fetch="handleGetIndicatorsTypeOne"
               />
@@ -180,9 +184,13 @@
                 searchMode
                 multiple
                 :value="
-                  (formState._sourceInfo.info_1.dimension || '').split(',')
+                  formatSelectPageValue(
+                    formState._sourceInfo.info_1.dimension,
+                    formState._sourceInfo.info_1.dimensionEn
+                  )
                 "
-                @input="formState._sourceInfo.info_1.dimension = $event.join()"
+                @input="formState._sourceInfo.info_1.dimension = $event"
+                @change="formState._sourceInfo.info_1.dimensionEn = $event"
                 placeholder="请选择一个或多个维度"
                 :fetch="handleGetDimensions"
               />
@@ -197,7 +205,14 @@
               prop="_sourceInfo.info_2.indicatorName"
             >
               <SelectPage
-                v-model="formState._sourceInfo.info_2.indicatorName"
+                :value="
+                  formatSelectPageValue2(
+                    formState._sourceInfo.info_2.indicatorName,
+                    formState._sourceInfo.info_2.indicatorNameEn
+                  )
+                "
+                @input="formState._sourceInfo.info_2.indicatorName = $event"
+                @change="formState._sourceInfo.info_2.indicatorNameEn = $event"
                 searchMode
                 placeholder="请选择指标"
                 :fetch="handleGetIndicators"
@@ -207,7 +222,14 @@
           <Col :span="24">
             <FormItem label="时间周期" prop="_sourceInfo.info_2.cycle">
               <SelectPage
-                v-model="formState._sourceInfo.info_2.cycle"
+                :value="
+                  formatSelectPageValue2(
+                    formState._sourceInfo.info_2.cycle,
+                    formState._sourceInfo.info_2.cycleEn
+                  )
+                "
+                @input="formState._sourceInfo.info_2.cycle = $event"
+                @change="formState._sourceInfo.info_2.cycleEn = $event"
                 placeholder="时间周期"
                 :fetch="handleGetCyclesList"
               />
@@ -218,9 +240,13 @@
               <SelectPage
                 multiple
                 :value="
-                  (formState._sourceInfo.info_2.modifier || '').split(',')
+                  formatSelectPageValue(
+                    formState._sourceInfo.info_2.modifier,
+                    formState._sourceInfo.info_2.modifierEn
+                  )
                 "
-                @input="formState._sourceInfo.info_2.modifier = $event.join()"
+                @input="formState._sourceInfo.info_2.modifier = $event"
+                @change="formState._sourceInfo.info_2.modifierEn = $event"
                 placeholder="请选择一个或多个修饰词"
                 :fetch="handleGetModifiersList"
               />
@@ -232,9 +258,13 @@
                 searchMode
                 multiple
                 :value="
-                  (formState._sourceInfo.info_2.dimension || '').split(',')
+                  formatSelectPageValue(
+                    formState._sourceInfo.info_2.dimension,
+                    formState._sourceInfo.info_2.dimensionEn
+                  )
                 "
-                @input="formState._sourceInfo.info_2.dimension = $event.join()"
+                @input="formState._sourceInfo.info_2.dimension = $event"
+                @change="formState._sourceInfo.info_2.dimensionEn = $event"
                 placeholder="请选择一个或多个维度"
                 :fetch="handleGetDimensions"
               />
@@ -252,11 +282,13 @@
                 multiple
                 searchMode
                 :value="
-                  (formState._sourceInfo.info_3.indicatorName || '').split(',')
+                  formatSelectPageValue(
+                    formState._sourceInfo.info_3.indicatorName,
+                    formState._sourceInfo.info_3.indicatorNameEn
+                  )
                 "
-                @input="
-                  formState._sourceInfo.info_3.indicatorName = $event.join()
-                "
+                @input="formState._sourceInfo.info_3.indicatorName = $event"
+                @change="formState._sourceInfo.info_3.indicatorNameEn = $event"
                 placeholder="请选择一个或多个指标"
                 :fetch="handleGetIndicators"
               />
@@ -267,9 +299,13 @@
               <SelectPage
                 multiple
                 :value="
-                  (formState._sourceInfo.info_3.modifier || '').split(',')
+                  formatSelectPageValue(
+                    formState._sourceInfo.info_3.modifier,
+                    formState._sourceInfo.info_3.modifierEn
+                  )
                 "
-                @input="formState._sourceInfo.info_3.modifier = $event.join()"
+                @input="formState._sourceInfo.info_3.modifier = $event"
+                @change="formState._sourceInfo.info_3.modifierEn = $event"
                 placeholder="修饰词"
                 :fetch="handleGetModifiersList"
               />
@@ -290,9 +326,13 @@
                 searchMode
                 multiple
                 :value="
-                  (formState._sourceInfo.info_3.dimension || '').split(',')
+                  formatSelectPageValue(
+                    formState._sourceInfo.info_3.dimension,
+                    formState._sourceInfo.info_3.dimensionEn
+                  )
                 "
-                @input="formState._sourceInfo.info_3.dimension = $event.join()"
+                @input="formState._sourceInfo.info_3.dimension = $event"
+                @change="formState._sourceInfo.info_3.dimensionEn = $event"
                 placeholder="请选择一个或多个维度"
                 :fetch="handleGetDimensions"
               />
@@ -316,9 +356,13 @@
                 searchMode
                 multiple
                 :value="
-                  (formState._sourceInfo.info_4.dimension || '').split(',')
+                  formatSelectPageValue(
+                    formState._sourceInfo.info_4.dimension,
+                    formState._sourceInfo.info_4.dimensionEn
+                  )
                 "
-                @input="formState._sourceInfo.info_4.dimension = $event.join()"
+                @input="formState._sourceInfo.info_4.dimension = $event"
+                @change="formState._sourceInfo.info_4.dimensionEn = $event"
                 placeholder="请选择一个或多个维度"
                 :fetch="handleGetDimensions"
               />
@@ -397,8 +441,6 @@ import {
   getUsersList,
   getRolesList,
 } from "@/apps/dataModelCenter/service/api/common";
-import {getMeasures} from "@/apps/dataModelCenter/service/api/measures";
-import {getDimensions} from "@/apps/dataModelCenter/service/api/dimensions";
 import {
   getIndicators,
   createIndicators,
@@ -406,19 +448,14 @@ import {
   getIndicatorsById,
   buildIndicatorsVersion,
 } from "@/apps/dataModelCenter/service/api/indicators";
-import SelectPage from "@dataModelCenter/components/selectPage";
+import { getMeasures } from "@/apps/dataModelCenter/service/api/measures";
+import { getDimensions } from "@/apps/dataModelCenter/service/api/dimensions";
+import SelectPage from "./selectPage.vue";
 import mixin from "@/common/service/mixin";
-import {extend} from "@/common/util/object";
-
-let sourceInfoMap = {
-  0: {measure: "", formula: "", dimension: ""},
-  1: {indicatorName: "", formula: "", dimension: ""},
-  2: {indicatorName: "", cycle: "", modifier: "", dimension: ""},
-  3: {indicatorName: "", formula: "", modifier: "", dimension: ""},
-  4: {formula: "", dimension: ""},
-};
+import { extend } from "@/common/util/object";
+import { sourceInfoMap } from "./statement";
 export default {
-  components: {SelectPage},
+  components: { SelectPage },
   model: {
     prop: "_visible",
     event: "_changeVisible",
@@ -440,7 +477,7 @@ export default {
   emits: ["finish", "_changeVisible"],
   watch: {
     _visible(val) {
-      if (val) this.handlePreFetchData()
+      if (val) this.handlePreFetchData();
       if (val && this.id) this.handleGetById(this.id);
     },
   },
@@ -620,42 +657,72 @@ export default {
       // 角色列表
       rolesList: [],
       // 分层列表
-      layersList: []
+      layersList: [],
     };
   },
   methods: {
     /**
+     * 数据加工
+     */
+    formatSelectPageValue2(a, b) {
+      if (a && b) {
+        return `${a}|${b}`;
+      }
+      return void 0;
+    },
+    /**
+     * 数据加工
+     */
+    formatSelectPageValue(a, b) {
+      if (!a || !b) return void 0;
+      let resArr = [];
+      let nameArr = a.split(",");
+      let nameEnArr = b.split(",");
+      if (nameArr[0] === "" || nameEnArr[0] === "") return void 0;
+      for (let i = 0; i < nameArr.length; i++) {
+        resArr.push(`${nameArr[i]}|${nameEnArr[i]}`);
+      }
+      return resArr.join();
+    },
+    /**
      * 获取预置数据
      */
     handlePreFetchData() {
-      this.loading = true
-      let id = this.getCurrentWorkspaceId()
-      Promise.all([getUsersList(id), getRolesList(id), getThemesList(), getLayersList()]).then(([userRes, roleRes, themeRes, layerRes]) => {
-        this.loading = false
-        this.usersList = userRes.users;
-        this.rolesList = roleRes.users;
-        this.themesList = themeRes.list;
-        this.layersList = layerRes.list;
-      }).catch(() => {
-        this.loading = false
-      })
+      let id = this.getCurrentWorkspaceId();
+      this.loading = true;
+      Promise.all([
+        getUsersList(id),
+        getRolesList(id),
+        getThemesList(),
+        getLayersList(),
+      ])
+        .then(([userRes, roleRes, themeRes, layerRes]) => {
+          this.loading = false;
+          this.usersList = userRes.users;
+          this.rolesList = roleRes.users;
+          this.themesList = themeRes.list;
+          this.layersList = layerRes.list;
+        })
+        .catch(() => {
+          this.loading = false;
+        });
     },
     /**
      * 获取维度
      * @param name
-     * @returns {*}
+     * @returns {Promise}
      */
     handleGetDimensions(name) {
       return getDimensions({
         name: name,
         pageNum: 1,
-        pageSize: 30,
+        pageSize: 10,
         isAvailable: 1,
       }).then((res) => {
         return {
           list: res.list.map((item) => ({
             label: item.name,
-            value: item.name,
+            value: `${item.name}|${item.fieldIdentifier}`,
           })),
         };
       });
@@ -663,19 +730,19 @@ export default {
     /**
      * 获取度量列表
      * @param name
-     * @returns {*}
+     * @returns {Promise}
      */
     handleGetMeasures(name) {
       return getMeasures({
         name: name,
         pageNum: 1,
-        pageSize: 30,
+        pageSize: 10,
         isAvailable: 1,
       }).then((res) => {
         return {
           list: res.list.map((item) => ({
             label: item.name,
-            value: item.name,
+            value: `${item.name}|${item.fieldIdentifier}`,
           })),
         };
       });
@@ -683,68 +750,82 @@ export default {
     /**
      * 获取指标列表
      * @param name
-     * @returns {*}
+     * @returns {Promise}
      */
     handleGetIndicators(name) {
       return getIndicators({
         name: name,
         pageNum: 1,
-        pageSize: 30,
+        pageSize: 10,
         isAvailable: 1,
       }).then((res) => {
+        let resArr = [];
+        for (let i = 0; i < res.list.length; i++) {
+          const item = res.list[i];
+          if (item.name !== this.formState.name) {
+            resArr.push({
+              label: item.name,
+              value: `${item.name}|${item.fieldIdentifier}`,
+            });
+          }
+        }
         return {
-          list: res.list.map((item) => ({
-            label: item.name,
-            value: item.name,
-          })),
+          list: resArr,
         };
       });
     },
     /**
      * 获取原子指标列表
      * @param name
-     * @returns {*}
+     * @returns {Promise}
      */
     handleGetIndicatorsTypeOne(name) {
       return getIndicators({
         name: name,
         pageNum: 1,
-        pageSize: 30,
+        pageSize: 10,
         isAvailable: 1,
         indicatorType: 0,
       }).then((res) => {
+        let resArr = [];
+        for (let i = 0; i < res.list.length; i++) {
+          const item = res.list[i];
+          if (item.name !== this.formState.name) {
+            resArr.push({
+              label: item.name,
+              value: `${item.name}|${item.fieldIdentifier}`,
+            });
+          }
+        }
         return {
-          list: res.list.map((item) => ({
-            label: item.name,
-            value: item.name,
-          })),
+          list: resArr,
         };
       });
     },
     /**
      * 获取修饰词列表
-     * @returns {Promise<{list: *}>}
+     * @returns {Promise}
      */
     handleGetModifiersList() {
       return getModifiersList().then((res) => {
         return {
           list: res.list.map((item) => ({
             label: item.modifierType,
-            value: item.modifierType,
+            value: `${item.modifierType}|${item.modifierTypeEn}`,
           })),
         };
       });
     },
     /**
      * 获取周期列表
-     * @returns {Promise<{list: *}>}
+     * @returns {Promise}
      */
     handleGetCyclesList() {
       return getCyclesList().then((res) => {
         return {
           list: res.list.map((item) => ({
             label: item.name,
-            value: item.name,
+            value: `${item.name}|${item.enName}`,
           })),
         };
       });
@@ -752,11 +833,11 @@ export default {
     /**
      * 根据id获取数据
      * @param id
-     * @returns {Promise<void>}
+     * @returns {Promise}
      */
     async handleGetById(id) {
       this.loading = true;
-      let {detail} = await getIndicatorsById(id);
+      let { detail } = await getIndicatorsById(id);
       this.loading = false;
       detail.content.indicatorSourceInfo = JSON.parse(
         detail.content.indicatorSourceInfo

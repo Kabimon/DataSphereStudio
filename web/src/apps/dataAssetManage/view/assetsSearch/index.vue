@@ -69,6 +69,7 @@
           <tab-card
             :model="model"
             :key="model.guid"
+            @on-choose="onChooseCard"
           ></tab-card>
         </template>
       </div>
@@ -77,9 +78,10 @@
 </template>
 <script>
 import tabCard from "../../module/common/tabCard/index.vue";
-import {getHiveTbls, getWorkspaceUsers, getLabels} from "../../service/api";
-import {storage} from "../../utils/storage";
-import {throttle} from "lodash";
+import { getHiveTbls, getWorkspaceUsers, getLabels } from "../../service/api";
+import { storage } from "../../utils/storage";
+import {EventBus} from "../../module/common/eventBus/event-bus";
+import { throttle } from "lodash";
 import mixin from "@/common/service/mixin";
 export default {
   components: {
@@ -112,7 +114,7 @@ export default {
       // 所有数据是否全部加载完成
       isLoadDataFinish: false,
       // 节流
-      throttleLoad: null
+      throttleLoad: null,
     };
   },
   created() {
@@ -136,7 +138,7 @@ export default {
   },
   mounted() {
     // 获取用户
-    this.handleGetUsers()
+    this.handleGetUsers();
     // 设置防抖函数
     this.throttleLoad = throttle(() => {
       this.scrollHander();
@@ -158,21 +160,23 @@ export default {
     /**
      * 获取用户列表
      */
-    handleGetUsers(){
-      let id = this.getCurrentWorkspaceId()
+    handleGetUsers() {
+      let id = this.getCurrentWorkspaceId();
       this.ownerListLoading = true;
-      getWorkspaceUsers(id).then((res) => {
-        this.ownerListLoading = false
-        this.ownerList = res.users
-      }).catch(() => {
-        this.ownerListLoading = false
-      })
+      getWorkspaceUsers(id)
+        .then((res) => {
+          this.ownerListLoading = false;
+          this.ownerList = res.users;
+        })
+        .catch(() => {
+          this.ownerListLoading = false;
+        });
     },
     /**
      * 搜索
      */
     onSearch() {
-      this.isLoadDataFinish = false
+      this.isLoadDataFinish = false;
       // 构造搜索参数
       const params = {
         query: this.searchToken,
@@ -185,10 +189,10 @@ export default {
       this.serachOption.offset = 0;
       // 存储搜索参数
       storage.setItem("searchTbls", JSON.stringify(params));
-      this.loading = true
+      this.loading = true;
       getHiveTbls(params)
         .then((data) => {
-          this.loading = false
+          this.loading = false;
           if (data.result) {
             this.cardTabs = data.result;
           } else {
@@ -196,7 +200,7 @@ export default {
           }
         })
         .catch((err) => {
-          this.loading = false
+          this.loading = false;
           console.log("Search", err);
         });
     },
@@ -220,10 +224,10 @@ export default {
           offset: this.serachOption.offset + this.serachOption.limit,
         };
         this.serachOption.offset += this.serachOption.limit;
-        this.loading = true
+        this.loading = true;
         getHiveTbls(params)
           .then((data) => {
-            this.loading = false
+            this.loading = false;
             if (data.result) {
               this.cardTabs = res.concat(data.result);
             } else {
@@ -233,12 +237,11 @@ export default {
             resolve();
           })
           .catch((err) => {
-            this.loading = false
+            this.loading = false;
             console.log("handleReachBottom", err);
           });
       });
     },
-
 
     /**
      * 搜索标签
@@ -249,10 +252,24 @@ export default {
         this.labelSearchLoading = true;
         getLabels(query).then((data) => {
           this.labelSearchLoading = false;
-          const {result} = data;
+          const { result } = data;
           this.labelList = result;
         });
       }
+    },
+    /**
+      跳转
+     */
+    onChooseCard(model) {
+      let that = this;
+      EventBus.$emit("on-choose-card", model);
+      const workspaceId = that.$route.query.workspaceId;
+      const { guid } = model;
+      that.$router.push({
+        name: "assetsInfo",
+        params: { guid },
+        query: { workspaceId },
+      });
     },
 
     /**
@@ -287,8 +304,8 @@ export default {
     padding: 0px $padding-25;
     border-bottom: $border-width-base $border-style-base $border-color-base;
     @include border-color(
-        $background-color-base,
-        $dark-workspace-body-bg-color
+      $background-color-base,
+      $dark-workspace-body-bg-color
     );
     @include font-color($workspace-title-color, $dark-workspace-title-color);
     flex: none;
