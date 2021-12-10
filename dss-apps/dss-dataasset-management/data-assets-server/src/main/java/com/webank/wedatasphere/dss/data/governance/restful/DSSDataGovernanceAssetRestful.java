@@ -70,11 +70,12 @@ public class DSSDataGovernanceAssetRestful implements AuthenticationClientStrate
                                   @QueryParam("query") String query,
                                   @QueryParam("label") String label,
                                   @QueryParam("type") String type,
+                                  @QueryParam("precise")@DefaultValue("0") int precise,
                                   @QueryParam("owner") @DefaultValue("") String owner,
                                   @QueryParam("limit") @DefaultValue(DEFAULT_LIMIT) int limit,
                                   @QueryParam("offset") @DefaultValue(DEFAULT_OFFSET) int offset) throws Exception {
 
-
+        //适配模型
         if (ClassificationConstant.isTypeScope(type)) {
             if (StringUtils.isNotBlank(classification)) {
                 classification = ClassificationConstant.getPrefix(type).orElse(null) + classification;
@@ -82,11 +83,15 @@ public class DSSDataGovernanceAssetRestful implements AuthenticationClientStrate
                 classification = ClassificationConstant.getRoot(type).orElse(null);
             }
         }
+        //适配标签
         if (!StringUtils.isBlank(label)){
             label = GlossaryConstant.LABEL.formatQuery(label);
         }
-
-        List<HiveTblSimpleInfo> hiveTblBasicList = assetService.searchHiveTable(classification, "*" + query + "*",label,limit, offset);
+        //判断是否精确查询
+        if (QueryType.PRECISE.getCode()!=precise){
+            query = "*" + query + "*";
+        }
+        List<HiveTblSimpleInfo> hiveTblBasicList = assetService.searchHiveTable(classification, query,label,limit, offset);
         if (StringUtils.isBlank(owner) || owner.equals("undefined")|| CollectionUtils.isEmpty(hiveTblBasicList)) {
             return Message.messageToResponse(Message.ok().data("result", hiveTblBasicList));
         } else {

@@ -201,7 +201,7 @@ public class MeasureServiceImpl extends ServiceImpl<DssDatamodelMeasureMapper, D
         }
         MeasureQueryDTO dto = modelMapper.map(dssDatamodelMeasure, MeasureQueryDTO.class);
         dto.setRefCount(datamodelReferencService.measureReferenceCount(dssDatamodelMeasure.getName()));
-        return modelMapper.map(dssDatamodelMeasure, MeasureQueryDTO.class);
+        return dto;
     }
 
 

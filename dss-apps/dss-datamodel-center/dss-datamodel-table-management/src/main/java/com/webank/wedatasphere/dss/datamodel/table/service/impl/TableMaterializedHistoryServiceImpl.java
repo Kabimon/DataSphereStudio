@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.webank.wedatasphere.dss.data.governance.entity.QueryType;
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient;
 import com.webank.wedatasphere.dss.data.governance.request.HiveTblSizeAction;
 import com.webank.wedatasphere.dss.data.governance.request.SearchHiveTblAction;
@@ -124,7 +125,7 @@ public class TableMaterializedHistoryServiceImpl extends ServiceImpl<DssDatamode
 
     @Override
     public boolean tableExists(String tableName, String user) throws ErrorException {
-        SearchHiveTblResult result = linkisDataAssetsRemoteClient.searchHiveTbl(SearchHiveTblAction.builder().setUser(user).setQuery(tableName).setOffset(0).setLimit(1).build());
+        SearchHiveTblResult result = linkisDataAssetsRemoteClient.searchHiveTbl(SearchHiveTblAction.builder().setUser(user).setQuery(tableName).setPrecise(QueryType.PRECISE).setOffset(0).setLimit(30).build());
         List<HiveTblSimpleInfoDTO> dtos = assertsGson.fromJson(assertsGson.toJson(result.getResult()), new TypeToken<List<HiveTblSimpleInfoDTO>>() {
         }.getType());
         if (CollectionUtils.isEmpty(dtos)){
@@ -234,13 +235,13 @@ public class TableMaterializedHistoryServiceImpl extends ServiceImpl<DssDatamode
         return getBaseMapper().selectCount(Wrappers.<DssDatamodelTableMaterializedHistory>lambdaQuery()
                 .eq(DssDatamodelTableMaterializedHistory::getTablename, tableName)
                 .eq(DssDatamodelTableMaterializedHistory::getVersion, version)
-                .eq(DssDatamodelTableMaterializedHistory::getStatus, 0)) > 0 &&tableExists(tableName, DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser());
+                .eq(DssDatamodelTableMaterializedHistory::getStatus, 0)) > 0 && tableExists(tableName, DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser());
     }
 
     @Override
     public Optional<HiveTblSimpleInfoDTO> getHiveTblSimpleInfoByName(String tableName, String user) throws ErrorException {
         
-        SearchHiveTblResult result = linkisDataAssetsRemoteClient.searchHiveTbl(SearchHiveTblAction.builder().setUser(user).setQuery(tableName).setOffset(0).setLimit(1).build());
+        SearchHiveTblResult result = linkisDataAssetsRemoteClient.searchHiveTbl(SearchHiveTblAction.builder().setPrecise(QueryType.PRECISE).setUser(user).setQuery(tableName).setOffset(0).setLimit(1).build());
         List<HiveTblSimpleInfoDTO> dtos = assertsGson.fromJson(assertsGson.toJson(result.getResult()), new TypeToken<List<HiveTblSimpleInfoDTO>>() {
         }.getType());
         if (CollectionUtils.isEmpty(dtos)){

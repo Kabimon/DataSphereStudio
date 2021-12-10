@@ -1,5 +1,6 @@
 package com.webank.wedatasphere.dss.data.governance.request
 
+import com.webank.wedatasphere.dss.data.governance.entity.QueryType
 import com.webank.wedatasphere.linkis.httpclient.request.GetAction
 
 class SearchHiveTblAction extends GetAction with DataAssetsAction{
@@ -21,6 +22,7 @@ object SearchHiveTblAction{
     private var owner:String=_
     private var limit:Int=10
     private var offset:Int=0
+    private var precise: QueryType = QueryType.FUZZY
     private var user: String = _
 
     def setUser(user: String): Builder ={
@@ -40,6 +42,11 @@ object SearchHiveTblAction{
 
     def setOwner(owner:String):Builder={
       this.owner=owner
+      this
+    }
+
+    def setPrecise(precise : QueryType):Builder={
+      this.precise = precise
       this
     }
 
@@ -63,6 +70,7 @@ object SearchHiveTblAction{
 
       action.setParameter("limit",limit)
       action.setParameter("offset",offset)
+      action.setParameter("precise",precise.getCode)
 
       action.setUser(user)
       action

@@ -12,6 +12,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.webank.wedatasphere.dss.data.governance.entity.ClassificationConstant;
 import com.webank.wedatasphere.dss.data.governance.entity.HiveSimpleInfo;
+import com.webank.wedatasphere.dss.data.governance.entity.QueryType;
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient;
 import com.webank.wedatasphere.dss.data.governance.request.*;
 import com.webank.wedatasphere.dss.data.governance.response.*;
@@ -601,7 +602,7 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         if (StringUtils.isNotBlank(vo.getGuid())) {
             return queryByGuid(vo.getGuid(), vo.getUser());
         }
-        SearchHiveTblResult result = linkisDataAssetsRemoteClient.searchHiveTbl(SearchHiveTblAction.builder().setUser(vo.getUser()).setQuery(vo.getName()).setOffset(0).setLimit(1).build());
+        SearchHiveTblResult result = linkisDataAssetsRemoteClient.searchHiveTbl(SearchHiveTblAction.builder().setUser(vo.getUser()).setPrecise(QueryType.PRECISE).setQuery(vo.getName()).setOffset(0).setLimit(1).build());
         List<HiveTblSimpleInfoDTO> dtos = assertsGson.fromJson(assertsGson.toJson(result.getResult()), new TypeToken<List<HiveTblSimpleInfoDTO>>() {
         }.getType());
         if (CollectionUtils.isEmpty(dtos)) {
@@ -644,8 +645,7 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
 
     @Override
     public Integer tableCheckData(TableCheckDataVO vo) throws ErrorException {
-        return ((tableMaterializedHistoryService.tableExists(vo.getTableName(), vo.getUser())
-                && tableMaterializedHistoryService.hasData(vo.getTableName(), vo.getUser())) ? 1 : 0);
+        return tableMaterializedHistoryService.hasData(vo.getTableName(), vo.getUser()) ? 1 : 0;
     }
 
     private Message queryByGuid(String guid, String user) {
