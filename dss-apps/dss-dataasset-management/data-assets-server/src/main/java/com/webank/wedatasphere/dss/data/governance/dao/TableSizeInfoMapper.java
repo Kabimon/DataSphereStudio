@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface TableSizeInfoMapper extends BaseMapper<TableSizeInfo> {
     String querySql = "select tbls.TBL_ID as id,d.NAME as db_name,tbls.TBL_NAME as tbl_name, tp.PARAM_KEY as param_key, tp.PARAM_VALUE as param_value\n" +
-            "from TBLS as tbls left join TABLE_PARAMS as tp on tbls.TBL_ID = tp.TBL_ID  left join DBS d on tbls.DB_ID = d.DB_ID and tbls.TBL_TYPE='MANAGED_TABLE' \n";;
+            "from TBLS as tbls left join TABLE_PARAMS as tp on tbls.TBL_ID = tp.TBL_ID  left join DBS d on tbls.DB_ID = d.DB_ID \n";;
 
     String wrapperSql = "SELECT * from ( " + querySql + " ) AS q ${ew.customSqlSegment}";
 

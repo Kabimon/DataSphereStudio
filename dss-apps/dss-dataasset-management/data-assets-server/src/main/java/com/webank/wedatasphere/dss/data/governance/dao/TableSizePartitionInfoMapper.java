@@ -14,7 +14,7 @@ import java.util.List;
 public interface TableSizePartitionInfoMapper extends BaseMapper<TablePartitionSizeInfo> {
 
     String querySql = "select tbl_db.TBL_ID as id, tbl_db.tbl_name as tbl_name, tbl_db.db_name as db_name, p.PART_ID as part_id,p.LAST_ACCESS_TIME as last_access_time,p.SD_ID as sd_id,pp.PARAM_KEY as param_key,pp.PARAM_VALUE as param_value from PARTITIONS AS p left join PARTITION_PARAMS pp on pp.PART_ID = p.PART_ID  left join\n" +
-            "(select tbls.TBL_ID as tbl_id, tbls.TBL_NAME as tbl_name, db.NAME as db_name from TBLS as tbls, DBS as db where tbls.DB_ID = db.DB_ID  and tbls.TBL_TYPE='MANAGED_TABLE') as tbl_db on tbl_db.tbl_id = p.TBL_ID\n";
+            "(select tbls.TBL_ID as tbl_id, tbls.TBL_NAME as tbl_name, db.NAME as db_name from TBLS as tbls, DBS as db where tbls.DB_ID = db.DB_ID ) as tbl_db on tbl_db.tbl_id = p.TBL_ID\n";
 
     String wrapperSql = "SELECT * from ( " + querySql + " ) AS q ${ew.customSqlSegment}";
 
