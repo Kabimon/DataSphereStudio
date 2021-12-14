@@ -130,7 +130,7 @@ public class HiveSchemaDdlBuilder {
             builder.append("STORED AS ").append(hiveSchema.getStoredType()).append(lineSeparator);
         }
 
-        if (StringUtils.isNotBlank(hiveSchema.getLocation())) {
+        if (hiveSchema.isExternal()&&StringUtils.isNotBlank(hiveSchema.getLocation())) {
             builder.append("LOCATION ").append("'").append(hiveSchema.getLocation()).append("'");
         }
 
