@@ -113,7 +113,7 @@ public class TableRestfulApi implements AuthenticationClientStrategy {
     @Path("/tables/bind/{id}")
     public Response bind(@Context HttpServletRequest req, @PathParam("id") Long id) throws ErrorException {
         LOGGER.info("bind id : {}", id);
-        tableService.bind(id);
+        tableService.bind(id,getStrategyUser(req) );
         return Message.messageToResponse(Message.ok());
     }
 

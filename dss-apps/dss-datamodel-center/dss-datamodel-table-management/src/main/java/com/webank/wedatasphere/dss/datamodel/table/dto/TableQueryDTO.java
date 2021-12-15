@@ -3,6 +3,7 @@ package com.webank.wedatasphere.dss.datamodel.table.dto;
 
 import com.google.common.collect.Lists;
 import com.webank.wedatasphere.dss.data.governance.entity.HiveTblStatsDTO;
+import com.webank.wedatasphere.dss.datamodel.center.common.constant.ColumnType;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.LabelConstant;
 import lombok.Data;
 import lombok.ToString;
@@ -127,7 +128,7 @@ public class TableQueryDTO {
             }
            dto.setLabel(StringUtils.substringBeforeLast(sb.toString(),LabelConstant.SEPARATOR));
         }
-        dto.setIsPartitionTable(hiveTblDTO.getBasic().getIsParTbl()?0:1);
+        dto.setIsPartitionTable(hiveTblDTO.getBasic().getIsParTbl()?ColumnType.PARTITION_KEY.getCode():ColumnType.COLUMN.getCode());
 
         if (!CollectionUtils.isEmpty(hiveTblDTO.getColumns())){
             hiveTblDTO.getColumns().forEach(hiveColumn->{
@@ -135,7 +136,7 @@ public class TableQueryDTO {
                 columnQueryDTO.setComment(hiveColumn.getComment());
                 columnQueryDTO.setName(hiveColumn.getName());
                 columnQueryDTO.setType(hiveColumn.getType());
-                columnQueryDTO.setIsPartitionField(1);
+                columnQueryDTO.setIsPartitionField(ColumnType.COLUMN.getCode());
                 dto.columns.add(columnQueryDTO);
             });
         }
@@ -146,7 +147,7 @@ public class TableQueryDTO {
                 columnQueryDTO.setComment(hiveColumn.getComment());
                 columnQueryDTO.setName(hiveColumn.getName());
                 columnQueryDTO.setType(hiveColumn.getType());
-                columnQueryDTO.setIsPartitionField(0);
+                columnQueryDTO.setIsPartitionField(ColumnType.PARTITION_KEY.getCode());
                 dto.columns.add(columnQueryDTO);
             });
         }

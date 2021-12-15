@@ -10,6 +10,7 @@ import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteCl
 import com.webank.wedatasphere.dss.data.governance.request.HiveTblSizeAction;
 import com.webank.wedatasphere.dss.data.governance.request.SearchHiveTblAction;
 import com.webank.wedatasphere.dss.data.governance.response.SearchHiveTblResult;
+import com.webank.wedatasphere.dss.datamodel.center.common.constant.ColumnType;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ErrorCode;
 import com.webank.wedatasphere.dss.datamodel.center.common.context.DataModelSecurityContextHolder;
 import com.webank.wedatasphere.dss.datamodel.center.common.dto.CreateTableDTO;
@@ -43,6 +44,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -217,7 +219,7 @@ public class TableMaterializedHistoryServiceImpl extends ServiceImpl<DssDatamode
             builder.location(current.getLocation());
         }
         columns.forEach(column -> {
-            builder.addColumn(column.getName(), column.getType(), column.getIsPartitionField() != 0, column.getComment());
+            builder.addColumn(column.getName(), column.getType(), ColumnType.PARTITION_KEY.getCode().equals(column.getIsPartitionField()), column.getComment());
         });
         builder.storedType(current.getFileType());
         return builder.createTableString();

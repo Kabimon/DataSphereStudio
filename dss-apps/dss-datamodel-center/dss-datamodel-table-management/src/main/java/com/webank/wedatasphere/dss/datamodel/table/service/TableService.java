@@ -236,8 +236,9 @@ public interface TableService extends IService<DssDatamodelTable> {
     /**
      * 主动绑定模型
      * @param id
+     * @param user
      */
-    void bind(long id) throws ErrorException;
+    void bind(long id, String user) throws ErrorException;
 
 
     /**

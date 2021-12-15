@@ -11,7 +11,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.webank.wedatasphere.dss.data.governance.entity.ClassificationConstant;
-import com.webank.wedatasphere.dss.data.governance.entity.HiveSimpleInfo;
 import com.webank.wedatasphere.dss.data.governance.entity.QueryType;
 import com.webank.wedatasphere.dss.data.governance.impl.LinkisDataAssetsRemoteClient;
 import com.webank.wedatasphere.dss.data.governance.request.*;
@@ -21,8 +20,6 @@ import com.webank.wedatasphere.dss.datamodel.center.common.constant.LabelConstan
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ModeType;
 import com.webank.wedatasphere.dss.datamodel.center.common.context.DataModelSecurityContextHolder;
 import com.webank.wedatasphere.dss.datamodel.center.common.dto.PreviewDataDTO;
-import com.webank.wedatasphere.dss.datamodel.center.common.event.BindLabelEvent;
-import com.webank.wedatasphere.dss.datamodel.center.common.event.BindModelEvent;
 import com.webank.wedatasphere.dss.datamodel.center.common.exception.DSSDatamodelCenterException;
 import com.webank.wedatasphere.dss.datamodel.center.common.ujes.task.DataModelUJESJobTask;
 import com.webank.wedatasphere.dss.datamodel.center.common.ujes.launcher.PreviewDataModelUJESJobLauncher;
@@ -49,7 +46,6 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -472,7 +468,13 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
             LOGGER.error("errorCode : {},  table not exists id : {} ", ErrorCode.TABLE_CREATE_ERROR.getCode(), vo.getTableId());
             throw new DSSDatamodelCenterException(ErrorCode.TABLE_CREATE_ERROR.getCode(), " table not exists id : " + vo.getTableId());
         }
-        return tableMaterializedHistoryService.materializedTable(current, vo.getUser());
+        tableMaterializedHistoryService.materializedTable(current, vo.getUser());
+        //发布尝试表绑定模型事件
+        publisher.publishEvent(new TableFirstBindEvent(this
+                ,DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser()
+                ,current.getId()
+                ,current.getName()));
+        return 1;
     }
 
 
@@ -552,6 +554,9 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
             String theme = getThemes(hiveTblSimpleInfoDTO.getClassifications());
             tableListDTO.setWarehouseThemeName(theme);
             tableListDTO.setWarehouseThemeNameEn(theme);
+            String layer = getLayer(hiveTblSimpleInfoDTO.getClassifications());
+            tableListDTO.setWarehouseLayerName(layer);
+            tableListDTO.setWarehouseLayerNameEn(layer);
 
             tableListDTOS.add(tableListDTO);
         });
@@ -560,13 +565,20 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
                 .data("total", tableListDTOS.size());
     }
 
-    private String getThemes(List<String> classifcations) {
-        if (CollectionUtils.isEmpty(classifcations)) {
+    private String getThemes(List<String> classifications) {
+        return getModel(ClassificationConstant.THEME,classifications);
+    }
+    private String getLayer(List<String> classifications) {
+        return getModel(ClassificationConstant.LAYER,classifications);
+    }
+
+    private String getModel(ClassificationConstant classificationConstant,List<String> classifications) {
+        if (CollectionUtils.isEmpty(classifications)) {
             return null;
         }
-        for (String classification : classifcations) {
+        for (String classification : classifications) {
             String prefix = StringUtils.substringBefore(classification, ClassificationConstant.SEPARATOR);
-            if (ClassificationConstant.THEME.getTypeCode().equals(prefix)) {
+            if (classificationConstant.getTypeCode().equals(prefix)) {
                 return StringUtils.substringAfter(classification, ClassificationConstant.SEPARATOR);
             }
         }
@@ -735,13 +747,13 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
 
 
     @Override
-    public void bind(long id) throws ErrorException {
+    public void bind(long id, String user) throws ErrorException {
         DssDatamodelTable current = getBaseMapper().selectById(id);
         if (current == null) {
             LOGGER.error("errorCode : {}, bind table error not exists", ErrorCode.TABLE_BIND_ERROR.getCode());
             throw new DSSDatamodelCenterException(ErrorCode.TABLE_BIND_ERROR.getCode(), "bind table error not exists");
         }
-        String user = DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser();
+
         List<DssDatamodelTableColumns> currentColumns = tableColumnsService.listByTableId(id);
         publisher.publishEvent(new BindModelByTableEvent(this, user, current));
         publisher.publishEvent(new BindModelByColumnsEvent(this, user, current.getName(), currentColumns));
