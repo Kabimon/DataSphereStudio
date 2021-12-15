@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.webank.wedatasphere.dss.data.governance.entity.HiveTblStatsDTO;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.ColumnType;
 import com.webank.wedatasphere.dss.datamodel.center.common.constant.LabelConstant;
+import com.webank.wedatasphere.dss.datamodel.center.common.constant.TabelExternalType;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +13,8 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 @Data
 @ToString
 public class TableQueryDTO {
@@ -121,6 +124,10 @@ public class TableQueryDTO {
         dto.setLastAccessTime(hiveTblDTO.getBasic().getLastAccessTime());
         dto.setCreator(hiveTblDTO.getBasic().getOwner());
         dto.setComment(hiveTblDTO.getBasic().getComment());
+
+        Optional<TabelExternalType> tableExternalType = TabelExternalType.getByType(hiveTblDTO.getBasic().getExternal());
+        tableExternalType.ifPresent(e -> dto.setIsExternal(e.getCode()));
+
         if (!CollectionUtils.isEmpty(hiveTblDTO.getBasic().getLabels())){
             StringBuilder sb = new StringBuilder();
             for (String label:hiveTblDTO.getBasic().getLabels()){

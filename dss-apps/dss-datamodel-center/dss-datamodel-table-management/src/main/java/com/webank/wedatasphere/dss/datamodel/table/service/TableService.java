@@ -242,6 +242,14 @@ public interface TableService extends IService<DssDatamodelTable> {
 
 
     /**
+     * 主动绑定模型
+     * @param id
+     *
+     */
+    void tryBind(long id) throws ErrorException;
+
+
+    /**
      * 删除逻辑表
      * @param id
      * @return

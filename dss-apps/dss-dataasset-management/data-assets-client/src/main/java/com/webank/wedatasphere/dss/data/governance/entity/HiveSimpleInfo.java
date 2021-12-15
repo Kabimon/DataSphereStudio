@@ -18,6 +18,6 @@ public class HiveSimpleInfo implements Serializable {
     private String comment;
     private List<String> classifications;
     private String totalSize;
-
+    private String external;
 
 }

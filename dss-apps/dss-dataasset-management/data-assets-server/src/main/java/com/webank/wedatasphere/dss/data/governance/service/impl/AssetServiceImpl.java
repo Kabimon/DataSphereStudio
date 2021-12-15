@@ -374,6 +374,12 @@ public class AssetServiceImpl implements AssetService {
                 if (totalSize != null) {
                     basic.setTotalSize(totalSize.toString());
                 }
+
+            }
+
+            Object external =  atlasEntity.getAttribute("tableType");
+            if (external != null) {
+                basic.setExternal(external.toString());
             }
 
 

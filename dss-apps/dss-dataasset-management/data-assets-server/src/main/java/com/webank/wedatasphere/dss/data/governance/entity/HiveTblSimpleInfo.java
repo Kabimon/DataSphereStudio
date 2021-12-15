@@ -17,4 +17,5 @@ public class HiveTblSimpleInfo {
     private String comment;
     private List<String> classifications;
     private String totalSize;
+    private String external;
 }

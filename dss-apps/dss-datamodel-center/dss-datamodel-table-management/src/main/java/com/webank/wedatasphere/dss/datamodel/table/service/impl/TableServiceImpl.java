@@ -478,6 +478,8 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
     }
 
 
+
+
     @Override
     public String tableCreateSql(TableCreateSqlVO vo) throws ErrorException {
 
@@ -758,6 +760,21 @@ public class TableServiceImpl extends ServiceImpl<DssDatamodelTableMapper, DssDa
         publisher.publishEvent(new BindModelByTableEvent(this, user, current));
         publisher.publishEvent(new BindModelByColumnsEvent(this, user, current.getName(), currentColumns));
         publisher.publishEvent(new BindLabelByTableEvent(this, user, current));
+    }
+
+    @Override
+    public void tryBind(long id) throws ErrorException {
+        DssDatamodelTable current = getBaseMapper().selectById(id);
+        if (current == null) {
+            LOGGER.error("errorCode : {},  table not exists id : {} ", ErrorCode.TABLE_BIND_ERROR.getCode(), id);
+            throw new DSSDatamodelCenterException(ErrorCode.TABLE_BIND_ERROR.getCode(), " table not exists id : " + id);
+        }
+
+        //发布尝试表绑定模型事件
+        publisher.publishEvent(new TableFirstBindEvent(this
+                ,DataModelSecurityContextHolder.getContext().getDataModelAuthentication().getUser()
+                ,current.getId()
+                ,current.getName()));
     }
 
 
