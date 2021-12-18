@@ -4,7 +4,7 @@
     <div>
       <Card dis-hover>
         <div slot="title">
-          <Icon type="ios-home" :size="24"/>
+          <Icon type="ios-home" :size="24" />
           <span> 表管理 </span>
           /
           <span>{{ generalData.name }}</span>
@@ -39,7 +39,9 @@
             </DropdownMenu>
           </Dropdown> -->
         </div>
-        <p style="margin-bottom: 16px">描述： {{ generalData.comment || "无" }}</p>
+        <p style="margin-bottom: 16px">
+          描述： {{ generalData.comment || "无" }}
+        </p>
         <p>
           <Tag v-for="label in baseicData.label" :key="label" color="blue">
             {{ label }}
@@ -179,9 +181,15 @@
           >
             生成建表语句
           </Button>
-          <Button type="primary" @click="handleCopyColumnsInfo">复制所有字段</Button>
+          <Button type="primary" @click="handleCopyColumnsInfo">
+            复制所有字段
+          </Button>
         </div>
-        <Table v-if="columnInfoTableData" :columns="columnInfoTableColumn" :data="columnInfoTableData">
+        <Table
+          v-if="columnInfoTableData"
+          :columns="columnInfoTableColumn"
+          :data="columnInfoTableData"
+        >
           <template slot-scope="{ row }" slot="isPartitionField">
             {{ row.isPartitionField ? "是" : "否" }}
           </template>
@@ -190,7 +198,7 @@
       <TabPane label="分区信息" name="partitionTable">
         <Card :bordered="false" title="表统计信息" dis-hover extra="asd">
           <template slot="extra">
-            表数据最后访问时间： 2021-08-01 15:00:00
+            表数据最后访问时间： {{ baseicData.lastAccessTime | formatDate }}
           </template>
           <Row>
             <Col span="3">
@@ -244,7 +252,12 @@
         </Card>
         <Card :bordered="false" title="分区统计信息" dis-hover>
           <div style="margin-bottom: 15px">
-            <Select style="width: 200px" placeholder="分区" v-model="partitionCensusInfoTableFilter.name" clearable>
+            <Select
+              style="width: 200px"
+              placeholder="分区"
+              v-model="partitionCensusInfoTableFilter.name"
+              clearable
+            >
               <Option
                 v-for="item in partitionCensusInfoTableData"
                 :key="item.partName"
@@ -252,7 +265,12 @@
                 :label="item.partName"
               />
             </Select>
-            <Select style="width: 200px" placeholder="大小" v-model="partitionCensusInfoTableFilter.size" clearable>
+            <Select
+              style="width: 200px"
+              placeholder="大小"
+              v-model="partitionCensusInfoTableFilter.size"
+              clearable
+            >
               <Option
                 v-for="item in partitionCensusInfoTableFilterSizeOption"
                 :key="item.value"
@@ -266,6 +284,9 @@
             :columns="partitionCensusInfoTableColumn"
             :data="partitionCensusInfoTableDataFilter"
           >
+            <template slot-scope="{ row }" slot="store">
+              {{ transformCompany(row.store).str }}
+            </template>
             <template slot-scope="{ row }" slot="createTime">
               {{ row.createTime | formatDate }}
             </template>
@@ -317,7 +338,10 @@ import {
   getTablesPreview,
 } from "@/apps/dataModelCenter/service/api/tableManage";
 import formatDate from "@dataModelCenter/utils/formatDate";
-import {fomatSqlForCopy, fomatSqlForShow,} from "@dataModelCenter/utils/fomatSQL";
+import {
+  fomatSqlForCopy,
+  fomatSqlForShow,
+} from "@dataModelCenter/utils/fomatSQL";
 import handleClipboard from "@dataModelCenter/utils/clipboard";
 import mixin from "@/common/service/mixin";
 
@@ -372,6 +396,7 @@ const partitionCensusInfoTableColumn = [
     title: "分区大小",
     align: "center",
     key: "store",
+    slot: "store",
   },
   {
     title: "文件数",
@@ -382,17 +407,17 @@ const partitionCensusInfoTableColumn = [
     title: "创建时间",
     align: "center",
     key: "createTime",
-    slot: "createTime"
+    slot: "createTime",
   },
   {
     title: "最后访问时间",
     align: "center",
     key: "lastAccessTime",
-    slot: "lastAccessTime"
+    slot: "lastAccessTime",
   },
 ];
 export default {
-  filters: {formatDate},
+  filters: { formatDate },
   mixins: [mixin],
   data() {
     return {
@@ -424,7 +449,7 @@ export default {
       // 分区信息过滤条件
       partitionCensusInfoTableFilter: {
         name: "",
-        size: undefined
+        size: undefined,
       },
       partitionCensusInfoTableFilterSizeOption: [
         {
@@ -446,7 +471,7 @@ export default {
         {
           label: "大于1T",
           value: 100000,
-        }
+        },
       ],
       // 生成的sql
       ddlSqlCfg: {
@@ -460,7 +485,7 @@ export default {
         guid: this.$route.query.guid,
       },
       // 是否被收藏
-      isCollect: false
+      isCollect: false,
     };
   },
   watch: {
@@ -485,35 +510,35 @@ export default {
     // 过滤分区信息
     partitionCensusInfoTableDataFilter() {
       // 拿到条件
-      let {name, size} = this.partitionCensusInfoTableFilter;
-      if (!name && !size) return this.partitionCensusInfoTableData
+      let { name, size } = this.partitionCensusInfoTableFilter;
+      if (!name && !size) return this.partitionCensusInfoTableData;
       // 根据雕件过滤
       return this.partitionCensusInfoTableData.filter((item) => {
         let ifName = item.partName === name;
         let ifSize = item.size >= size;
         if (name && size) {
-          if (ifName && ifSize) return true
+          if (ifName && ifSize) return true;
         } else if (name) {
-          if (ifName) return true
+          if (ifName) return true;
         } else if (size) {
-          if (ifSize) return true
+          if (ifSize) return true;
         }
-        return false
-      })
-    }
+        return false;
+      });
+    },
   },
   mounted() {
     // 获取数据
     this.handleGetData();
     // 检查收藏状态
-    this.handleGetCollectionStatus()
+    this.handleGetCollectionStatus();
   },
   methods: {
     /**
      * @description 去往编辑页面
      */
     handleToEditor() {
-      let {id, name, guid} = this.config;
+      let { id, name, guid } = this.config;
       this.$router.push({
         path: `/datamodelcenter/tableManage/tableEditor`,
         query: {
@@ -528,7 +553,7 @@ export default {
      * @description 导出预览数据
      */
     handleExportPreViewData() {
-      this.$refs["preViewTable"].exportCsv({filename: "preview.csv"});
+      this.$refs["preViewTable"].exportCsv({ filename: "preview.csv" });
     },
     /**
      * @description 复制所有字段信息
@@ -542,71 +567,71 @@ export default {
        * @returns {string}
        */
       function formatCopyStr(columns, columnData) {
-        let str = ""
+        let str = "";
         // 构造头行
         for (let i = 0; i < columns.length; i++) {
-          let column = columns[i]
+          let column = columns[i];
           if (i === columns.length - 1) {
-            str += column.title
+            str += column.title;
           } else {
-            str += column.title + "    "
+            str += column.title + "    ";
           }
         }
         // 构造表格体
         for (let i = 0; i < columnData.length; i++) {
-          let dataItem = columnData[i]
-          let columnLine = ''
+          let dataItem = columnData[i];
+          let columnLine = "";
           for (let i = 0; i < columns.length; i++) {
-            let column = columns[i]
+            let column = columns[i];
             if (i === columns.length - 1) {
-              columnLine += (dataItem[column.key] || '空')
+              columnLine += dataItem[column.key] || "空";
             } else {
-              columnLine += (dataItem[column.key] || '空') + "    "
+              columnLine += (dataItem[column.key] || "空") + "    ";
             }
           }
-          str += "\r\n" + columnLine
+          str += "\r\n" + columnLine;
         }
         // 返回结果
-        return str
+        return str;
       }
 
       if (this.columnInfoTableData) {
         let columns = [
           {
             title: "字段名称",
-            key: "name"
+            key: "name",
           },
           {
             title: "别名",
-            key: "alias"
+            key: "alias",
           },
           {
             title: "是否分区字段",
-            key: "type"
+            key: "type",
           },
           {
             title: "是否主键",
-            key: "isPrimary"
+            key: "isPrimary",
           },
           {
             title: "描述",
-            key: "comment"
+            key: "comment",
           },
           {
             title: "校验规则",
-            key: "rule"
+            key: "rule",
           },
           {
             title: "关联数仓",
-            key: "modelName"
-          }
-        ]
+            key: "modelName",
+          },
+        ];
         handleClipboard(formatCopyStr(columns, this.columnInfoTableData), e);
       }
     },
     // 生成建表语句
     handleCreateSql() {
-      let {id, guid} = this.config;
+      let { id, guid } = this.config;
       getTablesCreateSql(id, guid).then((res) => {
         this.ddlSqlCfg = {
           visible: true,
@@ -617,14 +642,14 @@ export default {
     /**
      * 复制表
      */
-    handleCopyTable(){
+    handleCopyTable() {
       this.$router.push({
         path: `/datamodelcenter/tableManage/tableEditor`,
         query: {
           mode: "copy",
           id: this.config.id,
           guid: this.config.guid,
-          name: this.config.name
+          name: this.config.name,
         },
       });
     },
@@ -633,11 +658,11 @@ export default {
      * @returns {Promise<void>}
      */
     async handleSwitchCollect() {
-      let {name} = this.config;
-      this.loading = true
+      let { name } = this.config;
+      this.loading = true;
       if (this.isCollect) {
-        await delCancel(name)
-        this.$Message.success("取消收藏成功")
+        await delCancel(name);
+        this.$Message.success("取消收藏成功");
       } else {
         let collectData = {
           tableId: this.config.id,
@@ -659,23 +684,23 @@ export default {
           label: this.baseicData.label.join(";"),
           guid: this.config.guid,
         };
-        await addCollect(collectData)
-        this.$Message.success("添加收藏成功")
+        await addCollect(collectData);
+        this.$Message.success("添加收藏成功");
       }
-      await this.handleGetCollectionStatus()
-      this.loading = false
+      await this.handleGetCollectionStatus();
+      this.loading = false;
     },
     /**
      * @description 获取收藏状态
      * @returns {Promise<void>}
      */
     async handleGetCollectionStatus() {
-      let {total} = await getCollectList({name: this.config.name});
+      let { total } = await getCollectList({ name: this.config.name });
       this.isCollect = !!total;
     },
     // 获取数据
     async handleGetData() {
-      let {id, guid, name} = this.config;
+      let { id, guid, name } = this.config;
       this.loading = true;
       let data;
       // 优先使用id获取
@@ -685,7 +710,7 @@ export default {
         data = await getTableInfoByName(name, guid);
       }
       this.loading = false;
-      let {detail} = data;
+      let { detail } = data;
       // 如果有id更新id
       if (detail.id) {
         this.config.id = detail.id;
@@ -716,6 +741,8 @@ export default {
         createTime: detail.createTime,
         // 最后修改时间
         updateTime: detail.updateTime,
+        // 最后访问时间
+        lastAccessTime: detail.lastAccessTime,
         // 描述
         comment: detail.comment,
         // 创建人
@@ -745,7 +772,7 @@ export default {
      * @description 获取分区信息
      */
     handleGetTablesPartitionStats() {
-      let {guid, name} = this.config;
+      let { guid, name } = this.config;
       this.loading = true;
       getTablesPartitionStats(name, guid).then((res) => {
         this.loading = false;
@@ -756,7 +783,7 @@ export default {
      * @description 获取预览数据
      */
     handleGetTablesPreview() {
-      let {name} = this.config;
+      let { name } = this.config;
       this.loading = true;
       getTablesPreview(name).then((res) => {
         this.loading = false;
@@ -787,14 +814,14 @@ export default {
     // 转换存储单位
     transformCompany(number) {
       if (!number) {
-        return {num: 0, unit: "B", str: "0B"};
+        return { num: 0, unit: "B", str: "0B" };
       }
       let unitArr = ["B", "KB", "MB", "GB", "TB"];
       for (let i = unitArr.length - 1; i >= 0; i--) {
         const unit = unitArr[i];
         let res = number / Math.pow(1024, i);
         if (res > 1) {
-          return {num: res.toFixed(2), unit, str: res.toFixed(2) + unit};
+          return { num: res.toFixed(2), unit, str: res.toFixed(2) + unit };
         }
       }
     },

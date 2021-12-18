@@ -265,7 +265,7 @@ module.exports = {
     compress: true,
     proxy: {
       "/api": {
-        target: "http://121.36.12.247:8088/",
+        target: "http://124.70.31.149:20088/",
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/api"

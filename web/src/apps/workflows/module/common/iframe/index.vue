@@ -55,6 +55,7 @@ export default {
     },
     getUrl() {
       const createParams = this.getCreatePrams(this.node);
+
       const params = {
         nodeType: this.node.type,
         projectID: +this.$route.query.projectID,

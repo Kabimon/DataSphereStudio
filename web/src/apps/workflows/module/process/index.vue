@@ -6,7 +6,7 @@
       class="process-readonly-tip-card"
     >
       <div>
-        {{$t("message.workflow.workflowItem.readonlyTip")}}
+        {{ $t("message.workflow.workflowItem.readonlyTip") }}
       </div>
       <Icon type="md-close" class="tipClose" @click.stop="closeTip" />
     </Card>
@@ -16,7 +16,7 @@
           v-for="(item, index) in tabs"
           :key="index"
           class="process-tab-item"
-          :class="{active: index===active}"
+          :class="{ active: index === active }"
           @click="choose(index)"
           @mouseenter.self="item.isHover = true"
           @mouseleave.self="item.isHover = false"
@@ -28,8 +28,19 @@
               :src="nodeImg[item.node.type].icon"
               alt
             />
-            <div :title="item.title" class="process-tab-name">{{ item.title }}</div>
-            <SvgIcon v-show="!item.isHover && item.node && item.node.isChange && checkEditable(processData)" class="process-tab-unsave-icon" icon-class="fi-radio-on2"/>
+            <div :title="item.title" class="process-tab-name">
+              {{ item.title }}
+            </div>
+            <SvgIcon
+              v-show="
+                !item.isHover &&
+                  item.node &&
+                  item.node.isChange &&
+                  checkEditable(processData)
+              "
+              class="process-tab-unsave-icon"
+              icon-class="fi-radio-on2"
+            />
             <Icon
               v-if="item.isHover && (item.close || processData.product)"
               type="md-close"
@@ -43,7 +54,7 @@
           <Process
             ref="process"
             v-if="item.type === 'Process'"
-            v-show="index===active"
+            v-show="index === active"
             :key="item.key"
             :import-replace="false"
             :flow-id="item.data.appId"
@@ -67,7 +78,7 @@
           ></Process>
           <Ide
             v-if="item.type === 'IDE'"
-            v-show="index===active"
+            v-show="index === active"
             :key="item.title"
             :parameters="item.data"
             :node="item.node"
@@ -77,16 +88,16 @@
           ></Ide>
           <commonIframe
             v-if="item.type === 'Iframe'"
-            v-show="index===active"
+            v-show="index === active"
             :key="item.title"
             :node="item.node"
             @save="saveNode"
           ></commonIframe>
           <div
             v-if="item.type === 'DiaoDu'"
-            v-show="index===active"
+            v-show="index === active"
             :key="item.title"
-            style="width:100%; height:100%"
+            style="width: 100%; height: 100%"
           ></div>
         </template>
       </div>
@@ -98,7 +109,7 @@ import { isEmpty, isArguments } from "lodash";
 import api from "@/common/service/api";
 import util from "@/common/util";
 import Process from "./module.vue";
-import qs from 'qs';
+import qs from "qs";
 import Ide from "@/apps/workflows/module/ide";
 import commonModule from "@/apps/workflows/module/common";
 import { NODETYPE, NODEICON } from "@/apps/workflows/service/nodeType";
@@ -106,17 +117,17 @@ export default {
   components: {
     Process,
     Ide: Ide.component,
-    commonIframe: commonModule.component.iframe
+    commonIframe: commonModule.component.iframe,
   },
   props: {
     query: {
       type: Object,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   data() {
-    let processData = this.query || qs.parse(location.search)
-    processData.priv = processData.priv - 0
+    let processData = this.query || qs.parse(location.search);
+    processData.priv = processData.priv - 0;
     return {
       processData,
       tabs: [
@@ -127,22 +138,22 @@ export default {
           data: processData,
           node: {
             isChange: false,
-            type: "workflow.subflow"
+            type: "workflow.subflow",
           },
           key: "工作流",
-          isHover: false
-        }
+          isHover: false,
+        },
       ],
       active: 0,
       setIntervalID: "",
       setTime: 40,
       showTip: true,
       openFiles: {},
-      nodeImg: NODEICON
+      nodeImg: NODEICON,
     };
   },
   mounted() {
-    this.getCache().then(tabs => {
+    this.getCache().then((tabs) => {
       if (tabs) {
         this.tabs = tabs;
       }
@@ -155,10 +166,10 @@ export default {
     // 没有权限的和历史的都不可编辑
     checkEditable(item) {
       // 编排权限由后台的priv字段判断，1-查看， 2-编辑， 3-发布
-      if ([2,3].includes(item.priv) && this.processData.readonly !== 'true') {
-        return true
+      if ([2, 3].includes(item.priv) && this.processData.readonly !== "true") {
+        return true;
       } else {
-        return false
+        return false;
       }
     },
     gotoAction(back = -1) {
@@ -183,12 +194,14 @@ export default {
       const currentTab = this.tabs[index];
       // 找到当前关闭项对应的子类
       const subArray = this.openFiles[currentTab.key] || [];
-      const changeList = this.tabs.filter(item => {
+      const changeList = this.tabs.filter((item) => {
         return subArray.includes(item.key) && item.node.isChange;
       });
       // 子工作流关闭时，查询是否有子节点没有保存，是否一起关闭
       if (changeList.length > 0 && currentTab.node.type === NODETYPE.FLOW) {
-        let text = `<p>${this.$t("message.workflow.process.index.WBCSFGB")}</p>`;
+        let text = `<p>${this.$t(
+          "message.workflow.process.index.WBCSFGB"
+        )}</p>`;
         if (currentTab.node.isChange) {
           text = `<p>${this.$t("message.workflow.process.index.GGZLWBC")}</p>`;
         }
@@ -209,7 +222,7 @@ export default {
             }
             this.updateProjectCacheByTab();
           },
-          onCancel: () => {}
+          onCancel: () => {},
         });
       } else {
         // 删除线先判断删除的是否是当前正在打开的tab，如果打开到最后一个tab，如果没有打开还是在当前的tab
@@ -227,7 +240,7 @@ export default {
     check(node) {
       if (node) {
         let boolean = true;
-        this.tabs.map(item => {
+        this.tabs.map((item) => {
           if (node.key === item.key) {
             boolean = true;
           } else {
@@ -259,6 +272,7 @@ export default {
       for (let i = 0; i < this.tabs.length; i++) {
         if (this.tabs[i].key === node.key) return this.choose(i);
       }
+      console.log(node);
       // 目前的内部节点的supportJump为true，但是没有url,且不需要创建弹窗
       if (node.supportJump && !node.shouldCreationBeforeNode && !node.jumpUrl) {
         const len = node.resources ? node.resources.length : 0;
@@ -268,57 +282,72 @@ export default {
           const fileName = node.resources[0].fileName;
           const version = node.resources[0].version;
           let config = {
-            method: "get"
+            method: "get",
           };
           if (this.processData.product) {
             config.headers = {
-              "Token-User": this.getUserName()
+              "Token-User": this.getUserName(),
             };
           }
-          api.fetch(this.processData.product ? "/filesystem/product/openScriptFromBML" : "/filesystem/openScriptFromBML", {
-            fileName,
-            resourceId,
-            version,
-            creator: node.creator || "",
-            projectName: this.processData.projectName || ""
-          }, config).then(res => {
-            let content = res.scriptContent;
-            let params = {};
-            params.variable = this.convertSettingParamsVariable(res.metadata);
-            params.configuration = !node.params || isEmpty(node.params.configuration) ? {
-              special: {},
-              runtime: {},
-              startup: {}
-            } : {
-              special: node.params.configuration.special || {},
-              runtime: node.params.configuration.runtime || {},
-              startup: node.params.configuration.startup || {}
-            };
-            params.configuration.runtime.contextID = node.contextID;
-            params.configuration.runtime.nodeName = node.title;
-            this.getTabsAndChoose({
-              type: "IDE",
-              node,
-              data: {
-                content,
-                params
-              }
+          api
+            .fetch(
+              this.processData.product
+                ? "/filesystem/product/openScriptFromBML"
+                : "/filesystem/openScriptFromBML",
+              {
+                fileName,
+                resourceId,
+                version,
+                creator: node.creator || "",
+                projectName: this.processData.projectName || "",
+              },
+              config
+            )
+            .then((res) => {
+              let content = res.scriptContent;
+              let params = {};
+              params.variable = this.convertSettingParamsVariable(res.metadata);
+              params.configuration =
+                !node.params || isEmpty(node.params.configuration)
+                  ? {
+                    special: {},
+                    runtime: {},
+                    startup: {},
+                  }
+                  : {
+                    special: node.params.configuration.special || {},
+                    runtime: node.params.configuration.runtime || {},
+                    startup: node.params.configuration.startup || {},
+                  };
+              params.configuration.runtime.contextID = node.contextID;
+              params.configuration.runtime.nodeName = node.title;
+              this.getTabsAndChoose({
+                type: "IDE",
+                node,
+                data: {
+                  content,
+                  params,
+                },
+              });
             });
-          });
         } else {
           // 如果节点是导入进来的，可能存在脚本内容
-          let content = node.jobContent && node.jobContent.code ? node.jobContent.code : "";
+          let content =
+            node.jobContent && node.jobContent.code ? node.jobContent.code : "";
           let params = {};
           params.variable = this.convertSettingParamsVariable({});
-          params.configuration = !node.params || isEmpty(node.params.configuration) ? {
-            special: {},
-            runtime: {},
-            startup: {}
-          } : {
-            special: node.params.configuration.special || {},
-            runtime: node.params.configuration.runtime || {},
-            startup: node.params.configuration.startup || {}
-          };
+          params.configuration =
+            !node.params || isEmpty(node.params.configuration)
+              ? {
+                special: {},
+                runtime: {},
+                startup: {},
+              }
+              : {
+                special: node.params.configuration.special || {},
+                runtime: node.params.configuration.runtime || {},
+                startup: node.params.configuration.startup || {},
+              };
           params.configuration.runtime.contextID = node.contextID;
           params.configuration.runtime.nodeName = node.title;
           this.getTabsAndChoose({
@@ -326,8 +355,8 @@ export default {
             node,
             data: {
               content,
-              params
-            }
+              params,
+            },
           });
         }
         return;
@@ -335,15 +364,15 @@ export default {
       if (node.type == NODETYPE.FLOW) {
         // 子流程必须已保存, 才可以被打开
         let flowId = node.jobContent ? node.jobContent.embeddedFlowId : "";
-        let {orchestratorVersionId, id} = {...this.processData}
+        let { orchestratorVersionId, id } = { ...this.processData };
         this.getTabsAndChoose({
           type: "Process",
           node,
           data: {
             appId: flowId,
             orchestratorVersionId,
-            id
-          }
+            id,
+          },
         });
         return;
       }
@@ -354,8 +383,8 @@ export default {
           type: "Iframe",
           node,
           data: {
-            id
-          }
+            id,
+          },
         });
       }
     },
@@ -369,7 +398,7 @@ export default {
         // 把节点的引用放到这里
         node,
         data,
-        isHover: false
+        isHover: false,
       });
       // 记录打开的tab的依赖关系
       this.openFileAction(node);
@@ -380,7 +409,7 @@ export default {
       // 判断当前打开的节点的父工作过流是否已经有打开的节点s
       const currnentTab = this.tabs[this.active];
       if (Object.keys(this.openFiles).includes(currnentTab.key)) {
-        Object.keys(this.openFiles).map(key => {
+        Object.keys(this.openFiles).map((key) => {
           // 找到同一父节点下是否曾今已经打开过
           if (key == currnentTab.key) {
             if (!this.openFiles[key].includes(node.key)) {
@@ -433,8 +462,8 @@ export default {
           node.resources.unshift(resource);
         }
       }
-      this.$refs.process.forEach(item => {
-        item.json.nodes.forEach(subitem => {
+      this.$refs.process.forEach((item) => {
+        item.json.nodes.forEach((subitem) => {
           if (subitem.key === currentNode.key) {
             // 在这里直接改originalData值，组件里并没有相应，所以改为触发组件事件
             item.updateOriginData(node, scriptisSave);
@@ -445,7 +474,9 @@ export default {
       this.updateProjectCacheByTab();
     },
     convertSettingParamsVariable(params) {
-      const variable = isEmpty(params.variable) ? [] : util.convertObjectToArray(params.variable);
+      const variable = isEmpty(params.variable)
+        ? []
+        : util.convertObjectToArray(params.variable);
       return variable;
     },
     saveTip(cb, cancel) {
@@ -455,7 +486,7 @@ export default {
         okText: this.$t("message.workflow.process.index.BC"),
         cancelText: this.$t("message.workflow.process.index.QX"),
         onOk: cb,
-        onCancel: cancel
+        onCancel: cancel,
       });
     },
     isChange(index, val) {
@@ -466,7 +497,7 @@ export default {
     },
     beforeLeaveHook() {},
     checkOpened(node, cb) {
-      const isOpened = this.tabs.find(item => item.key === node.key);
+      const isOpened = this.tabs.find((item) => item.key === node.key);
       cb(!!isOpened);
     },
     deleteNode(node) {
@@ -481,7 +512,7 @@ export default {
       }
     },
     saveBaseInfo(node) {
-      this.tabs = this.tabs.map(item => {
+      this.tabs = this.tabs.map((item) => {
         if (item.key === node.key) {
           item.title = node.title;
         }
@@ -496,9 +527,9 @@ export default {
           tab: this.tabs,
           token: "flowId",
           sKey: "tab",
-          sValue: this.processData.flowId
+          sValue: this.processData.flowId,
         },
-        isDeep: true
+        isDeep: true,
       });
     },
     updateProjectCacheByActive() {
@@ -509,26 +540,26 @@ export default {
           active: this.active,
           token: "flowId",
           sKey: "active",
-          sValue: this.processData.flowId
+          sValue: this.processData.flowId,
         },
-        isDeep: true
+        isDeep: true,
       });
     },
     getCache() {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         this.dispatch("workflowIndexedDB:getProjectCache", {
           projectID: this.processData.projectID,
-          cb: cache => {
+          cb: (cache) => {
             const list = (cache && cache.tabList) || [];
             let tabs = null;
-            list.forEach(item => {
+            list.forEach((item) => {
               if (+item.flowId === +this.processData.flowId) {
                 tabs = item.tab;
                 this.active = item.active || 0;
               }
             });
             resolve(tabs);
-          }
+          },
         });
       });
     },
@@ -543,7 +574,7 @@ export default {
           this.tabs[0].title = this.$t("message.workflow.process.index.BJMS");
         }
       }
-    }
+    },
   },
 };
 </script>
