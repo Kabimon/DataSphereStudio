@@ -51,3 +51,9 @@ dss-orchestrator/dss-orchestrator-db/target/
 dss-framework/dss-framework-project-server/target/
 dss-orchestrator/orchestrators/dss-workflow/dss-flow-execution-server/target/
 dss-orchestrator/orchestrators/dss-workflow/dss-workflow-server/target/
+
+dss-apps/dss-datawarehouse-design/data-warehouse-mybatis/target/
+dss-apps/dss-datawarehouse-design/governance-dao/target/
+dss-apps/dss-datawarehouse-design/data-warehouse-client/target/
+dss-apps/dss-datawarehouse-design/data-warehouse-server/target/
+dss-apps/dss-datawarehouse-design/data-warehouse-service/target/
