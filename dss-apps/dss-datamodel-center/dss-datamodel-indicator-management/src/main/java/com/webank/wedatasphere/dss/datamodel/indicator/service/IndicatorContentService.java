@@ -5,6 +5,8 @@ import com.webank.wedatasphere.dss.datamodel.indicator.entity.DssDatamodelIndica
 import com.webank.wedatasphere.dss.datamodel.indicator.vo.IndicatorContentVO;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
 
+import java.util.List;
+
 
 public interface IndicatorContentService extends IService<DssDatamodelIndicatorContent> {
 
@@ -43,4 +45,15 @@ public interface IndicatorContentService extends IService<DssDatamodelIndicatorC
      * @throws ErrorException
      */
     int deleteByIndicatorId(Long id)throws ErrorException;
+
+
+    /**
+     * 校验indicator引用情况
+     * @param name
+     * @return
+     * @throws ErrorException
+     */
+    List<DssDatamodelIndicatorContent> sourceInfoReference(String name);
+
+
 }

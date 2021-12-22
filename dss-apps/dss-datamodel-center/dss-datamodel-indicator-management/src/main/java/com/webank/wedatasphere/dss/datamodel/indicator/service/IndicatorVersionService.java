@@ -5,6 +5,8 @@ import com.webank.wedatasphere.dss.datamodel.indicator.dto.IndicatorVersionDTO;
 import com.webank.wedatasphere.dss.datamodel.indicator.entity.DssDatamodelIndicatorVersion;
 import com.webank.wedatasphere.linkis.common.exception.ErrorException;
 
+import java.util.List;
+
 
 public interface IndicatorVersionService extends IService<DssDatamodelIndicatorVersion> {
 
@@ -13,12 +15,13 @@ public interface IndicatorVersionService extends IService<DssDatamodelIndicatorV
      * 保存旧版本
      *
      * @param name
+     * @param owner
      * @param principalName
      * @param version
      * @param versionContext
      * @return
      */
-    int addOlderVersion(String name, String principalName, String version, String comment, IndicatorVersionDTO versionContext) throws ErrorException;
+    int addOlderVersion(String name, String owner, String principalName, String version, String comment, IndicatorVersionDTO versionContext) throws ErrorException;
 
     /**
      * 根据指标名称查找最大版本
@@ -37,5 +40,18 @@ public interface IndicatorVersionService extends IService<DssDatamodelIndicatorV
     DssDatamodelIndicatorVersion findBackup(String name,String version);
 
 
+    /**
+     * 引用情况
+     * @param context
+     * @return
+     */
+    List<DssDatamodelIndicatorVersion> contentReferenceCount(String context);
 
+
+    /**
+     * 原子指标引用
+     * @param indicatorName
+     * @return
+     */
+    int sourceAtomicIndicatorReference(String indicatorName);
 }

@@ -1,7 +1,6 @@
 package com.webank.wedatasphere.dss.datamodel.dimension.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.webank.wedatasphere.dss.datamodel.center.common.exception.DSSDatamodelCenterException;
 import com.webank.wedatasphere.dss.datamodel.dimension.dto.DimensionQueryDTO;
 import com.webank.wedatasphere.dss.datamodel.dimension.entity.DssDatamodelDimension;
 import com.webank.wedatasphere.dss.datamodel.dimension.vo.DimensionAddVO;
@@ -19,7 +18,7 @@ public interface DimensionService extends IService<DssDatamodelDimension> {
      * @param vo
      * @return
      */
-    int addDimension(DimensionAddVO vo);
+    long addDimension(DimensionAddVO vo)throws ErrorException;
 
     /**
      * 启用/禁用
@@ -35,7 +34,7 @@ public interface DimensionService extends IService<DssDatamodelDimension> {
      * @param vo
      * @return
      */
-    int updateDimension(Long id, DimensionUpdateVO vo);
+    int updateDimension(Long id, DimensionUpdateVO vo) throws ErrorException;
 
 
     /**
@@ -43,7 +42,7 @@ public interface DimensionService extends IService<DssDatamodelDimension> {
      * @param id
      * @return
      */
-    int deleteDimension(Long id);
+    int deleteDimension(Long id) throws ErrorException;
 
 
     /**
@@ -60,4 +59,12 @@ public interface DimensionService extends IService<DssDatamodelDimension> {
      * @return
      */
     Message listDimensions(DimensionQueryVO vo);
+
+
+    /**
+     * 主题引用情况
+     * @param name
+     * @return
+     */
+    int dimensionThemeReferenceCount(String name);
 }
