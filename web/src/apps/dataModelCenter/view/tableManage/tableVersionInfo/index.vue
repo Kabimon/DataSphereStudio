@@ -2,7 +2,7 @@
   <tableVersionInfoView />
 </template>
 <script>
-import tableVersionInfoModel from "@dataModelCenter/module/tableVersionInfo";
+import tableVersionInfoModel from "@/apps/dataModelCenter/module/tableVersionInfo";
 export default {
   components: {
     tableVersionInfoView: tableVersionInfoModel.component,

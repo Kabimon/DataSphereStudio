@@ -106,8 +106,8 @@ import {
   getLabelList,
   delLabel,
   switcLabelStatus,
-} from "@dataModelCenter/service/api/labels";
-import formatDate from "@dataModelCenter/utils/formatDate";
+} from "@/apps/dataModelCenter/service/api/labels";
+import formatDate from "@/apps/dataModelCenter/utils/formatDate";
 import EditModal from "./editModal.vue";
 
 export default {

@@ -105,8 +105,8 @@ import {
   getDimensions,
   switchDimensionsStatus,
   delDimensions,
-} from "@dataModelCenter/service/api/dimensions";
-import formatDate from "@dataModelCenter/utils/formatDate";
+} from "@/apps/dataModelCenter/service/api/dimensions";
+import formatDate from "@/apps/dataModelCenter/utils/formatDate";
 import EditModal from "./editModal.vue";
 export default {
   components: { EditModal },

@@ -2,7 +2,7 @@
   <tableEditorView />
 </template>
 <script>
-import tableEditorModel from "@dataModelCenter/module/tableEditor";
+import tableEditorModel from "@/apps/dataModelCenter/module/tableEditor";
 export default {
   components: {
     tableEditorView: tableEditorModel.component,

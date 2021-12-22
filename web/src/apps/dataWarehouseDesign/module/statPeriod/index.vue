@@ -102,7 +102,7 @@ import {
   deleteStatisticalPeriods,
   enableStatisticalPeriods,
   disableStatisticalPeriods,
-} from "@dataWarehouseDesign/service/api/statisticalPeriods";
+} from "@/apps/dataWarehouseDesign/service/api/statisticalPeriods";
 import formatDate from "../../utils/formatDate";
 import EditModal from "./editModal.vue";
 

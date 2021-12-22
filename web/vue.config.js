@@ -234,22 +234,6 @@ module.exports = {
       alias: {
         "@": path.resolve(__dirname, "./src"),
         "@component": path.resolve(__dirname, "./src/components"), // 各个子应用
-        "@apiServices": path.resolve(__dirname, "./src/apps/apiServices"),
-        "@dataAssetManage": path.resolve(
-          __dirname,
-          "./src/apps/dataAssetManage"
-        ),
-        "@dataModelCenter": path.resolve(
-          __dirname,
-          "./src/apps/dataModelCenter"
-        ),
-        "@dataWarehouseDesign": path.resolve(
-          __dirname,
-          "./src/apps/dataWarehouseDesign"
-        ),
-        "@scriptis": path.resolve(__dirname, "./src/apps/scriptis"),
-        "@workflows": path.resolve(__dirname, "./src/apps/workflows"),
-        "@workspace": path.resolve(__dirname, "./src/apps/workspace")
       }
     },
     plugins
@@ -265,7 +249,7 @@ module.exports = {
     compress: true,
     proxy: {
       "/api": {
-        target: "http://124.70.31.149:20088/",
+        target: "http://dss.shineweng.com:20088/",
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/api"

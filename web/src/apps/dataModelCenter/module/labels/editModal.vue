@@ -122,7 +122,7 @@ import {
   updateLabel,
   createLabel,
   getLabelById,
-} from "@dataModelCenter/service/api/labels";
+} from "@/apps/dataModelCenter/service/api/labels";
 import {getRolesList, getThemesList, getUsersList} from "@/apps/dataModelCenter/service/api/common";
 import mixin from "@/common/service/mixin";
 

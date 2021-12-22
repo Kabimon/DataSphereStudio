@@ -127,15 +127,15 @@
 </template>
 
 <script>
-import {getThemedomains} from "@dataWarehouseDesign/service/api/theme";
+import {getThemedomains} from "@/apps/dataWarehouseDesign/service/api/theme";
 import {
   createStatisticalPeriods,
   getStatisticalPeriodsById,
   editStatisticalPeriods,
-} from "@dataWarehouseDesign/service/api/statisticalPeriods";
-import {getLayersAll} from "@dataWarehouseDesign/service/api/layer";
+} from "@/apps/dataWarehouseDesign/service/api/statisticalPeriods";
+import {getLayersAll} from "@/apps/dataWarehouseDesign/service/api/layer";
 import mixin from "@/common/service/mixin";
-import {getRolesList, getUsersList} from "@dataWarehouseDesign/service/api/common";
+import {getRolesList, getUsersList} from "@/apps/dataWarehouseDesign/service/api/common";
 
 export default {
   model: {

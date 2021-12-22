@@ -337,12 +337,12 @@ import {
   getTablesPartitionStats,
   getTablesPreview,
 } from "@/apps/dataModelCenter/service/api/tableManage";
-import formatDate from "@dataModelCenter/utils/formatDate";
+import formatDate from "@/apps/dataModelCenter/utils/formatDate";
 import {
   fomatSqlForCopy,
   fomatSqlForShow,
-} from "@dataModelCenter/utils/fomatSQL";
-import handleClipboard from "@dataModelCenter/utils/clipboard";
+} from "@/apps/dataModelCenter/utils/fomatSQL";
+import handleClipboard from "@/apps/dataModelCenter/utils/clipboard";
 import mixin from "@/common/service/mixin";
 
 const columnInfoTableColumn = [

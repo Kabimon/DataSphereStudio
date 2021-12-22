@@ -254,13 +254,13 @@ import {
   getTableInfoById,
   getTableInfoByName,
   updateTable,
-} from "@dataModelCenter/service/api/tableManage";
+} from "@/apps/dataModelCenter/service/api/tableManage";
 import {
   getCyclesList,
   getLayersList,
   getThemesList,
   getRolesList,
-} from "@dataModelCenter/service/api/common";
+} from "@/apps/dataModelCenter/service/api/common";
 import ColumnEditor from "./columnEditor.vue";
 import { getLabelList } from "@/apps/dataModelCenter/service/api/labels";
 import mixin from "@/common/service/mixin";

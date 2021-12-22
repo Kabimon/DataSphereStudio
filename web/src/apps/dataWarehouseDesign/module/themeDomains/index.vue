@@ -91,9 +91,9 @@ import {
   deleteThemedomains,
   enableThemedomains,
   disableThemedomains,
-} from "@dataWarehouseDesign/service/api/theme";
+} from "@/apps/dataWarehouseDesign/service/api/theme";
 import EditModal from "./editModal.vue";
-import formatDate from "@dataWarehouseDesign/utils/formatDate";
+import formatDate from "@/apps/dataWarehouseDesign/utils/formatDate";
 export default {
   components: { EditModal },
   filters: { formatDate },

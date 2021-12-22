@@ -104,8 +104,8 @@ import {
   getLayersById,
   editLayersCustom,
   getDbs,
-} from "@dataWarehouseDesign/service/api/layer";
-import {getRolesList, getUsersList} from "@dataWarehouseDesign/service/api/common";
+} from "@/apps/dataWarehouseDesign/service/api/layer";
+import {getRolesList, getUsersList} from "@/apps/dataWarehouseDesign/service/api/common";
 import mixin from "@/common/service/mixin";
 
 export default {

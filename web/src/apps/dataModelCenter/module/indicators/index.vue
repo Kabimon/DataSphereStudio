@@ -135,7 +135,7 @@ import {
   switcIndicatorsStatus,
   delIndicators,
 } from "@/apps/dataModelCenter/service/api/indicators";
-import formatDate from "@dataModelCenter/utils/formatDate";
+import formatDate from "@/apps/dataModelCenter/utils/formatDate";
 import EditModal from "./editModal.vue";
 import VersionListModal from "./versionListModal.vue";
 import ShowVersionModal from "./showVersionModal.vue";

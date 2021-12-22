@@ -97,8 +97,8 @@ import {
   deleteModifiers,
   enableModifiers,
   disableModifiers,
-} from "@dataWarehouseDesign/service/api/modifiers";
-import formatDate from "@dataWarehouseDesign/utils/formatDate";
+} from "@/apps/dataWarehouseDesign/service/api/modifiers";
+import formatDate from "@/apps/dataWarehouseDesign/utils/formatDate";
 import EditModal from "./editModal.vue";
 
 /**

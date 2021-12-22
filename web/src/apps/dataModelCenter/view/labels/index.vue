@@ -2,7 +2,7 @@
   <labelsView />
 </template>
 <script>
-import labelsModel from "@dataModelCenter/module/labels";
+import labelsModel from "@/apps/dataModelCenter/module/labels";
 export default {
   components: {
     labelsView: labelsModel.component,

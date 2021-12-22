@@ -114,14 +114,14 @@
 </template>
 
 <script>
-import {getThemedomains} from "@dataWarehouseDesign/service/api/theme";
+import {getThemedomains} from "@/apps/dataWarehouseDesign/service/api/theme";
 import {
   createModifiers,
   editModifiers,
   getModifiersById,
-} from "@dataWarehouseDesign/service/api/modifiers";
-import {getDbs, getLayersAll} from '@dataWarehouseDesign/service/api/layer'
-import {getRolesList, getUsersList} from "@dataWarehouseDesign/service/api/common";
+} from "@/apps/dataWarehouseDesign/service/api/modifiers";
+import {getDbs, getLayersAll} from '@/apps/dataWarehouseDesign/service/api/layer'
+import {getRolesList, getUsersList} from "@/apps/dataWarehouseDesign/service/api/common";
 export default {
   model: {
     prop: "_visible",

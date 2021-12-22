@@ -2,7 +2,7 @@
   <themeDomainsView />
 </template>
 <script>
-import themeDomainsModel from "@dataWarehouseDesign/module/themeDomains";
+import themeDomainsModel from "@/apps/dataWarehouseDesign/module/themeDomains";
 export default {
   components: {
     themeDomainsView: themeDomainsModel.component,

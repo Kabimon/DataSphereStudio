@@ -11,7 +11,7 @@
 </template>
 <script>
 import SidebarSubMenu from "./sidebar-sub-menu.vue";
-import routers from "@dataWarehouseDesign/router.js";
+import routers from "@/apps/dataWarehouseDesign/router.js";
 export default {
   name: "sidebar",
   components: {

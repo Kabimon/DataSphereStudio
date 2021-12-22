@@ -2,7 +2,7 @@
   <indicatorsView />
 </template>
 <script>
-import indicatorsModel from "@dataModelCenter/module/indicators";
+import indicatorsModel from "@/apps/dataModelCenter/module/indicators";
 export default {
   components: {
     indicatorsView: indicatorsModel.component,

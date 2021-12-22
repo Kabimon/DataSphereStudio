@@ -80,10 +80,10 @@ import {
   createThemedomains,
   getThemedomainsById,
   editThemedomains,
-} from "@dataWarehouseDesign/service/api/theme";
-import { getRolesList,getUsersList } from "@dataWarehouseDesign/service/api/common"
+} from "@/apps/dataWarehouseDesign/service/api/theme";
+import { getRolesList,getUsersList } from "@/apps/dataWarehouseDesign/service/api/common"
 import mixin from "@/common/service/mixin";
-import {getThemesList} from "@dataModelCenter/service/api/common";
+import {getThemesList} from "@/apps/dataModelCenter/service/api/common";
 export default {
   model: {
     prop: "_visible",

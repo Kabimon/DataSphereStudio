@@ -37,8 +37,8 @@
 import {
   getVersionListByName,
   tableVersionRollback,
-} from "@dataModelCenter/service/api/tableManage";
-import formatDate from "@dataModelCenter/utils/formatDate";
+} from "@/apps/dataModelCenter/service/api/tableManage";
+import formatDate from "@/apps/dataModelCenter/utils/formatDate";
 
 export default {
   model: {

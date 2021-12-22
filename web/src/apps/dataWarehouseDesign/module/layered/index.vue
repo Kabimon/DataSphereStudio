@@ -147,9 +147,9 @@ import {
   deleteLayers,
   enableLayers,
   disableLayers,
-} from "@dataWarehouseDesign/service/api/layer";
+} from "@/apps/dataWarehouseDesign/service/api/layer";
 import EditModal from "./editModal.vue";
-import formatDate from "@dataWarehouseDesign/utils/formatDate";
+import formatDate from "@/apps/dataWarehouseDesign/utils/formatDate";
 
 export default {
   components: { EditModal },

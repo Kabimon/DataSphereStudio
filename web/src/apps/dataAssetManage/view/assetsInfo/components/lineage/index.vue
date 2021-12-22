@@ -3,7 +3,7 @@
 </template>
 <script>
 import G6 from '@antv/g6';
-import formatDate from '@dataModelCenter/utils/formatDate'
+import formatDate from '@/apps/dataModelCenter/utils/formatDate'
 
 /**
  * @description 格式化文本溢出隐藏
