@@ -30,6 +30,8 @@
     <packaging>pom</packaging>
     <modules>
 
+        <module>data-assets-server</module>
+        <module>data-assets-client</module>
     </modules>
 
 
