@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 
 
 @Service
@@ -28,7 +29,7 @@ public class IndicatorContentServiceImpl extends ServiceImpl<DssDatamodelIndicat
 
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int addIndicatorContent(Long indicatorId, String version, IndicatorContentVO vo) throws ErrorException {
 
         DssDatamodelIndicatorContent newOne = modelMapper.map(vo, DssDatamodelIndicatorContent.class);
@@ -46,7 +47,7 @@ public class IndicatorContentServiceImpl extends ServiceImpl<DssDatamodelIndicat
 
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateIndicatorContent(Long indicateId, String version, IndicatorContentVO vo) throws ErrorException {
         //删除原有详细信息
         getBaseMapper().delete(Wrappers.<DssDatamodelIndicatorContent>lambdaQuery().eq(DssDatamodelIndicatorContent::getIndicatorId, indicateId));
@@ -66,4 +67,22 @@ public class IndicatorContentServiceImpl extends ServiceImpl<DssDatamodelIndicat
     public int deleteByIndicatorId(Long id) throws ErrorException {
         return getBaseMapper().delete(Wrappers.<DssDatamodelIndicatorContent>lambdaQuery().eq(DssDatamodelIndicatorContent::getIndicatorId, id));
     }
+
+
+    @Override
+    public List<DssDatamodelIndicatorContent> sourceInfoReference(String name) {
+
+        return getBaseMapper().selectList(
+                Wrappers.<DssDatamodelIndicatorContent>lambdaQuery().like(DssDatamodelIndicatorContent::getIndicatorSourceInfo, name));
+//                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\""+ name + "\"")
+//                        .or()
+//                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,"\""+ name + ",")
+//                        .or()
+//                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,","+ name + ",")
+//                        .or()
+//                        .like(DssDatamodelIndicatorContent::getIndicatorSourceInfo,","+ name + "\""));
+    }
+
+
+
 }

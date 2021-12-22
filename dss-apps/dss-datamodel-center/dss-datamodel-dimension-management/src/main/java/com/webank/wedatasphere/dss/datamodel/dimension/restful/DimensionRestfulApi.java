@@ -40,9 +40,9 @@ public class DimensionRestfulApi {
      */
     @POST
     @Path("/dimensions")
-    public Response add(@Context HttpServletRequest req, @RequestBody DimensionAddVO vo) throws IOException {
+    public Response add(@Context HttpServletRequest req, @RequestBody DimensionAddVO vo) throws ErrorException {
         LOGGER.info("dimensionAddVO : {}", vo);
-        return Message.messageToResponse(Message.ok().data("count", dimensionService.addDimension(vo)));
+        return Message.messageToResponse(Message.ok().data("id", dimensionService.addDimension(vo)));
     }
 
     /**
@@ -68,7 +68,7 @@ public class DimensionRestfulApi {
      */
     @PUT
     @Path("/dimensions/{id}")
-    public Response update(@Context HttpServletRequest req, @PathParam("id") Long id, @RequestBody DimensionUpdateVO vo) {
+    public Response update(@Context HttpServletRequest req, @PathParam("id") Long id, @RequestBody DimensionUpdateVO vo) throws ErrorException{
         LOGGER.info("update id : {}, vo : {}", id, vo);
         return Message.messageToResponse(Message.ok().data("count",dimensionService.updateDimension(id,vo)));
     }
@@ -81,7 +81,7 @@ public class DimensionRestfulApi {
      */
     @DELETE
     @Path("/dimensions/{id}")
-    public Response delete(@Context HttpServletRequest req, @PathParam("id") Long id) {
+    public Response delete(@Context HttpServletRequest req, @PathParam("id") Long id) throws ErrorException {
         LOGGER.info("delete id : {}", id);
         return Message.messageToResponse(Message.ok().data("count",dimensionService.deleteDimension(id)));
     }

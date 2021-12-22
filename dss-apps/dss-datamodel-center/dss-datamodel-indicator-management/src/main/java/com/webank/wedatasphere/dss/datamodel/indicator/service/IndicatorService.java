@@ -16,7 +16,7 @@ public interface IndicatorService extends IService<DssDatamodelIndicator> {
      * @param version
      * @return
      */
-    int addIndicator(IndicatorAddVO vo, String version) throws ErrorException;
+    Long addIndicator(IndicatorAddVO vo, String version) throws ErrorException;
 
 
 
@@ -88,4 +88,59 @@ public interface IndicatorService extends IService<DssDatamodelIndicator> {
      * @return
      */
     Message listIndicatorVersions(IndicatorVersionQueryVO vo);
+
+
+    /**
+     * 主题引用情况
+     * @param name
+     * @return
+     */
+    int indicatorThemeReferenceCount(String name);
+
+    /**
+     * 分层引用情况
+     * @param name
+     * @return
+     */
+    int indicatorLayerReferenceCount(String name);
+
+
+    /**
+     * 周期引用情况
+     * @param name
+     * @return
+     */
+    int indicatorCycleReferenceCount(String name);
+
+
+    /**
+     * 修饰词引用情况
+     * @param name
+     * @return
+     */
+    int indicatorModifierReferenceCount(String name);
+
+
+    /**
+     * 维度引用情况
+     * @param name
+     * @return
+     */
+    int indicatorDimensionReferenceCount(String name);
+
+
+    /**
+     * 度量引用情况
+     * @param name
+     * @return
+     */
+    int indicatorMeasureReferenceCount(String name);
+
+
+    /**
+     * 指标引用指标情况
+     * @param name
+     * @return
+     */
+    int indicatorIndicatorReferenceCount(String name);
 }
