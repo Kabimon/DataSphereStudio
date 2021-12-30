@@ -243,9 +243,6 @@ public class NodeRestfulApi {
         node.setNodeType(nodeType);
         String label = ((Map<String, Object>) json.get(DSSCommonUtils.DSS_LABELS_KEY)).get("route").toString();
         params.put(DSSCommonUtils.DSS_LABELS_KEY, label);
-        Object nodeID = json.get("nodeID");
-        if (null != nodeID)
-            params.put("nodeId", nodeID.toString());
         params.put("workspace", workspace);
         params.put("projectId", projectID);
         functionInvoker.nodeServiceFunction(userName, params, node, FunctionPool.deleteNode);
