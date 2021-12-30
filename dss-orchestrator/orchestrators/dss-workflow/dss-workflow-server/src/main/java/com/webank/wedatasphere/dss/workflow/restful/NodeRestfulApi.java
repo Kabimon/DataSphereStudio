@@ -197,8 +197,11 @@ public class NodeRestfulApi {
         //补充json信息,方便appconn去解析获取响应的值
         params.put("json", flowContent);
         String label = ((Map<String, Object>) json.get(DSSCommonUtils.DSS_LABELS_KEY)).get("route").toString();
+
         params.put(DSSCommonUtils.DSS_LABELS_KEY, label);
         params.put("workspace", workspace);
+        params.put("projectId", projectID);
+        params.put("nodeId", nodeID.toString());
         functionInvoker.nodeServiceFunction(userName, params, node, FunctionPool.createNode);
         return Message.messageToResponse(Message.ok().data("result", node.getJobContent()));
     }
@@ -215,10 +218,13 @@ public class NodeRestfulApi {
         CommonAppConnNode node = new CommonAppConnNode();
         node.setProjectId(projectID);
         node.setNodeType(nodeType);
-        node.setProjectId(projectID);
         String label = ((Map<String, Object>) json.get(DSSCommonUtils.DSS_LABELS_KEY)).get("route").toString();
         params.put(DSSCommonUtils.DSS_LABELS_KEY, label);
+        Object nodeID = json.get("nodeID");
+        if (null != nodeID)
+            params.put("nodeId", nodeID.toString());
         params.put("workspace", workspace);
+        params.put("projectId", projectID);
         functionInvoker.nodeServiceFunction(userName, params, node, FunctionPool.updateNode);
         return Message.messageToResponse(Message.ok().data("result", node.getJobContent()));
     }
@@ -237,7 +243,11 @@ public class NodeRestfulApi {
         node.setNodeType(nodeType);
         String label = ((Map<String, Object>) json.get(DSSCommonUtils.DSS_LABELS_KEY)).get("route").toString();
         params.put(DSSCommonUtils.DSS_LABELS_KEY, label);
+        Object nodeID = json.get("nodeID");
+        if (null != nodeID)
+            params.put("nodeId", nodeID.toString());
         params.put("workspace", workspace);
+        params.put("projectId", projectID);
         functionInvoker.nodeServiceFunction(userName, params, node, FunctionPool.deleteNode);
         return Message.messageToResponse(Message.ok().data("result", node.getJobContent()));
     }
@@ -257,7 +267,7 @@ public class NodeRestfulApi {
             node.setProjectId(projectID);
             node.setNodeType(nodeType);
             String label = ((Map<String, Object>) json.get("labels")).get("route").toString();
-            params.put("labels", label);
+            params.put(DSSCommonUtils.DSS_LABELS_KEY, label);
             params.put("workspace", workspace);
             try {
                 functionInvoker.nodeServiceFunction(userName, params, node, FunctionPool.deleteNode);
