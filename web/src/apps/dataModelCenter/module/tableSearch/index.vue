@@ -2,7 +2,7 @@
   <div>
     <div style="margin-bottom: 16px">
       <div class="flex-row-center top-title">
-        <Icon type="md-grid" color="#2d8cf0" :size="50" class="top-icon"/>
+        <Icon type="md-grid" color="#2d8cf0" :size="50" class="top-icon" />
         <span class="top-text"> 数据表管理 </span>
       </div>
       <div class="flex-row-center">
@@ -76,14 +76,14 @@
         </Card>
         <Card dis-hover>
           <p slot="title">按库搜索</p>
-          <Input v-model="searchDataBaseValue" placeholder="请输入数据库名称"/>
+          <Input v-model="searchDataBaseValue" placeholder="请输入数据库名称" />
           <CellGroup @on-click="handleSearchTablesByDataBaseAction">
             <Cell
               v-for="dataBase in filterDataBaseList"
               :key="dataBase.guid"
               :name="dataBase.name"
             >
-              <Icon slot="icon" type="md-menu" :size="22"/>
+              <Icon slot="icon" type="md-menu" :size="22" />
               {{ dataBase.name }}
             </Cell>
           </CellGroup>
@@ -138,6 +138,7 @@
               </template>
               <template slot-scope="{ row }" slot="action">
                 <Button
+                  v-if="getDataMode === 0"
                   size="small"
                   @click="handleEdit(row.id, row.name, row.guid)"
                   style="margin-right: 5px"
@@ -191,8 +192,8 @@ import VersionListModal from "./versionListModal.vue";
 import mixin from "@/common/service/mixin";
 
 export default {
-  filters: {formatDate},
-  components: {VersionListModal},
+  filters: { formatDate },
+  components: { VersionListModal },
   mixins: [mixin],
   data() {
     return {
@@ -361,9 +362,8 @@ export default {
         this.handleSearchTables(true);
       }
       if (this.getDataMode === 1) {
-        this.handleGetCollectionData(true)
+        this.handleGetCollectionData(true);
       }
-
     },
   },
   mounted() {
@@ -400,16 +400,16 @@ export default {
       // 设置模式为搜索
       this.getDataMode = 0;
       // 获取数据
-      this.handleSearchTables(false)
+      this.handleSearchTables(false);
     },
     /**
      * @description 查看收藏动作
      */
     handleGetCollectionAction() {
       // 设置获取数据方式为收藏
-      this.getDataMode = 1
+      this.getDataMode = 1;
       // 获取数据
-      this.handleGetCollectionData(false)
+      this.handleGetCollectionData(false);
     },
     /**
      * @description 删除
@@ -421,8 +421,7 @@ export default {
         content: "确定删除此项吗？",
         onOk: async () => {
           this.loading = true;
-          await deleteTableById(id).catch(() => {
-          });
+          await deleteTableById(id).catch(() => {});
           this.loading = false;
           this.handleSearchTables();
         },
@@ -507,10 +506,10 @@ export default {
         return (this.pageCfg.page = 1);
       }
       this.loading = true;
-      let {list, total} = await getCollectList();
+      let { list, total } = await getCollectList();
       this.loading = false;
       this.dataList = list;
-      this.pageCfg.total = total
+      this.pageCfg.total = total;
     },
     /**
      * @description 获取所有数据库
@@ -518,7 +517,7 @@ export default {
      */
     async handleGetDataBaseData() {
       this.loading = true;
-      let {list} = await getDataBasesList();
+      let { list } = await getDataBasesList();
       this.loading = false;
       this.dataBaseList = list;
     },
@@ -528,7 +527,7 @@ export default {
      */
     async handleGetThemesData() {
       this.loading = true;
-      let {list} = await getThemesList();
+      let { list } = await getThemesList();
       this.loading = false;
       this.themeList = list;
     },
@@ -538,7 +537,7 @@ export default {
      */
     async handleGetLayersData() {
       this.loading = true;
-      let {list} = await getLayersList();
+      let { list } = await getLayersList();
       this.loading = false;
       this.layerList = list;
     },
@@ -547,7 +546,7 @@ export default {
      * @param name {String} dbName
      */
     handleSearchTablesByDataBaseAction(name) {
-      this.getDataMode = 0
+      this.getDataMode = 0;
       this.searchParams.searchToken = `${name}.`;
       this.handleSearchTables();
     },
@@ -565,7 +564,7 @@ export default {
     handleToCreateAction() {
       this.$router.push({
         path: `/datamodelcenter/tableManage/tableEditor`,
-        query: {mode: "create"},
+        query: { mode: "create" },
       });
     },
     /**
@@ -594,7 +593,7 @@ export default {
     handleToTableInfo(id, name, guid) {
       this.$router.push({
         path: `/datamodelcenter/tableManage/tableInfo`,
-        query: {id, name, guid},
+        query: { id, name, guid },
       });
     },
   },
